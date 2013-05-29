@@ -1,0 +1,198 @@
+--/**************************************************************************************/
+--/**                                            		               		*/
+--/**               AFCO Systems Inc.                                                	*/
+--/**               Proprietary and Confidential Information                 		*/
+--/**                                                                        		*/
+--/** This material contains, and is part of a computer software program     		*/
+--/** which is, proprietary and confidential information owned by  AFCO Systems Inc.    */
+--/** The program, including this material,                                  		*/
+--/** may not be duplicated, disclosed or reproduced in whole or in part for 		*/
+--/** any purpose without the express written authorization of  AFCO Systems Inc. 	*/
+--/** All authorized reproductions must be marked with this legend.          		*/
+--/**                                                                        		*/
+--/**                                                                        		*/
+--/**                         Copyright (c) 2007-2011                        		*/
+--/**                          AFCO Systems Inc. 	                                */
+--/**                         All rights reserved                            		*/
+--/**                                                                       		*/
+--/**************************************************************************************/
+
+--/**************************************************************************************/
+--/**                                                                        		*/
+--/** This MIB is specific to the enclosure Temperature Management Module (TMM).        */
+--/**                                                                        		*/
+--/**************************************************************************************/
+
+AFCOMFG-TMM-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+   enterprises, IpAddress, Gauge, TimeTicks     	FROM RFC1155-SMI
+   DisplayString                                	FROM RFC1213-MIB
+   OBJECT-TYPE                                 	 	FROM RFC-1212
+   TRAP-TYPE                                   	 	FROM RFC-1215;
+
+--afcomfg MODULE-IDENTITY
+--	LAST-UPDATED "201103020000Z"
+--	ORGANIZATION "AFCO Systems"
+--	DESCRIPTION "The MIB for Enclosures - TMM"
+--	::= { enterprises 29660 } 
+	
+afco 	OBJECT IDENTIFIER ::=  { enterprises 29660 }  	-- 29660 
+	
+TMM 	OBJECT IDENTIFIER ::= { afco 2 }		-- 1.3.6.1.4.1.29660.2
+	
+TMMData OBJECT IDENTIFIER ::= { TMM 3 }			-- 1.3.6.1.4.1.29660.2.3
+
+Temperature1   OBJECT-TYPE
+   SYNTAX INTEGER(0..9999)
+   UNITS "0.1 degrees Fahrenheit"
+   ACCESS read-only
+   STATUS mandatory
+   DESCRIPTION
+   "Cabinet temperature at Location 1 (Top Center) measured in tenths of degrees Fahrenheit"
+   ::= { TMMData 1 }
+
+Temperature2   OBJECT-TYPE
+   SYNTAX INTEGER(0..9999)
+   UNITS "0.1 degrees Fahrenheit"
+   ACCESS read-only
+   STATUS mandatory
+   DESCRIPTION
+   "Cabinet temperature at Location 2 (Front Top) measured in tenths of degrees Fahrenheit"
+   ::= { TMMData 2 }
+
+Temperature3   OBJECT-TYPE
+   SYNTAX INTEGER(0..9999)
+   UNITS "0.1 degrees Fahrenheit"
+   ACCESS read-only
+   STATUS mandatory
+   DESCRIPTION
+   "Cabinet temperature at Location 3 (Front Middle) measured in tenths of degrees Fahrenheit"
+   ::= { TMMData 3 }
+
+Temperature4   OBJECT-TYPE
+   SYNTAX INTEGER(0..9999)
+   UNITS "0.1 degrees Fahrenheit"
+   ACCESS read-only
+   STATUS mandatory
+   DESCRIPTION
+   "Cabinet temperature at Location 4 (Front Bottom) measured in tenths of degrees Fahrenheit"
+   ::= { TMMData 4 }
+
+Temperature5   OBJECT-TYPE
+   SYNTAX INTEGER(0..9999)
+   UNITS "0.1 degrees Fahrenheit"
+   ACCESS read-only
+   STATUS mandatory
+   DESCRIPTION
+   "Cabinet temperature at Location 5 (Bottom Center) measured in tenths of degrees Fahrenheit"
+   ::= { TMMData 5 }
+
+Temperature6   OBJECT-TYPE
+   SYNTAX INTEGER(0..9999)
+   UNITS "0.1 degrees Fahrenheit"
+   ACCESS read-only
+   STATUS mandatory
+   DESCRIPTION
+   "Cabinet temperature at Location 6 (Back Bottom) measured in tenths of degrees Fahrenheit"
+   ::= { TMMData 6 }
+
+Temperature7   OBJECT-TYPE
+   SYNTAX INTEGER(0..9999)
+   UNITS "0.1 degrees Fahrenheit"
+   ACCESS read-only
+   STATUS mandatory
+   DESCRIPTION
+   "Cabinet temperature at Location 7(Back Middle) measured in tenths of degrees Fahrenheit"
+   ::= { TMMData 7 }
+
+Temperature8   OBJECT-TYPE
+   SYNTAX INTEGER(0..9999)
+   UNITS "0.1 degrees Fahrenheit"
+   ACCESS read-only
+   STATUS mandatory
+   DESCRIPTION
+   "Cabinet temperature at Location 8 (Top Center) measured in tenths of degrees Fahrenheit"
+   ::= { TMMData 8 }
+
+TempSetPoint   OBJECT-TYPE
+   SYNTAX INTEGER(0..9999)
+   UNITS "0.1 degrees Fahrenheit"
+   ACCESS read-write
+   STATUS mandatory
+   DESCRIPTION
+   "Cabinet temperature control Set Point in tenths of degrees Fahrenheit"
+   ::= { TMMData 9 }
+
+TempAlarm   OBJECT-TYPE
+   SYNTAX INTEGER(0..1)
+   UNITS "Boolean"
+   ACCESS read-only
+   STATUS mandatory
+   DESCRIPTION
+   "Cabinet temperature alarm: 1 if greater than 6 degrees above setpoint, 0 for normal"
+   ::= { TMMData 10 }
+
+Power1Alarm   OBJECT-TYPE
+   SYNTAX INTEGER(0..1)
+   UNITS "Boolean"
+   ACCESS read-only
+   STATUS mandatory
+   DESCRIPTION
+   "Cabinet primary power alarm: 1 for power loss, 0 for normal"
+   ::= { TMMData 11 }
+
+Power2Alarm   OBJECT-TYPE
+   SYNTAX INTEGER(0..1)
+   UNITS "Boolean"
+   ACCESS read-only
+   STATUS mandatory
+   DESCRIPTION
+   "Cabinet secondary power alarm: 1 for power loss, 0 for normal"
+   ::= { TMMData 12 }
+
+SummaryAlarm   OBJECT-TYPE
+   SYNTAX INTEGER(0..1)
+   UNITS "Boolean"
+   ACCESS read-only
+   STATUS mandatory
+   DESCRIPTION
+   "Cabinet alarm summary: 1 if overtemperature or power 1 or power 2 alarms exist, 0 for normal"
+   ::= { TMMData 13 }
+
+MuteAlarm   OBJECT-TYPE
+   SYNTAX INTEGER(0..777)
+   UNITS "Boolean"
+   ACCESS read-write
+   STATUS mandatory
+   DESCRIPTION
+   "Cabinet Mute Alarm (send 777 to Mute, Reset the board to clear)"
+   ::= { TMMData 14 }
+
+FanStatus   OBJECT-TYPE
+   SYNTAX INTEGER(0..6)
+   UNITS "Relative Fan Speed"
+   ACCESS read-only
+   STATUS mandatory
+   DESCRIPTION
+   "Relative Fan Speed STOP:0/SLOWEST:1/SLOW:2/MIDSLOW:3/MID:4/FAST:5/VERYFAST:6"
+   ::= { TMMData 15 }
+
+Door1Status   OBJECT-TYPE
+   SYNTAX INTEGER(0..1)
+   UNITS "Boolean"
+   ACCESS read-only
+   STATUS mandatory
+   DESCRIPTION
+   "Status of Door 1 1=Open 0=Closed"
+   ::= { TMMData 16 }
+
+Door2Status   OBJECT-TYPE
+   SYNTAX INTEGER(0..1)
+   UNITS "Boolean"
+   ACCESS read-only
+   STATUS mandatory
+   DESCRIPTION
+   "Status of Door 2 1=Open 0=Closed"
+   ::= { TMMData 17 }
+END

@@ -1,0 +1,198 @@
+CryptoNET-Statistics-MIB DEFINITIONS ::= BEGIN
+
+          -- Broadcom(R) CryptoNET Security Accelerator Statistics and Traps MIB
+          --
+          -- This MIB defines Security Accelerator Management Information Base.
+          -- These objects are part of the enterprise MIB for Broadcom.
+          --
+
+IMPORTS
+        enterprises, OBJECT-TYPE, Counter
+                          FROM RFC1155-SMI
+        DisplayString, PhysAddress
+                          FROM RFC1213-MIB
+        TRAP-TYPE
+                          FROM RFC-1215;
+
+
+broadcom        OBJECT IDENTIFIER ::= { enterprises 4413 }
+cryptonet       OBJECT IDENTIFIER ::= { broadcom 4 }
+cryptonetStat   OBJECT IDENTIFIER ::= { cryptonet 1 }
+cryptonetTrap   OBJECT IDENTIFIER ::= { cryptonet 2 }
+
+------------------------
+-- cryptonetStat Group --
+------------------------
+cnDevNumber OBJECT-TYPE
+        SYNTAX  INTEGER
+        ACCESS  read-only
+        STATUS  mandatory
+        DESCRIPTION
+                "The number of CryptoNET devices
+                present on this system."
+        ::= { cryptonetStat 1 }
+
+cnDevTable OBJECT-TYPE
+        SYNTAX  SEQUENCE OF CNDevEntry
+        ACCESS  not-accessible
+        STATUS  mandatory
+        DESCRIPTION
+                "A list of CryptoNET Devices.  The number of
+                devices is given by the value of cnDevNumber."
+        ::= { cryptonetStat 2 }
+
+cnDevEntry OBJECT-TYPE
+        SYNTAX  CNDevEntry
+        ACCESS  not-accessible
+        STATUS  mandatory
+        DESCRIPTION
+                "An entry containing device statistics objects
+                at the target system."
+        INDEX   { cnDevIndex }
+        ::= { cnDevTable 1 }
+
+CNDevEntry ::=
+        SEQUENCE {
+                cnDevIndex              INTEGER,
+                cnDevName               DisplayString,
+                cnKeyOps                Counter,
+                cnKeyErrs               Counter,
+                cnBitsEncrypted         Counter,
+                cnBitsDecrypted         Counter,
+                cnBlocksEncrypted       Counter,
+                cnBlocksDecrypted       Counter,
+                cnCryptoErrs            Counter,
+		cnSelfTestErrs		Counter,
+		cnBoardStatus		INTEGER
+              }
+
+cnDevIndex   OBJECT-TYPE
+        SYNTAX  INTEGER
+        ACCESS  read-only
+        STATUS  mandatory
+        DESCRIPTION
+                "An unique value for each device.
+                The value for each device must remain constant at
+                least from one re-initialization of the entity's
+                network management system to the next re-
+                initialization."
+        ::= { cnDevEntry 1 }
+
+cnDevName  OBJECT-TYPE
+        SYNTAX  DisplayString
+        ACCESS  read-only
+        STATUS  mandatory
+        DESCRIPTION
+                " A textual string containing name of the device"
+        ::= { cnDevEntry 2 }
+
+cnKeyOps OBJECT-TYPE
+        SYNTAX  Counter
+        ACCESS  read-only
+        STATUS  mandatory
+        DESCRIPTION
+                "Number of key operations"
+        ::= { cnDevEntry 3 }
+
+cnKeyErrs OBJECT-TYPE
+        SYNTAX  Counter
+        ACCESS  read-only
+        STATUS  mandatory
+        DESCRIPTION
+                "Number of key operation errors"
+        ::= { cnDevEntry 4 }
+
+cnBitsEncrypted OBJECT-TYPE
+        SYNTAX  Counter
+        ACCESS  read-only
+        STATUS  mandatory
+        DESCRIPTION
+                "Number of bits encrypted"
+        ::= { cnDevEntry 5 }
+
+cnBitsDecrypted OBJECT-TYPE
+        SYNTAX  Counter
+        ACCESS  read-only
+        STATUS  mandatory
+        DESCRIPTION
+                "Number of bits decrypted"
+        ::= { cnDevEntry 6 }
+
+cnBlocksEncrypted OBJECT-TYPE
+        SYNTAX  Counter
+        ACCESS  read-only
+        STATUS  mandatory
+        DESCRIPTION
+                "Number of blocks encrypted"
+        ::= { cnDevEntry 7 }
+
+cnBlocksDecrypted OBJECT-TYPE
+        SYNTAX  Counter
+        ACCESS  read-only
+        STATUS  mandatory
+        DESCRIPTION
+                "Number of blocks decrypted"
+        ::= { cnDevEntry 8 }
+
+cnCryptoErrs OBJECT-TYPE
+        SYNTAX  Counter
+        ACCESS  read-only
+        STATUS  mandatory
+        DESCRIPTION
+                "Number of crypto operation errors"
+	::= { cnDevEntry 9 }
+
+cnSelfTestErrs	OBJECT-TYPE
+        SYNTAX  Counter
+        ACCESS  read-only
+        STATUS  mandatory
+        DESCRIPTION
+                "Number of times self-test has failed"
+	::= { cnDevEntry 10 }
+
+cnBoardStatus	OBJECT-TYPE
+        SYNTAX  INTEGER
+        ACCESS  read-only
+        STATUS  mandatory
+        DESCRIPTION
+                "Board status: 1 is working, 0 is not working"
+	::= { cnDevEntry 11 }
+
+--
+-- Object Definitions
+--
+trapAdapterName OBJECT-TYPE
+	SYNTAX    DisplayString
+        ACCESS    read-only 
+        STATUS    mandatory
+        DESCRIPTION
+                "The adapter name."
+        ::= { cryptonetTrap 1 }
+
+trapCauseDirection OBJECT-TYPE
+        SYNTAX INTEGER
+        {
+		adapterEnabled(1),
+		adapterDisabled(2),
+		adapterAdded(3),
+		adapterRemoved(4)
+        }
+        ACCESS    read-only 
+        STATUS    mandatory
+        DESCRIPTION
+                "Event caused for CryptoNET device."
+        ::= { cryptonetTrap 2 }
+
+--
+-- Trap Definitions
+--
+adapterEvent TRAP-TYPE
+        ENTERPRISE     cryptonetTrap
+        VARIABLES      {        trapAdapterName,
+                                trapCauseDirection }
+        DESCRIPTION
+                "This trap is generated to indicate that adapter
+                event has occured"
+        ::= 1
+
+END
