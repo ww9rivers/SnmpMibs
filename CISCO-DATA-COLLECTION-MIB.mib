@@ -191,7 +191,7 @@ ciscoDataCollectionMIB MODULE-IDENTITY
     REVISION     "200210300530Z"
     DESCRIPTION  
             "Initial Version."
-    ::= { ciscoMgmt 1099 }
+    ::= { ciscoMgmt 312 }
 
 ciscoDataCollMIBNotifs
               OBJECT IDENTIFIER ::= { ciscoDataCollectionMIB 0 }

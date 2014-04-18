@@ -1,7 +1,9 @@
--- *****************************************************************
+ -- *****************************************************************
 -- CISCO-SNMPv2-CAPABILITY.my: SNMPv2-MIB AGENT-CAPABILITIES
 -- 
 -- August   1994, Jeffrey T. Johnson
+-- %DNP% February 2002, Patrick Hamel, Subra Hegde
+-- %DNP% March 2004, Binh P Le
 -- 
 -- Copyright (c) 1994, 2002, 2004, 2006 by cisco Systems, Inc.
 -- All rights reserved.
@@ -20,7 +22,7 @@ IMPORTS
                 FROM CISCO-SMI;
 
 ciscoSnmpV2Capability   MODULE-IDENTITY
-                LAST-UPDATED    "200604240000Z"
+                LAST-UPDATED    "200605300000Z"
                 ORGANIZATION    "Cisco Systems, Inc."
                 CONTACT-INFO
                         "       Cisco Systems
@@ -35,6 +37,19 @@ ciscoSnmpV2Capability   MODULE-IDENTITY
                         E-mail: cs-snmp@cisco.com"
                 DESCRIPTION
                         "Agent capabilities for SNMPv2-MIB"
+
+                REVISION        "200605300000Z"
+                DESCRIPTION
+                        "Added capability statement
+                         ciscoSnmpV2CapACSWV03R000 for Application
+                         Control Engine (ACE).
+
+                         For ciscoSnmpV2CapabilityV10R02 commented
+                         out references to object groups 
+                         snmpStatsGroup, snmpV1Group, snmpORGroup,
+                         snmpTrapGroup because they are defined only 
+                         in the original RFC 1450, not in the latest
+                         RFC 3418."
 
                 REVISION        "200604240000Z"
                 DESCRIPTION
@@ -74,8 +89,16 @@ STATUS          current
 DESCRIPTION     "IOS 10.2 SNMPv2 MIB capabilities"
 
 SUPPORTS        SNMPv2-MIB
-INCLUDES        { snmpStatsGroup, snmpV1Group, snmpORGroup, snmpTrapGroup, 
-                snmpSetGroup }
+                  -- References to object groups snmpStatsGroup,
+                  -- snmpV1Group, snmpORGroup, snmpTrapGroup
+                  -- have been commented out because they are defined 
+                  -- only in the original RFC 1450, not in the latest
+                  -- RFC 3418.
+INCLUDES        { -- snmpStatsGroup, 
+                  -- snmpV1Group, 
+                  -- snmpORGroup, 
+                  -- snmpTrapGroup, 
+                  snmpSetGroup }
 
         ::= { ciscoSnmpV2Capability 1 }
 
@@ -239,4 +262,62 @@ ciscoSnmpV2CapCatOSV08R0601 AGENT-CAPABILITIES
 
     ::= { ciscoSnmpV2Capability 6 }
 
+ciscoSnmpV2CapACSWV03R000 AGENT-CAPABILITIES
+    PRODUCT-RELEASE      "ACSW (Application Control Software) 3.0
+                          for Application Control Engine (ACE) 
+                          Service Module."
+    STATUS               current
+    DESCRIPTION          "SNMPv2-MIB capabilities."
+
+    SUPPORTS             SNMPv2-MIB
+        INCLUDES         { snmpGroup, 
+                           snmpCommunityGroup,
+                           systemGroup,
+                           snmpBasicNotificationsGroup }
+
+        VARIATION   snmpEnableAuthenTraps 
+        ACCESS      read-only
+        DESCRIPTION "Set operation not supported via SNMP."
+
+        VARIATION   sysContact 
+        ACCESS      read-only
+        DESCRIPTION "Set operation not supported via SNMP."
+
+        VARIATION   sysName 
+        ACCESS      read-only
+        DESCRIPTION "Set operation not supported via SNMP."
+
+        VARIATION   sysLocation 
+        ACCESS      read-only
+        DESCRIPTION "Set operation not supported via SNMP."
+
+    VARIATION            coldStart -- NOTIFICATION-TYPE
+--          OBJECTS      { clogOriginIDType,
+--                         clogOriginID
+--                       }
+        DESCRIPTION
+                         "The instance values of clogOriginIDType and
+                          clogOriginID as defined in CISCO-SYSLOG-MIB
+                          are appended to this notification. This helps 
+                          in recognizing the device from which the 
+                          notification is generated."
+
+    VARIATION            authenticationFailure -- NOTIFICATION-TYPE
+--          OBJECTS      { clogOriginIDType,
+--                         clogOriginID
+--                       }
+        DESCRIPTION
+                         "The instance values of clogOriginIDType and
+                          clogOriginID as defined in CISCO-SYSLOG-MIB
+                          are appended to this notification. This helps 
+                          in recognizing the device from which the 
+                          notification is generated."
+
+    ::= { ciscoSnmpV2Capability 7 }
+
 END
+     
+     
+  
+ 
+ 

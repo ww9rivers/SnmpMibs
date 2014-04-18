@@ -20,7 +20,7 @@ IMPORTS
                 FROM CISCO-SMI;   
 
 ciscoNtpCapability MODULE-IDENTITY
-        LAST-UPDATED    "200304080000Z"
+        LAST-UPDATED    "200506220000Z"
         ORGANIZATION    "Cisco Systems, Inc."
         CONTACT-INFO
                 "       Cisco Systems
@@ -35,6 +35,9 @@ ciscoNtpCapability MODULE-IDENTITY
                 E-mail: cs-wanatm@cisco.com"
         DESCRIPTION
                 "The Agent Capabilities for CISCO-NTP-MIB."
+        REVISION "200506220000Z"
+        DESCRIPTION
+            "Capability for MDS platform."
         REVISION "200304080000Z"
         DESCRIPTION
             "Initial version of the MIB Module."
@@ -156,4 +159,30 @@ ciscoNtpCapabilityV3R00 AGENT-CAPABILITIES
         DESCRIPTION "Not supported."
 
     ::= { ciscoNtpCapability 1 }
+
+ciscoNtpCapabilitySANOSV3R0001 AGENT-CAPABILITIES
+    PRODUCT-RELEASE      "SAN-OS 3.0(1) "
+    STATUS               current
+    DESCRIPTION          "NTP MIB Capabilities for 
+                          SAN-OS 3.0(1)."
+
+    SUPPORTS CISCO-NTP-MIB
+    INCLUDES { ciscoNtpPeersGroupRev2,
+               ciscoNtpPeerExtGroup,
+               ciscoNtpSysGroup }
+
+        VARIATION       cntpSysLeap
+        ACCESS          read-only
+        DESCRIPTION     "read-write is not supported"
+
+        VARIATION       cntpSysStratum
+        ACCESS          read-only
+        DESCRIPTION     "read-write is not supported"
+
+        VARIATION       cntpPeersHostAddress
+        ACCESS          read-only
+        DESCRIPTION     "read-create is not supported"
+
+    ::= { ciscoNtpCapability 2 }
 END
+

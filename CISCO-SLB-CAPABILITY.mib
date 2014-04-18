@@ -1,9 +1,9 @@
- -- *****************************************************************
+-- *****************************************************************
 -- CISCO-SLB-CAPABILITY.my:  Cisco SLB capability mib
 --
 -- June 2000, Jason Cox
 --
--- Copyright (c) 2000 by cisco Systems, Inc.
+-- Copyright (c) 2000, 2006 by cisco Systems, Inc.
 -- All rights reserved.
 -- *****************************************************************
 CISCO-SLB-CAPABILITY DEFINITIONS ::= BEGIN
@@ -17,7 +17,7 @@ IMPORTS
                 FROM CISCO-SMI;
 
 ciscoSlbCapability MODULE-IDENTITY
-                LAST-UPDATED    "200603210000Z"
+                LAST-UPDATED    "200612090000Z"
                 ORGANIZATION    "Cisco Systems, Inc."
                 CONTACT-INFO
                         "       Cisco Systems
@@ -32,6 +32,21 @@ ciscoSlbCapability MODULE-IDENTITY
                         E-mail: cs-slb@cisco.com"
                 DESCRIPTION
                         "Agent capabilities for the SLB-MIB"
+
+                REVISION        "200612090000Z"
+                DESCRIPTION
+                        "- Added ciscoSlbCapabilityACSWV300RA12 agent 
+                           capabilities for Application Control Engine (ACE).
+
+                         - Following change is done for ciscoSlbCapabilityV12R01:
+                            * STATUS changed to obsolete.
+                            * Commented out the VARIATION and
+                             other clauses for non-existent objects.
+
+                         - Added ciscoSlbCapabilityNewV12R01 which is same
+                           as ciscoSlbCapabilityV12R01 except it is not 
+                           referencing the non-existent objects/groups."
+
                 REVISION        "200603210000Z"
                 DESCRIPTION
                         "Added ciscoIfCapabilityACSWV03R000 agent 
@@ -50,7 +65,7 @@ ciscoSlbCapability MODULE-IDENTITY
 ciscoSlbCapabilityV12R01 AGENT-CAPABILITIES
 
 PRODUCT-RELEASE "Cisco IOS 12.0(10)W05(17.29) and 12.1(01.06)E01"
-STATUS          current
+STATUS          obsolete
 DESCRIPTION     "IOS 12.1 Cisco SLB MIB capabilities"
 
 SUPPORTS        CISCO-SLB-MIB
@@ -59,8 +74,8 @@ SUPPORTS        CISCO-SLB-MIB
                   ciscoSlbVirtualServersGroup, ciscoSlbConnectionsGroup,
                   ciscoSlbVirtualClientsGroup,
                   ciscoSlbStickyObjectsGroup, ciscoSlbDfpAgentGroup,
-                  ciscoSlbDfpRealGroup, ciscoSlbNotifEnabledGroup,
-                  ciscoSlbEntriesGroup }
+                  ciscoSlbDfpRealGroup, ciscoSlbNotifEnabledGroup
+                }
 
   VARIATION slbServerFarmNat
     ACCESS    read-only
@@ -222,45 +237,45 @@ SUPPORTS        CISCO-SLB-MIB
     ACCESS    read-only
     DESCRIPTION "create not implemented"
 
-  VARIATION slbVirtualReplicateProtocol
-    ACCESS    read-only
-    DESCRIPTION "create not implemented"
+--  VARIATION slbVirtualReplicateProtocol
+--    ACCESS    read-only
+--    DESCRIPTION "create not implemented"
 
-  VARIATION slbVirtualReplicateListenAddr
-    ACCESS    read-only
-    DESCRIPTION "create not implemented"
+--  VARIATION slbVirtualReplicateListenAddr
+--    ACCESS    read-only
+--    DESCRIPTION "create not implemented"
 
-  VARIATION slbVirtualReplicateRemoteSlb
-    ACCESS    read-only
-    DESCRIPTION "create not implemented"
+--  VARIATION slbVirtualReplicateRemoteSlb
+--    ACCESS    read-only
+--    DESCRIPTION "create not implemented"
 
-  VARIATION slbVirtualReplicatePort
-    ACCESS    read-only
-    DESCRIPTION "create not implemented"
+--  VARIATION slbVirtualReplicatePort
+--    ACCESS    read-only
+--    DESCRIPTION "create not implemented"
 
-  VARIATION slbVirtualReplicateInterval
-    ACCESS    read-only
-    DESCRIPTION "create not implemented"
+-- VARIATION slbVirtualReplicateInterval
+--    ACCESS    read-only
+--   DESCRIPTION "create not implemented"
 
-  VARIATION slbVirtualReplicatePassword
-    ACCESS    read-only
-    DESCRIPTION "create not implemented"
+-- VARIATION slbVirtualReplicatePassword
+-- ACCESS    read-only
+--    DESCRIPTION "create not implemented"
 
-  VARIATION slbVirtualReplicatePasswordTO
-    ACCESS    read-only
-    DESCRIPTION "create not implemented"
+--  VARIATION slbVirtualReplicatePasswordTO
+--    ACCESS    read-only
+--    DESCRIPTION "create not implemented"
 
-  VARIATION slbEntriesInitialNumber
-    ACCESS    read-only
-    DESCRIPTION "create not implemented"
+--  VARIATION slbEntriesInitialNumber
+--    ACCESS    read-only
+--    DESCRIPTION "create not implemented"
 
-  VARIATION slbEntriesMaximumNumber
-    ACCESS    read-only
-    DESCRIPTION "create not implemented"
+--  VARIATION slbEntriesMaximumNumber
+--    ACCESS    read-only
+--    DESCRIPTION "create not implemented"
 
-  VARIATION slbEntriesRowStatus
-    ACCESS    read-only
-    DESCRIPTION "create not implemented"
+--  VARIATION slbEntriesRowStatus
+--    ACCESS    read-only
+--    DESCRIPTION "create not implemented"
 
 ::= { ciscoSlbCapability 1 }
 
@@ -338,6 +353,268 @@ DESCRIPTION     "ciscoSlbVServerVIPStateChange is generated when a
                  of a Chassis the Notification was sent."
 
 ::= { ciscoSlbCapability 2 }
+
+
+ciscoSlbExtCapabilityACSWV300RA12 AGENT-CAPABILITIES
+PRODUCT-RELEASE "ACSW (Application Control Software)
+                version 3.0(0)A1(2)."
+STATUS          current
+DESCRIPTION     "ACSW (Application Control Software) 3.0 
+                 CISCO SLB MIB capabilities"
+
+SUPPORTS        CISCO-SLB-MIB
+  INCLUDES      { ciscoSlbStatsGroup, ciscoSlbServerFarmsGroup,
+                  ciscoSlbVServerInfoGroup, 
+                  ciscoSlbVServerNotifEnabledGroup,
+                  ciscoSlbVServerNotifGroup }
+
+  VARIATION   slbStatsUnassistedSwitchingPkts
+    ACCESS    not-implemented 
+    DESCRIPTION "Not supported."
+
+  VARIATION   slbStatsUnassistedSwitchingHCPks
+    ACCESS    not-implemented 
+    DESCRIPTION "Not supported."
+
+  VARIATION   slbStatsAssistedSwitchingPkts
+    ACCESS    not-implemented
+    DESCRIPTION "Not supported."
+
+  VARIATION   slbStatsAssistedSwitchingHCPkts
+    ACCESS    not-implemented 
+    DESCRIPTION "Not supported."
+
+  VARIATION   slbStatsZombies
+    ACCESS    not-implemented 
+    DESCRIPTION "Not supported."
+
+  VARIATION   slbStatsHCZombies
+    ACCESS    not-implemented 
+    DESCRIPTION "Not supported."
+
+  VARIATION   slbServerFarmNat
+    ACCESS    not-implemented 
+    DESCRIPTION "Not supported."
+
+  VARIATION   slbServerFarmBindId
+    ACCESS    not-implemented 
+    DESCRIPTION "Not supported."
+
+  VARIATION   cSlbVServerStateChangeNotifEnabled
+    ACCESS    read-only
+    DESCRIPTION "Set operation not allowed."
+
+  VARIATION       ciscoSlbVServerStateChange -- NOTIFICATION-TYPE
+  --              OBJECTS { slbVServerState, 
+  --                        slbVServerStateChangeDescr,
+  --                        slbVServerClassMap,
+  --                        slbVServerProtocol, 
+  --                        clogOriginIDType,
+  --                        clogOriginID }
+DESCRIPTION     "ciscoSlbVServerStateChange is generated when a 
+                 VServer changes state due to removal of virtual
+                 I.P. address. Additonal varbinds clogOriginIDType
+                 and clogOriginID are included in the Notification
+                 pdu. This helps in recognizing from which particular
+                 Virtual Context of a slot of a Chassis the Notification
+                 was sent."
+
+  VARIATION       ciscoSlbVServerVIPStateChange -- NOTIFICATION-TYPE
+  --              OBJECTS { slbVServerState, 
+  --                        slbVServerStateChangeDescr,
+  --                        slbVServerClassMap,
+  --                        slbVServerPolicyMap,
+  --                        slbVServerIpAddressType, 
+  --                        slbVServerIpAddress,
+  --                        slbVServerProtocol, 
+  --                        clogOriginIDType,
+  --                        clogOriginID }
+DESCRIPTION     "ciscoSlbVServerVIPStateChange is generated when a
+                 VServer changes state. Additonal varbinds
+                 clogOriginIDType and clogOriginID are included
+                 in the Notification pdu. This helps in recognizing
+                 from which particular Virtual Context of a slot
+                 of a Chassis the Notification was sent."
+
+::= { ciscoSlbCapability 3 }
+
+
+ciscoSlbCapabilityNewV12R01 AGENT-CAPABILITIES
+
+PRODUCT-RELEASE "Cisco IOS 12.0(10)W05(17.29) and 12.1(01.06)E01"
+STATUS          current
+DESCRIPTION     "IOS 12.1 Cisco SLB MIB capabilities"
+
+SUPPORTS        CISCO-SLB-MIB
+  INCLUDES      { ciscoSlbStatsGroup, ciscoSlbDfpPasswordGroup,
+                  ciscoSlbServerFarmsGroup, ciscoSlbRealServersGroup,
+                  ciscoSlbVirtualServersGroup, ciscoSlbConnectionsGroup,
+                  ciscoSlbVirtualClientsGroup,
+                  ciscoSlbStickyObjectsGroup, ciscoSlbDfpAgentGroup,
+                  ciscoSlbDfpRealGroup, ciscoSlbNotifEnabledGroup 
+                }
+
+  VARIATION slbServerFarmNat
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbServerFarmNumberOfRealServers
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbServerFarmBindId
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbServerFarmRowStatus
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbRealState
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbRealMaxConnections
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbRealAdminWeight
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbRealReassign
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbRealRetryInterval
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbRealFailedConnections
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbRealFailedClients
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbRealRowStatus
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbVirtualServerState
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbVirtualIpAddress
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbVirtualPort
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbVirtualProtocol
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbVirtualService
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbVirtualAdvertise
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbVirtualFarmName
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbVirtualDelayTimer
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbVirtualIdleTimer
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbVirtualStickyTimer
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbVirtualStickyGroup
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbVirtualSynguardCount
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbVirtualSynguardPeriod
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbVirtualRowStatus
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbVirtualClientExclude
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbVirtualClientRowStatus
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbStickyObjectRealIpAddress
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbStickyObjectRowStatus
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbDfpPasswordPending
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbDfpPasswordTimeout
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbDfpPasswordRowStatus
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbDfpAgentTimeout
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbDfpAgentRetryCount
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbDfpAgentInterval
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbDfpAgentRowStatus
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbDfpRealWeight
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbDfpRealRowStatus
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+  VARIATION slbVirtualMask
+    ACCESS    read-only
+    DESCRIPTION "create not implemented"
+
+::= { ciscoSlbCapability 4 }
 
 END
 

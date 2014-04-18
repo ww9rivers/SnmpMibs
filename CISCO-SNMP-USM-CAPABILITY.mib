@@ -60,7 +60,7 @@ ciscoSnmpUsmCapCatOSV05R0501 AGENT-CAPABILITIES
     ::= { ciscoSnmpUsmCapability 1 }
 
 ciscoSnmpUsmCapACSWV03R000 AGENT-CAPABILITIES
-    PRODUCT-RELEASE      "ACSW (Application Control Software) 3.0
+    PRODUCT-RELEASE      "ACSW (Application Control Software) 3.0"
     STATUS               current
     DESCRIPTION          "SNMP-USM-MIB capabilities."
 

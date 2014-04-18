@@ -3,7 +3,7 @@
 --                             
 -- August 2003, Arul Mozhi 
 --
--- Copyright (c) 2003,2004 by cisco Systems, Inc.
+-- Copyright (c) 2003, 2004, 2005 by cisco Systems, Inc.
 -- All rights reserved.
 -- 
 -- *********************************************************************
@@ -23,7 +23,7 @@ IMPORTS
     ciscoMgmt                              FROM CISCO-SMI;
  
 ciscoLicenseMgrMIB MODULE-IDENTITY
-    LAST-UPDATED "200407200000Z"
+    LAST-UPDATED "200505170000Z"
     ORGANIZATION "Cisco Systems Inc."
     CONTACT-INFO 
                 "     Cisco Systems
@@ -47,6 +47,14 @@ ciscoLicenseMgrMIB MODULE-IDENTITY
          will be given to customers when they buy the licenses. User 
          should copy the license file to some location on the system,
          for installing." 
+    REVISION    "200505170000Z"
+    DESCRIPTION
+         "Added object clmLicenseEnabled in 
+         clmLicenseFeatureUsageTable."
+    REVISION    "200412010000Z"
+    DESCRIPTION
+         "Added new error code  'licenseServerBusy' in 
+          'clmLicenseConfigCommandStatus' object."
     REVISION    "200407200000Z"
     DESCRIPTION
          "Added a new object for detecting the license violation in 
@@ -173,9 +181,9 @@ clmLicenseFileTargetName          OBJECT-TYPE
             clmLicenseConfigCommand object to 'uninstall'.
 
             For 'install' operation, this object is set either to the
-	    file name with which the license will be installed, or to
-	    the zero-length string.  In the latter case, the filename
-	    specified through clmLicenseFileURI will be used for 
+            file name with which the license will be installed, or to
+            the zero-length string.  In the latter case, the filename
+            specified through clmLicenseFileURI will be used for 
             installing the license.
             For example, if the value of clmLicenseFileURI object is 
             set to 'bootflash:licfile1.lic' and this object is set to
@@ -185,8 +193,8 @@ clmLicenseFileTargetName          OBJECT-TYPE
             will be installed with the filename 'licfile1.lic'.
 
             For 'update' operation, this object is set either to the
-	    file name which is to be updated (overwritten), or to
-	    the zero-length string.  In the latter case, the filename
+            file name which is to be updated (overwritten), or to
+            the zero-length string.  In the latter case, the filename
             specified through clmLicenseFileURI, will be updated.
             For example, if the value of clmLicenseFileURI object is 
             set to 'bootflash:licfile2.lic' and this object is set to
@@ -244,13 +252,14 @@ clmLicenseConfigCommandStatus OBJECT-TYPE
              licenseExpiryConflict (10),  
              invalidLicenseCount (11) ,
              notThisHost (12) ,
-             licenseInGraceMore (13),
+             licenseInGraceExceeded (13),
              licenseFileNotFound (14),
              licenseFileMissing (15),
              invalidLicenseFileExtension (16),
              invalidURI (17),
              noDemoLicenseSupport (18),
-             invalidPlatform (19) 
+             invalidPlatform (19), 
+             licenseServerBusy (20) 
         }
         MAX-ACCESS read-only
         STATUS current
@@ -275,13 +284,13 @@ clmLicenseConfigCommandStatus OBJECT-TYPE
                                            Manager.
              none (9) - no install/uninstall/update operation is 
                         performed. 
-             licenseExpiryConflict(10) - License exist with a different
-                                         expiry date for the feature.
+             licenseExpiryConflict(10) - License exists for the
+                                         feature.
              invalidLicenseCount(11) - License count is invalid for 
                                        the feature. 
              notThisHost (12) - License host-id in the license file
                                 doesn't match.
-             licenseInGraceMore (13) - Number of licenses in grace 
+             licenseInGraceExceeded (13) - Number of licenses in grace 
                                        period is more than the number 
                                        in install license file.
              licenseFileNotFound (14) - License file not found, for 
@@ -296,7 +305,9 @@ clmLicenseConfigCommandStatus OBJECT-TYPE
                                install operation.
              noDemoLicenseSupport (18)  - Demo License Not Supported.
 
-             invalidPlatform (19) - Invalid Platform." 
+             invalidPlatform (19) - Invalid Platform. 
+             licenseServerBusy (20) - License server is busy. 
+                                      Retry in a few seconds." 
         ::= { clmLicenseConfiguration 5 }
 
 
@@ -358,14 +369,15 @@ clmLicenseRequestAppName         OBJECT-TYPE
         MAX-ACCESS      read-write
         STATUS          current
         DESCRIPTION
-            "This object is used to optionally associate an id with 
+            "This object is used to optionally associate an ID with 
             a license checkin/checkout request for the feature name 
             specified in the 'clmLicenseRequestFeatureName' object. 
             The application can choose to set a meaningful name for 
-            this object. If 2 requests have the same value for appName
-            then they are treated as same requests. If this object is
-            not set or contains zero length string then each 
-            checkin/checkout request is treated as a distinct request."
+            this object. If 2 requests have the same value for 
+            clmLicenseRequestAppName then they are treated as same 
+            requests. If this object is not set or contains zero length 
+            string then each checkin/checkout request is treated as a 
+            distinct request."
         DEFVAL { "" } 
         ::= { clmLicenseConfiguration 8 }    
 
@@ -600,7 +612,8 @@ ClmLicenseFeatureUsageEntry ::= SEQUENCE {
         clmNoOfMissingUsageLicenses  Integer32,
         clmNoOfLicenseCurrentUsages  Integer32,
         clmLicenseExpiryDate         DateAndTime,
-        clmLicenseGracePeriod        Integer32 
+        clmLicenseGracePeriod        Integer32,
+        clmLicenseEnabled            TruthValue
 }
 
 clmLicenseFeatureName OBJECT-TYPE
@@ -641,7 +654,7 @@ clmLicenseFlag OBJECT-TYPE
                  corresponding instance of 'clmLicenseGracePeriod' 
                  object.
                  Feature is not in grace period, if bit is reset.  
-             when 'unlicensed' (ie.) bit '3' is set, then the value 
+             when 'unlicensed' (i.e.) bit '3' is set, then the value 
              of bit 0,1 and 2 are irrelevant.
              Whether or not this value can have 'demo' and 'permanent'
              set at the same time is a policy issue, and some
@@ -704,7 +717,7 @@ clmLicenseGracePeriod OBJECT-TYPE
     DESCRIPTION
             "This object represents the grace period left for this
             feature, in seconds.
-            Grace period is the no.of seconds either an 
+            Grace period is the number of seconds either an 
             unlicensed feature or a feature whose license 
             has expired is allowed to run.
 
@@ -712,6 +725,17 @@ clmLicenseGracePeriod OBJECT-TYPE
             corresponding instances of clmLicenseFlag indicates
             'ingraceperiod'."
     ::= { clmLicenseFeatureUsageEntry 7 } 
+
+clmLicenseEnabled OBJECT-TYPE
+    SYNTAX      TruthValue
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+            "This object represents whether the license 
+            is enabled or not.  The value 'true' signifies
+            that license is enabled.  The value 'false'
+            signifies that the license is disabled."
+    ::= { clmLicenseFeatureUsageEntry 8 } 
 
 clmFeatureUsageDetailsTable  OBJECT-TYPE
         SYNTAX SEQUENCE OF ClmFeatureUsageDetailsEntry
@@ -780,7 +804,7 @@ clmLicenseViolationWarnFlag OBJECT-TYPE
             less than 30 days.
    
             The value of this object set to 'false' indicates 
-            eithor there is 'NO License Violation' detected in 
+            either there is 'NO License Violation' detected in 
             the system, 
             or a 'License Violation' is detected, but the grace
             period left for the corresponding feature is more 
@@ -807,7 +831,7 @@ clmNotificationsEnable OBJECT-TYPE
 --        
 
 clmLicenseExpiryNotify NOTIFICATION-TYPE
-        OBJECTS	{
+        OBJECTS {
           clmLicenseExpiryDate 
         }
         STATUS current
@@ -818,7 +842,7 @@ clmLicenseExpiryNotify NOTIFICATION-TYPE
 
 
 clmNoLicenseForFeatureNotify NOTIFICATION-TYPE
-        OBJECTS	{
+        OBJECTS {
           clmLicenseGracePeriod 
         }
         STATUS current
@@ -836,7 +860,7 @@ clmNoLicenseForFeatureNotify NOTIFICATION-TYPE
 
 
 clmLicenseFileMissingNotify NOTIFICATION-TYPE
-        OBJECTS	{
+        OBJECTS {
           clmNoOfMissingUsageLicenses 
         }
         STATUS current
@@ -852,7 +876,7 @@ clmLicenseFileMissingNotify NOTIFICATION-TYPE
 
 
 clmLicenseExpiryWarningNotify NOTIFICATION-TYPE
-        OBJECTS	{
+        OBJECTS {
           clmLicenseExpiryDate 
         }
         STATUS current
@@ -909,7 +933,7 @@ ciscoLicenseMgrCompliance1 MODULE-COMPLIANCE
      ::= { ciscoLicenseMgrCompliances 2 }
 
 ciscoLicenseMgrCompliance2 MODULE-COMPLIANCE
-     STATUS current
+     STATUS deprecated
      DESCRIPTION
          "Compliance statement for License Mgr MIB."
      MODULE       -- this module
@@ -922,6 +946,25 @@ ciscoLicenseMgrCompliance2 MODULE-COMPLIANCE
          clmNotificationGroup
      } 
      ::= { ciscoLicenseMgrCompliances 3 }
+
+ciscoLicenseMgrCompliance3 MODULE-COMPLIANCE
+     STATUS current
+     DESCRIPTION
+         "Compliance statement for License Mgr MIB."
+     MODULE       -- this module
+     MANDATORY-GROUPS {
+         clmLicenseInstallGroup,
+         clmLicenseRequestGroup,
+         clmNoOfInstalledLicensesGroup,
+         clmLicenseInformationGroup2,
+         clmNotificationsEnableGroup,
+         clmNotificationGroup
+     } 
+     GROUP        clmLicenseInformationGroupSup1
+     DESCRIPTION
+         "This group is mandatory for those systems
+         where an installed license can be be disabled/enabled."
+     ::= { ciscoLicenseMgrCompliances 4 }
 
 -- Units of Conformance
 
@@ -1042,6 +1085,15 @@ clmLicenseInformationGroup2 OBJECT-GROUP
          "A group containing objects providing information about the
          license file contents and the licensed features on the system."
      ::= { ciscoLicenseMgrGroups 8 }
+
+clmLicenseInformationGroupSup1 OBJECT-GROUP
+     OBJECTS { clmLicenseEnabled }
+     STATUS current
+     DESCRIPTION
+         "A group containing an object providing information 
+         on whether license is enabled or not."
+     ::= { ciscoLicenseMgrGroups 9 }
+
 END
 
 
