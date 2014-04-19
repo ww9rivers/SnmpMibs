@@ -1,0 +1,725 @@
+-- ************************************************************************
+-- Cisco OTBU Textual Convention MIB module
+--
+-- This module contains the top-level TCs for Cisco OTBU products.
+--
+-- Copyright (c) 1998-1999 by Cerent Corporation, Inc.  All rights reserved.
+-- Copyright (c) 2000,2001,2002,2003, 2004 by Cisco Systems, Inc.
+-- All rights reserved.
+--
+-- ************************************************************************
+CERENT-TC DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY,
+    OBJECT-TYPE
+                      FROM SNMPv2-SMI
+    OBJECT-GROUP
+                      FROM SNMPv2-CONF
+    TEXTUAL-CONVENTION
+                      FROM SNMPv2-TC
+    cerentModules,
+    cerentGenericDummyObjects 
+                      FROM CERENT-GLOBAL-REGISTRY;
+
+cerentTextualConventions MODULE-IDENTITY
+    LAST-UPDATED "0211110000Z" -- 2002/Nov/11
+    ORGANIZATION "Cisco Systems"
+    CONTACT-INFO
+        "         support@Cisco.com
+
+         Postal:  Cisco Systems
+                  1450 N. McDowell Blvd.
+                  Petaluma, CA  94954
+                  USA
+
+            Tel:  +1-877-323-7368"
+    DESCRIPTION
+        "This module provides the global Textual Conventions for all
+         other Cisco OTBU MIB modules."
+
+    REVISION "0307220000Z" -- 2003/Jul/22
+    DESCRIPTION
+         "This file can be used with R4.6 release."
+
+    REVISION "0211110000Z" -- 2002/Nov/11
+    DESCRIPTION
+        "This file can be used with R4.0 release."
+
+    REVISION "0206070000Z" -- 2002/Jun/07
+    DESCRIPTION
+        "This file can be used with R3.4 release."
+
+    REVISION "0201170000Z" -- 2002/Jan/17
+    DESCRIPTION
+        "This file can be used with R3.3 release."
+
+    REVISION "0012220000Z" -- 2000/Dec/22
+    DESCRIPTION
+        "This file can be used with R3.0 Release.
+
+         Unused TCs are commented out now."
+
+    REVISION "0005170000Z" -- 2000/May/17
+    DESCRIPTION
+        "This file can be used with R2.2 "
+
+    REVISION "0002210000Z" -- 2000/Feb/21
+    DESCRIPTION
+        "This file can be used with R2.1.1."
+
+    REVISION "0002200000Z" -- 2000/Feb/20
+    DESCRIPTION
+        "This file can be used with R2.1.0."
+
+    REVISION "0001140000Z" -- 2000/Jan/14
+    DESCRIPTION
+        "This file can be used with R2.0.3."
+
+    REVISION "0001070000Z" -- 2000/Jan/07
+    DESCRIPTION
+        "This file can be used with R2.0.2.
+
+    REVISION 9907150000Z -- 1999/Jul/15
+    DESCRIPTION
+        This file can be used with R2.0.1.
+
+    REVISION 9904050000Z -- 1999/April/05
+    DESCRIPTION
+        Inital version of this module"
+
+    ::= { cerentModules 30 }
+
+CerentNotificationClass ::= TEXTUAL-CONVENTION
+      -- DISPLAY-HINT "1d"
+      STATUS current
+      DESCRIPTION
+            "This will indicate what is
+             the class of the notification being
+             sent out. That is,
+               notReported - condition not reported as trap
+               administrative - Informational trap (e.g., IETF trap)
+               notAlarmedNonServiceAffecting
+                 - non-alarmable event & not service affecting
+               notAlarmedServiceAffecting
+                 - non-alarmable event but service affecting
+               cleared - This alarm has been cleared.
+               minorNonServiceAffecting - minor & NSA
+               majorNonServiceAffecting - major & NSA
+               criticalNonServiceAffecting - critical & NSA
+               minorServiceAffecting - minor & SA
+               majorServiceAffecting - major & SA
+               criticalServiceAffecting - critical & SA
+
+               other - catch-all enumeration. Will come handy
+                       if a new class should be supported
+                       before the next release of MIB."
+
+      SYNTAX INTEGER
+             { other                           (1),
+               notReported                    (10),
+               administrative                 (20),
+               notAlarmed                     (30), -- deprecated
+               notAlarmedNonServiceAffecting  (31),
+               notAlarmedServiceAffecting     (32),
+               cleared                        (40),
+               minorNonServiceAffecting       (50),
+               majorNonServiceAffecting       (60),
+               criticalNonServiceAffecting    (70),
+               minorServiceAffecting          (80),
+               majorServiceAffecting          (90),
+               criticalServiceAffecting      (100)
+             }
+
+CerentMonitorType ::= TEXTUAL-CONVENTION
+      -- DISPLAY-HINT "1d"
+      STATUS current
+      DESCRIPTION
+            "These are all the metrics that are
+             monitoriable and for which there
+             are PM data collected over various
+             intervals. For instance 'eslp' stands
+             for 'ES Low Order Path'."
+
+      SYNTAX INTEGER
+             {
+-- TCA start. Do not change or move this comment
+               unknown       (1),
+               cvl           (10),
+               cvp           (20),
+               cvs           (30),
+               cvv           (40),
+               esl           (50),
+               esp           (60),
+               ess           (70),
+               esv           (80),
+               fcp           (90),
+               fcl           (100),
+               npjcpdet      (110),
+               ppjcpdet      (120),
+               psc           (130),
+               pscR          (140),
+               pscS          (150),
+               pscW          (160),
+               psd           (170),
+               psdR          (180),
+               psdS          (190),
+               psdW          (200),
+               sasp          (210),
+               sefs          (220),
+               sesl          (230),
+               sesp          (240),
+               sess          (250),
+               sesv          (260),
+               uasl          (270),
+               uasp          (280),
+               uasv          (290),
+               bbers         (300),
+               bbel          (310),
+               bbehp         (320),
+               bbelp         (330),
+               aissp         (340),
+               cvcpp         (350),
+               escpp         (360),
+               lossl         (370),
+               sascpp        (380),
+               sescpp        (390),
+               uascpp        (400),
+               pjNegGen      (410),
+               pjPosGen      (420),
+               ebms          (430),
+               ebrs          (440),
+               ebhp          (450),
+               eblp          (460),
+               esms          (470),
+               esrs          (480),
+               eshp          (490),
+               eslp          (500),
+               sesms         (510),
+               sesrs         (520),
+               seshp         (530),
+               seslp         (540),
+               uasms         (550),
+               uashp         (560),
+               uaslp         (570),
+               fcms          (580),
+               fchp          (590),
+               fclp          (600),
+               cssp          (620),
+               esap          (630),
+               esbp          (640),
+               sefsp         (650),
+               ebp           (660),
+               bbems         (670),
+               bbep          (680),
+               bbev          (690),
+               pjDet         (700),
+               pjGen         (710),
+               pjDif         (720),
+               css           (730),
+               uass          (740),
+               sessr         (750),
+               bbesr         (760),
+               uasr          (770),
+               ebl           (780),
+               eslr          (790),
+               seslr         (800),
+               bbelr         (810),
+               bbepr         (820),
+               txPwrMin      (830),
+               rxPwrMin      (840),
+               laserBiasMin  (850),
+               laserTempMin  (860),
+               xcvaMin       (870),
+               validPackets  (880),
+               invalidPackets  (890),
+               cgv           (900),
+               idleOs        (910),
+               nidleOs       (920),
+               dgc           (930),
+               bitEc         (940),
+               byteEc        (950),
+               bit0Ed        (960),
+               bit1Ed        (970),
+               uncWord       (980),
+               rxTempMin     (990),
+               voaMin        (1000),
+               gainMin       (1010),
+               txPwrMax      (1020),
+               rxPwrMax      (1030),
+               rxTempMax     (1040),
+               laserBiasMax  (1050),
+               laserTempMax  (1060),
+               xcvaMax       (1070),
+               voaMax        (1080),
+               gainMax       (1090),
+               bbeSm         (1100),
+               bbePm         (1110),
+               bbeTcm1       (1120),
+               bbeTcm2       (1130),
+               bberSm        (1140),
+               bberPm        (1150),
+               bberTcm1      (1160),
+               bberTcm2      (1170),
+               biec          (1180),
+               ipc           (1190),
+               byec          (1200),
+               dcg           (1210),
+               bbes          (1220),
+               feCssP        (1230),
+               opwrAvg       (1250),
+               opwrMax       (1260),
+               opwrMin       (1270),
+               essr          (1280),
+               esrp          (1290),
+               sesrp         (1300),
+               esrhp         (1310),
+               sesrhp        (1320),
+               bberhp        (1330),
+               esrlp         (1340),
+               sesrlp        (1350),
+               bberlp        (1360),
+               lossms        (1370),
+               pjneghp       (1380),
+               pjposhp       (1390),
+               pjNegGenhp    (1400),
+               pjPosGenhp    (1410),
+               pjDethp       (1420),
+               pjGenhp       (1430),
+               pjDifhp       (1440),
+               pscms         (1450),
+               pscRms        (1460),
+               pscSms        (1470),
+               pscWms        (1480),
+               psdms         (1490),
+               psdRms        (1500),
+               psdSms        (1510),
+               psdWms        (1520),
+               lbcn          (1530),
+               oprn          (1540),
+               optn          (1550),
+               optnLwt       (1560),
+               optnHwt       (1570),
+               oprnLwt       (1580),
+               oprnHwt       (1590),
+               lbcnHwt       (1600),
+               ifInOctets    (1710),
+               ifInUcastPkts  (1720),
+               ifInMulticastPkts  (1730),
+               ifInBroadcastPkts  (1740),
+               ifInDiscards  (1750),
+               ifInErrors    (1760),
+               ifOutOctets   (1770),
+               ifOutUcastPkts  (1780),
+               ifOutMulticastPkts  (1790),
+               ifOutBroadcastPkts  (1800),
+               ifOutDiscards  (1810),
+               dot3StatsAlignmentErrors  (1820),
+               dot3StatsFCSErrors  (1830),
+               dot3StatsSingleCollisionFrames  (1840),
+               dot3StatsMultipleCollisionFrames  (1850),
+               dot3StatsDeferredTransmissions  (1860),
+               dot3StatsLateCollisions  (1870),
+               dot3StatsExcessiveCollisions  (1880),
+               dot3StatsFrameTooLong  (1890),
+               dot3StatsCarrierSenseErrors  (1900),
+               dot3StatsSQETestErrors  (1910),
+               etherStatsUndersizePkts  (1920),
+               etherStatsFragments  (1930),
+               etherStatsPkts64Octets  (1940),
+               etherStatsPkts65to127Octets  (1950),
+               etherStatsPkts128to255Octets  (1960),
+               etherStatsPkts256to511Octets  (1970),
+               etherStatsPkts512to1023Octets  (1980),
+               etherStatsPkts1024to1518Octets  (1990),
+               etherStatsBroadcastPkts  (2000),
+               etherStatsMulticastPkts  (2010),
+               etherStatsOversizePkts  (2020),
+               etherStatsJabbers  (2030),
+               etherStatsOctets  (2040),
+               etherStatsCollisions  (2050),
+               etherStatsCollisionFrames  (2060),
+               etherStatsCRCAlignErrors  (2070),
+               etherStatsDropEvents  (2080),
+               rxPauseFrames  (2090),
+               txPauseFrames  (2100),
+               rxPktsDroppedInternalCongestion  (2110),
+               txPktsDroppedInternalCongestion  (2120),
+               txTotalPkts   (2130),
+               rxTotalPkts   (2140),
+               hdlcPktDrops  (2150),
+               rxControlFrames  (2160),
+               rxUnknownOpcodeFrames  (2170),
+               ifInErrorBytePkts  (2180),
+               ifInFramingErrorPkts  (2190),
+               ifInJunkInterPkts  (2200),
+               gfpStatsRxSBitErrors  (2210),
+               gfpStatsRxMBitErrors  (2220),
+               gfpStatsRxTypeInvalid  (2230),
+               gfpStatsRxCRCErrors  (2240),
+               gfpStatsRxCIDInvalid  (2250),
+               gfpStatsLFDRaised  (2260),
+               gfpStatsCSFRaised  (2270),
+               gfpStatsRxFrame  (2280),
+               gfpStatsTxFrame  (2290),
+               gfpStatsRxOctets  (2300),
+               gfpStatsTxOctets  (2310),
+               gfpStatsRoundTripLatencyUSec  (2320),
+               mediaIndStatsRxFramesTruncated  (2330),
+               mediaIndStatsRxFramesTooLong  (2340),
+               mediaIndStatsRxFramesBadCRC  (2350),
+               mediaIndStatsTxFramesBadCRC  (2360),
+               gfpStatsRxDistanceExtBuffers  (2370),
+               gfpStatsTxDistanceExtBuffers  (2380),
+               fcStatsLinkRecoveries  (2390),
+               fcStatsRxCredits  (2400),
+               fcStatsTxCredits  (2410),
+               fcStatsZeroTxCredits  (2420),
+               cmt8b10bInvalidOrderedSets  (2430),
+               cmt8b10bStatsEncodingDispErrors  (2440),
+               cmt8b10bIdleOrderedSets  (2450),
+               esnp          (2460),
+               sesnp         (2470),
+               uasnp         (2480),
+               esnpfe        (2490),
+               sesnpfe       (2500),
+               uasnpfe       (2510),
+               cmt8b10bNonIdleOrderedSets  (2520),
+               cmt8b10bDataOrderedSets  (2530),
+               cmt8b10bLossOfSync  (2540),
+               hdlcInOctets  (2550),
+               hdlcRxAborts  (2560),
+               hdlcOutOctets  (2570),
+               mediaIndStatsRxShortPkts  (2580),
+               mediaIndStatsOversizeDropped  (2590),
+               fibreStatsRxFrames  (2600),
+               fibreStatsTxFrames  (2610),
+               etherStatsPkts  (2620),
+               ifOutErrors   (2630),
+               dot3StatsInternalMacTxErrors  (2640),
+               dot3StatsInternalMacRxErrors  (2650),
+               dot3StatsSymbolErrors  (2660),
+               ifOutOversizePkts  (2670),
+               gfpStatsRxSblkCRCErrors  (2680),
+               mediaIndStatsTxFramesTooLong  (2690),
+               lbcnLwt       (2700),
+               ifOutPayloadCrcErrors  (2710),
+               ifInPayloadCrcErrors  (2720),
+               ofsrs         (2740),
+               fcv           (2750),
+               fcStatsRxRecvrReady  (2760),
+               fcStatsTxRecvrReady  (2770),
+               cmt8b10bInvalidOrderedSetsDispErrorsSum  (2780),
+               gainAvg       (3025),
+               pwrAvg        (3030),
+               voaAvg        (3035),
+               pwrMax        (3090),
+               pwrMin        (3095),
+               esPm          (3100),
+               sesSm         (3105),
+               uasSm         (3110),
+               fcSm          (3115),
+               esrSm         (3120),
+               sesrSm        (3125),
+               sesPm         (3130),
+               uasPm         (3135),
+               fcPm          (3140),
+               esrPm         (3145),
+               sesrPm        (3150),
+               esTcm1        (3155),
+               sesTcm1       (3160),
+               uasTcm1       (3165),
+               fcTcm1        (3170),
+               esrTcm1       (3175),
+               sesrTcm1      (3180),
+               esTcm2        (3185),
+               sesTcm2       (3190),
+               uasTcm2       (3195),
+               fcTcm2        (3200),
+               esrTcm2       (3205),
+               sesrTcm2      (3210),
+               vpc           (3215),
+               ios           (3220),
+               latAvg        (3225),
+               latMax        (3230),
+               latMin        (3235),
+               lbclAvg       (3240),
+               lbclMax       (3245),
+               lbclMin       (3250),
+               nios          (3255),
+               obed          (3260),
+               oprAvg        (3265),
+               oprMax        (3270),
+               oprMin        (3275),
+               optAvg        (3280),
+               optMax        (3285),
+               optMin        (3290),
+               ucw           (3295),
+               xcvrAvg       (3300),
+               xcvrMax       (3305),
+               xcvrMin       (3310),
+               zbed          (3315),
+               esSm          (3320),
+               rprSpanStatsRxUcastClassCFrames  (3380),
+               rprSpanStatsRxUcastClassCOctets  (3385),
+               rprSpanStatsRxMcastClassCFrames  (3390),
+               rprSpanStatsRxMcastClassCOctets  (3395),
+               rprSpanStatsRxUcastClassBEirFrames  (3400),
+               rprSpanStatsRxUcastClassBEirOctets  (3405),
+               rprSpanStatsRxMcastClassBEirFrames  (3410),
+               rprSpanStatsRxMcastClassBEirOctets  (3415),
+               rprSpanStatsRxUcastClassBCirFrames  (3420),
+               rprSpanStatsRxUcastClassBCirOctets  (3425),
+               rprSpanStatsRxMcastClassBCirFrames  (3430),
+               rprSpanStatsRxMcastClassBCirOctets  (3435),
+               rprSpanStatsRxUcastClassAFrames  (3440),
+               rprSpanStatsRxUcastClassAOctets  (3445),
+               rprSpanStatsRxMcastClassAFrames  (3450),
+               rprSpanStatsRxMcastClassAOctets  (3455),
+               rprSpanStatsRxCtrlFrames  (3460),
+               rprSpanStatsRxOamEchoFrames  (3465),
+               rprSpanStatsRxOamFlushFrames  (3470),
+               rprSpanStatsRxOamOrgFrames  (3475),
+               rprSpanStatsRxTopoAtdFrames  (3480),
+               rprSpanStatsRxTopoChkSumFrames  (3485),
+               rprSpanStatsRxTopoTpFrames  (3490),
+               rprSpanStatsTxUcastClassCFrames  (3495),
+               rprSpanStatsTxUcastClassCOctets  (3500),
+               rprSpanStatsTxMcastClassCFrames  (3505),
+               rprSpanStatsTxMcastClassCOctets  (3510),
+               rprSpanStatsTxUcastClassBEirFrames  (3515),
+               rprSpanStatsTxUcastClassBEirOctets  (3520),
+               rprSpanStatsTMcastClassBEirFrames  (3525),
+               rprSpanStatsTxMcastClassBEirOctets  (3530),
+               rprSpanStatsTxUcastClassBCirFrames  (3535),
+               rprSpanStatsTxUcastClassBCirOctets  (3540),
+               rprSpanStatsTMcastClassBCirFrames  (3545),
+               rprSpanStatsTxMcastClassBCirOctets  (3550),
+               rprSpanStatsTxUcastClassAFrames  (3555),
+               rprSpanStatsTxUcastClassAOctets  (3560),
+               rprSpanStatsTxMcastClassAFrames  (3565),
+               rprSpanStatsTxMcastClassAOctets  (3570),
+               rprSpanStatsTxCtrlFrames  (3575),
+               rprSpanStatsTxOamEchoFrames  (3580),
+               rprSpanStatsTxOamFlushFrames  (3585),
+               rprSpanStatsTxOamOrgFrames  (3590),
+               rprSpanStatsTxTopoAtdFrames  (3595),
+               rprSpanStatsTxTopoChkSumFrames  (3600),
+               rprSpanStatsTxTopoTpFrames  (3605),
+               rprClientStatsRxUcastClassCFrames  (3610),
+               rprClientStatsRxUcastClassCOctets  (3615),
+               rprClientStatsRxMcastClassCFrames  (3620),
+               rprClientStatsRxMcastClassCOctets  (3625),
+               rprClientStatsRxUcastClassBEirFrames  (3630),
+               rprClientStatsRxUcastClassBEirOctets  (3635),
+               rprClientStatsRxMcastClassBEirFrames  (3640),
+               rprClientStatsRxMcastClassBEirOctets  (3645),
+               rprClientStatsRxUcastClassBCirFrames  (3650),
+               rprClientStatsRxUcastClassBCirOctets  (3655),
+               rprClientStatsRxMcastClassBCirFrames  (3660),
+               rprClientStatsRxMcastClassBCirOctets  (3665),
+               rprClientStatsRxUcastClassAFrames  (3670),
+               rprClientStatsRxUcastClassAOctets  (3675),
+               rprClientStatsRxMcastClassAFrames  (3680),
+               rprClientStatsRxMcastClassAOctets  (3685),
+               rprClientStatsRxBcastFrames  (3690),
+               rprClientStatsTxUcastClassCFrames  (3695),
+               rprClientStatsTxUcastClassCOctets  (3700),
+               rprClientStatsTxMcastClassCFrames  (3705),
+               rprClientStatsTxMcastClassCOctets  (3710),
+               rprClientStatsTxUcastClassBEirFrames  (3715),
+               rprClientStatsTxUcastClassBEirOctets  (3720),
+               rprClientStatsTxMcastClassBEirFrames  (3725),
+               rprClientStatsTxMcastClassBEirOctets  (3730),
+               rprClientStatsTxUcastClassBCirFrames  (3735),
+               rprClientStatsTxUcastClassBCirOctets  (3740),
+               rprClientStatsTxMcastClassBCirFrames  (3745),
+               rprClientStatsTxMcastClassBCirOctets  (3750),
+               rprClientStatsTxUcastClassAFrames  (3755),
+               rprClientStatsTxUcastClassAOctets  (3760),
+               rprClientStatsTxMcastClassAFrames  (3765),
+               rprClientStatsTxMcastClassAOctets  (3770),
+               rprClientStatsTxBcastFrames  (3775),
+               rprIfStatsSumEastWestRxOctets  (3780),
+               rprIfStatsSumEastWestRxFrames  (3785),
+               rprIfStatsSumEastWestTxOctets  (3790),
+               rprIfStatsSumEastWestTxFrames  (3795),
+               rprSpanErrorStatsBadParityFrames  (3800),
+               rprSpanErrorStatsBadHecFrames  (3805),
+               rprSpanErrorStatsTtlExpFrames  (3810),
+               rprSpanErrorStatsTooLongFrames  (3815),
+               rprSpanErrorStatsTooShortFrames  (3820),
+               rprSpanErrorStatsBadFcsFrames  (3825),
+               rprSpanErrorStatsSelfSrcUcastFrames  (3830),
+               rprSpanErrorStatsPmdAbortFrames  (3835),
+               rprSpanErrorStatsBadAddrFrames  (3840),
+               rprSpanErrorStatsContainedFrames  (3845),
+               rprSpanErrorStatsScffErrors  (3850),
+               rprPortCounterError  (3870),
+-- TCA end. Do not change or move this comment
+               esBfdl        (3325),
+               uasBfdl       (3330),
+               besBfdl       (3335),
+               sesBfdl       (3340),
+               cssBfdl       (3345),
+               lofcBfdl      (3350)
+             }
+
+CerentLocation ::= TEXTUAL-CONVENTION
+      -- DISPLAY-HINT "1d"
+      STATUS current
+      DESCRIPTION
+            "This will indicate if the
+             value is local or remote."
+      SYNTAX INTEGER
+             { unknown      (1),
+               farEnd      (10),
+               nearEnd     (20)
+             }
+
+CerentPeriod ::= TEXTUAL-CONVENTION
+      -- DISPLAY-HINT "1d"
+      STATUS current
+      DESCRIPTION
+            "This will indicate the sampling period."
+      SYNTAX INTEGER
+             { unknown   (1),
+               minutes1  (5),
+               minutes15 (10),
+               hour1     (20),
+               day1      (30)
+             }
+
+CerentPortNumber ::= TEXTUAL-CONVENTION
+      STATUS current
+      DESCRIPTION
+            "This indicates the affected port number."
+      SYNTAX INTEGER
+             { unknown   (1),
+               port0     (5),
+               port1    (10),
+               port2    (20),
+               port3    (30),
+               port4    (40),
+               port5    (50),
+               port6    (60),
+               port7    (70),
+               port8    (80),
+               port9    (90),
+               port10  (100),
+               port11  (110),
+               port12  (120),
+               port13  (130),
+               port14  (140),
+               port15  (150),
+               port16  (160),
+               port17  (170),
+               port18  (180),
+               port19  (190),
+               port20  (200),
+               port21  (210),
+               port22  (220),
+               port23  (230),
+               port24  (240),
+               port25  (250),
+               port26  (260),
+               port27  (270),
+               port28  (280),
+               port29  (290),
+               port30  (300),
+               port31  (310),
+               port32  (320),
+               port33  (330),
+               port34  (340),
+               port35  (350),
+               port36  (360),
+               port37  (370),
+               port38  (380),
+               port39  (390),
+               port40  (400),
+               port41  (410),
+               port42  (420),
+               port43  (430),
+               port44  (440),
+               port45  (450),
+               port46  (460),
+               port47  (470),
+               port48  (480),
+               port49  (490),
+               port50  (500),
+               port51  (510),
+               port52  (520),
+               port53  (530),
+               port54  (540),
+               port55  (550),
+               port56  (560),
+               port57  (570),
+               port58  (580),
+               port59  (590),
+               port60  (600),
+               port61  (610),
+               port62  (620),
+               port63  (630),
+               port64  (640),
+               portAll (10240)
+             }
+
+-- The following objects are implemented to facilitate mosy-compatible
+-- mib compilers to generate necessary code for the NMS platforms.
+-- The objects do not map to any functionality in any of the ONS devices
+-- and hence will never be instantiated.
+
+cerentTcDummyGroup OBJECT-GROUP
+        OBJECTS {
+          cerentTcDummyMonType,
+          cerentTcDummyLoc,
+          cerentTcDummyPeriod,
+          cerentTcDummyPortNumber,
+          cerentTcDummyNotifClass
+          }
+        STATUS current
+        DESCRIPTION
+          "Group defn to gather all dummy objects."
+        ::= { cerentGenericDummyObjects 1 }
+
+cerentTcDummyMonType OBJECT-TYPE
+       SYNTAX      CerentMonitorType 
+       MAX-ACCESS  read-only
+       STATUS      current
+       DESCRIPTION
+               ""
+       ::= { cerentGenericDummyObjects 2 }
+
+cerentTcDummyLoc OBJECT-TYPE
+       SYNTAX      CerentLocation
+       MAX-ACCESS  read-only
+       STATUS      current
+       DESCRIPTION
+               ""
+       ::= { cerentGenericDummyObjects 3 }
+
+cerentTcDummyPeriod OBJECT-TYPE
+       SYNTAX      CerentPeriod
+       MAX-ACCESS  read-only
+       STATUS      current
+       DESCRIPTION
+               ""
+       ::= { cerentGenericDummyObjects 4 }
+
+cerentTcDummyPortNumber OBJECT-TYPE
+       SYNTAX      CerentPortNumber
+       MAX-ACCESS  read-only
+       STATUS      current
+       DESCRIPTION
+               ""
+       ::= { cerentGenericDummyObjects 5 }
+
+cerentTcDummyNotifClass   OBJECT-TYPE
+       SYNTAX      CerentNotificationClass
+       MAX-ACCESS  read-only
+       STATUS      current
+       DESCRIPTION
+               ""
+       ::= { cerentGenericDummyObjects 6 }
+
+END
