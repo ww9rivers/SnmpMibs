@@ -1,12 +1,37 @@
+-- $Id: OLD-CISCO-TS.MIB 1.1 2005/03/14 16:34:08Z aminchew Exp $
+-- $Source: v:/mksroot/rcs/OLD-CISCO-TS.MIB $
 -- *****************************************************************
 -- OLD-CISCO-TS-MIB.my:  Cisco Terminal Service MIB file
 --
 -- May 1994, Jeffrey T. Johnson
 --
--- Copyright (c) 1994 by cisco Systems, Inc.
+-- Copyright (c) 1994-1997, 1998, 1999 by cisco Systems, Inc.
 -- All rights reserved.
+--
+-- NOTE WELL
+-- Starting with IOS 12.0, all objects defined in this mib have been
+-- deprecated.  Management applications should no longer
+-- be examining the objects defined in this document
+-- NOTE WELL
 -- 
 -- *****************************************************************
+-- $Log: OLD-CISCO-TS.MIB $
+-- Revision 1.1  2005/03/14 16:34:08Z  aminchew
+-- Initial revision
+-- Revision 1.1.2.1  2005/02/08 01:45:11  bruceg
+-- CGESM_12_2_25
+--
+-- Revision 3.2  1995/11/17  08:36:20  hampton
+-- Remove old entries from the RCS header logs.
+--
+-- Revision 3.1  1995/11/09  10:51:48  shaker
+-- Bump version numbers from 2.x to 3.x.
+--
+-- Revision 2.1  1995/06/07  20:02:32  hampton
+-- Bump version numbers from 1.x to 2.x.
+--
+-- *****************************************************************
+-- $Endlog$
 --
 
                OLD-CISCO-TS-MIB DEFINITIONS ::= BEGIN
@@ -31,7 +56,7 @@
                tsLines OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Number of terminal lines on this device.
                            Includes virtual lines."
@@ -46,7 +71,7 @@
                ltsLineTable OBJECT-TYPE
                    SYNTAX  SEQUENCE OF LtsLineEntry
                    ACCESS  not-accessible
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                             "A list of terminal server line entries."
                    ::= { lts 2 }
@@ -54,7 +79,7 @@
                ltsLineEntry OBJECT-TYPE
                    SYNTAX LtsLineEntry
                    ACCESS  not-accessible
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                             "A collection of per TTY objects in the
                             cisco Terminal Server implementation."
@@ -114,7 +139,7 @@
                tsLineActive OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Boolean whether this line is active or not."
                    ::= { ltsLineEntry 1 }
@@ -129,7 +154,7 @@
                         auxiliary(6)
                    }
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Type of line."
                    ::= { ltsLineEntry 2 }
@@ -137,7 +162,7 @@
                tsLineAutobaud OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Boolean whether line will autobaud or not."
                    ::= { ltsLineEntry 3 }
@@ -145,7 +170,7 @@
                tsLineSpeedin OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "What input speed the line is running at."
                    ::= { ltsLineEntry 4 }
@@ -153,7 +178,7 @@
                tsLineSpeedout OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "What output speed the line is running at."
                    ::= { ltsLineEntry 5 }
@@ -170,7 +195,7 @@
                         hardware-both(8)
                    }
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "What kind of flow control the line is
                            using."
@@ -187,7 +212,7 @@
                         inout(7)
                    }
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "What kind of modem control the line is
                            using."
@@ -196,7 +221,7 @@
                tsLineLoc OBJECT-TYPE
                    SYNTAX  DisplayString
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Describes the line's physical location."
                    ::= { ltsLineEntry 8 }
@@ -204,7 +229,7 @@
                tsLineTerm OBJECT-TYPE
                    SYNTAX  DisplayString
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Describes the line's terminal type."
                    ::= { ltsLineEntry 9 }
@@ -212,7 +237,7 @@
                tsLineScrlen OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Length in lines of the screen of terminal
                            attached to this line."
@@ -221,7 +246,7 @@
                tsLineScrwid OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Width in characters of the screen of
                            terminal attached to this line."
@@ -230,7 +255,7 @@
                tsLineEsc OBJECT-TYPE
                    SYNTAX  DisplayString
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Escape character used to break out of active
                            sessions."
@@ -239,7 +264,7 @@
                tsLineTmo OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Line idleness timeout in seconds."
                    ::= { ltsLineEntry 13 }
@@ -247,7 +272,7 @@
                tsLineSestmo OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Session idleness timeout in seconds."
                    ::= { ltsLineEntry 14 }
@@ -255,7 +280,7 @@
                tsLineRotary OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Rotary group number the line belongs in."
                    ::= { ltsLineEntry 15 }
@@ -263,7 +288,7 @@
                tsLineUses OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Number of times a connection has been made
                            to or from this line."
@@ -272,7 +297,7 @@
                tsLineNses OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Current number of sessions in use on this
                            line."
@@ -281,7 +306,7 @@
                tsLineUser OBJECT-TYPE
                    SYNTAX  DisplayString
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "TACACS user name, if TACACS enabled, of user
                            on this line."
@@ -290,7 +315,7 @@
                tsLineNoise OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Count of garbage characters received when
                            line inactive."
@@ -299,7 +324,7 @@
                tsLineNumber OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "The line i've been talking about."
                    ::= { ltsLineEntry 20 }
@@ -307,7 +332,7 @@
                tsLineTimeActive OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "The time in seconds since line was activated."
                    ::= { ltsLineEntry 21 }
@@ -321,7 +346,7 @@
                ltsLineSessionTable OBJECT-TYPE
                    SYNTAX  SEQUENCE OF LtsLineSessionEntry
                    ACCESS  not-accessible
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                             "A list of terminal server line and session
                             entries."
@@ -330,7 +355,7 @@
                ltsLineSessionEntry OBJECT-TYPE
                    SYNTAX LtsLineSessionEntry
                    ACCESS  not-accessible
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                             "A collection of per session and per TTY
                             objects in the cisco Terminal Server
@@ -374,10 +399,12 @@
                         mop(8),
                         slip(9),
                         xremote(10),
-			rshell(11)
+			rshell(11),
+			ipc(12),
+			udptn(13)
                    }
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Type of session."
                    ::= { ltsLineSessionEntry 1 }
@@ -389,7 +416,7 @@
                         outgoing(3)
                    }
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Direction of session."
                    ::= { ltsLineSessionEntry 2 }
@@ -397,7 +424,7 @@
                tslineSesAddr OBJECT-TYPE
                    SYNTAX  IpAddress
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Remote host address of session. [What about
                            PAD connections?]"
@@ -406,7 +433,7 @@
                tslineSesName OBJECT-TYPE
                    SYNTAX  DisplayString
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Remote host name of session."
                    ::= { ltsLineSessionEntry 4 }
@@ -414,7 +441,7 @@
                tslineSesCur OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Boolean whether session is the currently
                            active one."
@@ -423,7 +450,7 @@
                tslineSesIdle OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Time in seconds session has been idle."
                    ::= { ltsLineSessionEntry 6 }
@@ -431,7 +458,7 @@
                tslineSesLine OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Table index 1."
                    ::= { ltsLineSessionEntry 7 }
@@ -439,7 +466,7 @@
                tslineSesSession OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Table index 2."
                    ::= { ltsLineSessionEntry 8 }
@@ -450,7 +477,7 @@
                tsMsgTtyLine OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-write
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "tty line to send the message to. -1 will
                            send it to all tty lines"
@@ -459,7 +486,7 @@
                tsMsgIntervaltim OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-write
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Interval between reissuing message in
                            milliseconds. Minimum non-zero setting is
@@ -472,7 +499,7 @@
                tsMsgDuration OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-write
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Length of time to reissue message in
                            milliseconds. Minimum non-zero setting is
@@ -483,7 +510,7 @@
                tsMsgText OBJECT-TYPE
                    SYNTAX  DisplayString
                    ACCESS  read-write
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Up to 256 characters that will make up the
                            message"
@@ -495,7 +522,7 @@
                         additive(2)
                    }
                    ACCESS  read-write
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Should the message be used as a temporary
                            banner. 1 - No. 2 - In addition to the normal
@@ -510,7 +537,7 @@
                         abort(4)
                    }
                    ACCESS  read-write
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Sends the message. The value determines what
                            to do after the message has completed."
@@ -519,7 +546,7 @@
                tsClrTtyLine OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-write
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "tty line to clear.  Read returns the last line
                            cleared.  A value of -1 indicates no lines have 
