@@ -1,12 +1,38 @@
+-- $Id: OLD-CISCO-INTERFACES.MIB 1.1 2005/03/14 16:34:12Z aminchew Exp $
+-- $Source: v:/mksroot/rcs/OLD-CISCO-INTERFACES.MIB $
 -- *****************************************************************
 -- OLD-CISCO-INTERFACES-MIB.my:  Cisco Interfaces MIB file
 --
 -- May 1994, Jeffrey T. Johnson
 --
--- Copyright (c) 1994,1997 by cisco Systems, Inc.
+-- Copyright (c) 1994,1997, 1998 by cisco Systems, Inc.
 -- All rights reserved.
 -- 
+-- NOTE WELL
+-- Starting with IOS 12.0, all objects defined in this mib have been
+-- deprecated.  They have been replaced with objects defined in the
+-- IF-MIB and CISCO-QUEUE-MIB document. Management applications should 
+-- no longer be examining the objects defined in this document.
+-- NOTE WELL
+-- 
 -- *****************************************************************
+-- $Log: OLD-CISCO-INTERFACES.MIB $
+-- Revision 1.1  2005/03/14 16:34:12Z  aminchew
+-- Initial revision
+-- Revision 1.1.2.1  2005/02/08 01:45:11  bruceg
+-- CGESM_12_2_25
+--
+-- Revision 3.2  1995/11/17  08:36:01  hampton
+-- Remove old entries from the RCS header logs.
+--
+-- Revision 3.1  1995/11/09  10:51:32  shaker
+-- Bump version numbers from 2.x to 3.x.
+--
+-- Revision 2.1  1995/06/07  20:02:11  hampton
+-- Bump version numbers from 1.x to 2.x.
+--
+-- *****************************************************************
+-- $Endlog$
 --
 
                OLD-CISCO-INTERFACES-MIB DEFINITIONS ::= BEGIN
@@ -37,7 +63,7 @@
                lifTable OBJECT-TYPE
                    SYNTAX  SEQUENCE OF LifEntry
                    ACCESS  not-accessible
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                             "A list of interface entries."
                    ::= { linterfaces 1 }
@@ -45,7 +71,7 @@
                lifEntry OBJECT-TYPE
                    SYNTAX LifEntry
                    ACCESS  not-accessible
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                             "A collection of additional objects in the
                             cisco interface."
@@ -289,7 +315,7 @@
                locIfHardType OBJECT-TYPE
                    SYNTAX  DisplayString
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Returns the type of interface."
                    ::= { lifEntry 1 }
@@ -297,7 +323,7 @@
                locIfLineProt OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Boolean whether interface line protocol is
                            up or not."
@@ -306,7 +332,7 @@
                locIfLastIn OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Elapsed time in milliseconds since last line
                            protocol input packet was received."
@@ -315,7 +341,7 @@
                locIfLastOut OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Elapsed time in milliseconds since last line
                            protocol output packet was transmitted."
@@ -324,7 +350,7 @@
                locIfLastOutHang OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Elapsed time in milliseconds since last line
                            protocol output packet could not be
@@ -334,7 +360,7 @@
                locIfInBitsSec OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Five minute exponentially-decayed moving
                            average of input bits per second."
@@ -343,7 +369,7 @@
                locIfInPktsSec OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Five minute exponentially-decayed moving
                            average of input packets per second."
@@ -352,7 +378,7 @@
                locIfOutBitsSec OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Five minute exponentially-decayed moving
                            average of output bits per second."
@@ -361,7 +387,7 @@
                locIfOutPktsSec OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Five minute exponentially-decayed moving
                            average of output packets per second."
@@ -370,7 +396,7 @@
                locIfInRunts OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Number of packets input which were smaller
                            then the allowable physical media permitted."
@@ -379,7 +405,7 @@
                locIfInGiants OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Number of input packets which were larger
                            then the physical media permitted."
@@ -388,7 +414,7 @@
                locIfInCRC OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Number of input packets which had cyclic
                            redundancy checksum errors."
@@ -397,7 +423,7 @@
                locIfInFrame OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Number of input packet which were
                            misaligned."
@@ -406,7 +432,7 @@
                locIfInOverrun OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Count of input which arrived too quickly for
                            the to hardware receive."
@@ -415,7 +441,7 @@
                locIfInIgnored OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Number of input packets which were simply
                            ignored by this interface."
@@ -424,7 +450,7 @@
                locIfInAbort OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Number of input packets which were aborted."
                    ::= { lifEntry 16 }
@@ -432,7 +458,7 @@
                locIfResets OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Number of times the interface internally
                            reset."
@@ -441,7 +467,7 @@
                locIfRestarts OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Number of times interface needed to be
                            completely restarted."
@@ -450,7 +476,7 @@
                locIfKeep OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Boolean whether keepalives are enabled on
                            this interface."
@@ -459,7 +485,7 @@
                locIfReason OBJECT-TYPE
                    SYNTAX  DisplayString
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Reason for interface last status change."
                    ::= { lifEntry 20 }
@@ -467,7 +493,7 @@
                locIfCarTrans OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Number of times interface saw the carrier
                            signal transition."
@@ -476,7 +502,7 @@
                locIfReliab OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "The reliability of the interface. Used by
                            IGRP."
@@ -485,7 +511,7 @@
                locIfDelay OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "The amount of delay in microseconds of the
                            interface. Used by IGRP."
@@ -494,7 +520,7 @@
                locIfLoad OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "The loading factor of the interface. Used by
                            IGRP."
@@ -503,7 +529,7 @@
                locIfCollisions OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "The number of output collisions detected on
                            this interface."
@@ -512,7 +538,7 @@
                locIfInputQueueDrops OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "The number of packets dropped because the
                            input queue was full."
@@ -521,7 +547,7 @@
                locIfOutputQueueDrops OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "The number of packets dropped because the
                            output queue was full."
@@ -530,7 +556,7 @@
                locIfDescr OBJECT-TYPE
                    SYNTAX  DisplayString
                    ACCESS  read-write
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "User configurable interface description."
                    ::= { lifEntry 28 }
@@ -538,7 +564,7 @@
                locIfSlowInPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Packet count for Inbound traffic routed with
                            slow switching"
@@ -547,7 +573,7 @@
                locIfSlowOutPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Packet count for Outbound traffic routed
                            with slow switching"
@@ -556,7 +582,7 @@
                locIfSlowInOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Octet count for Inbound traffic routed with
                            slow switching"
@@ -565,7 +591,7 @@
                locIfSlowOutOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Octet count for Outbound traffic routed with
                            slow switching"
@@ -574,7 +600,7 @@
                locIfFastInPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Packet count for Inbound traffic routed with
                            fast switching"
@@ -583,7 +609,7 @@
                locIfFastOutPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Packet count for Outbound traffic routed
                            with fast switching"
@@ -592,7 +618,7 @@
                locIfFastInOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Octet count for Inbound traffic routed with
                            fast switching"
@@ -601,7 +627,7 @@
                locIfFastOutOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Octet count for Outbound traffic routed with
                            fast switching"
@@ -610,7 +636,7 @@
                locIfotherInPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Other protocol input packet count"
                    ::= { lifEntry 38 }
@@ -618,7 +644,7 @@
                locIfotherOutPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Other protocol output packet count"
                    ::= { lifEntry 39 }
@@ -626,7 +652,7 @@
                locIfotherInOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Other protocol input octet count"
                    ::= { lifEntry 40 }
@@ -634,7 +660,7 @@
                locIfotherOutOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Other protocol output octet count"
                    ::= { lifEntry 41 }
@@ -642,7 +668,7 @@
                locIfipInPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "ip protocol input packet count"
                    ::= { lifEntry 42 }
@@ -650,7 +676,7 @@
                locIfipOutPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "ip protocol output packet count"
                    ::= { lifEntry 43 }
@@ -658,7 +684,7 @@
                locIfipInOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "ip protocol input octet count"
                    ::= { lifEntry 44 }
@@ -666,7 +692,7 @@
                locIfipOutOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "ip protocol output octet count"
                    ::= { lifEntry 45 }
@@ -674,7 +700,7 @@
                locIfdecnetInPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Decnet protocol input packet count"
                    ::= { lifEntry 46 }
@@ -682,7 +708,7 @@
                locIfdecnetOutPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Decnet protocol output packet count"
                    ::= { lifEntry 47 }
@@ -690,7 +716,7 @@
                locIfdecnetInOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Decnet protocol input byte count"
                    ::= { lifEntry 48 }
@@ -698,7 +724,7 @@
                locIfdecnetOutOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Decnet protocol output byte count"
                    ::= { lifEntry 49 }
@@ -706,7 +732,7 @@
                locIfxnsInPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "XNS protocol input packet count"
                    ::= { lifEntry 50 }
@@ -714,7 +740,7 @@
                locIfxnsOutPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "XNS protocol output packet count"
                    ::= { lifEntry 51 }
@@ -722,7 +748,7 @@
                locIfxnsInOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "XNS protocol input byte count"
                    ::= { lifEntry 52 }
@@ -730,7 +756,7 @@
                locIfxnsOutOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "XNS protocol output byte count"
                    ::= { lifEntry 53 }
@@ -738,7 +764,7 @@
                locIfclnsInPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "CLNS protocol input packet count"
                    ::= { lifEntry 54 }
@@ -746,7 +772,7 @@
                locIfclnsOutPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "CLNS protocol output packet count"
                    ::= { lifEntry 55 }
@@ -754,7 +780,7 @@
                locIfclnsInOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "CLNS protocol input byte count"
                    ::= { lifEntry 56 }
@@ -762,7 +788,7 @@
                locIfclnsOutOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "CLNS protocol output byte count"
                    ::= { lifEntry 57 }
@@ -770,7 +796,7 @@
                locIfappletalkInPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Appletalk protocol input packet count"
                    ::= { lifEntry 58 }
@@ -778,7 +804,7 @@
                locIfappletalkOutPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Appletalk protocol output packet count"
                    ::= { lifEntry 59 }
@@ -786,7 +812,7 @@
                locIfappletalkInOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Appletalk protocol input octet count"
                    ::= { lifEntry 60 }
@@ -794,7 +820,7 @@
                locIfappletalkOutOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Appletalk protocol output octet count"
                    ::= { lifEntry 61 }
@@ -802,7 +828,7 @@
                locIfnovellInPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Novell protocol input packet count"
                    ::= { lifEntry 62 }
@@ -810,7 +836,7 @@
                locIfnovellOutPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Novell protocol output packet count"
                    ::= { lifEntry 63 }
@@ -818,7 +844,7 @@
                locIfnovellInOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Novell protocol input octet count"
                    ::= { lifEntry 64 }
@@ -826,7 +852,7 @@
                locIfnovellOutOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Novell protocol output octet count"
                    ::= { lifEntry 65 }
@@ -834,7 +860,7 @@
                locIfapolloInPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Apollo protocol input packet count"
                    ::= { lifEntry 66 }
@@ -842,7 +868,7 @@
                locIfapolloOutPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Apollo protocol output packet count"
                    ::= { lifEntry 67 }
@@ -850,7 +876,7 @@
                locIfapolloInOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Apollo protocol input octet count"
                    ::= { lifEntry 68 }
@@ -858,7 +884,7 @@
                locIfapolloOutOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Apollo protocol output octet count"
                    ::= { lifEntry 69 }
@@ -866,7 +892,7 @@
                locIfvinesInPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Vines protocol input packet count"
                    ::= { lifEntry 70 }
@@ -874,7 +900,7 @@
                locIfvinesOutPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Vines protocol output packet count"
                    ::= { lifEntry 71 }
@@ -882,7 +908,7 @@
                locIfvinesInOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Vines protocol input octet count"
                    ::= { lifEntry 72 }
@@ -890,7 +916,7 @@
                locIfvinesOutOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Vines protocol output octet count"
                    ::= { lifEntry 73 }
@@ -898,7 +924,7 @@
                locIfbridgedInPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Bridged protocol input packet count"
                    ::= { lifEntry 74 }
@@ -906,7 +932,7 @@
                locIfbridgedOutPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Bridged protocol output packet count"
                    ::= { lifEntry 75 }
@@ -914,7 +940,7 @@
                locIfbridgedInOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Bridged protocol input octet count"
                    ::= { lifEntry 76 }
@@ -922,7 +948,7 @@
                locIfbridgedOutOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Bridged protocol output octet count"
                    ::= { lifEntry 77 }
@@ -930,7 +956,7 @@
                locIfsrbInPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "SRB protocol input packet count"
                    ::= { lifEntry 78 }
@@ -938,7 +964,7 @@
                locIfsrbOutPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "SRB protocol output packet count"
                    ::= { lifEntry 79 }
@@ -946,7 +972,7 @@
                locIfsrbInOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "SRB protocol input octet count"
                    ::= { lifEntry 80 }
@@ -954,7 +980,7 @@
                locIfsrbOutOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "SRB protocol output octet count"
                    ::= { lifEntry 81 }
@@ -962,7 +988,7 @@
                locIfchaosInPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Choas protocol input packet count"
                    ::= { lifEntry 82 }
@@ -970,7 +996,7 @@
                locIfchaosOutPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Choas protocol output packet count"
                    ::= { lifEntry 83 }
@@ -978,7 +1004,7 @@
                locIfchaosInOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Choas protocol input octet count"
                    ::= { lifEntry 84 }
@@ -986,7 +1012,7 @@
                locIfchaosOutOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Choas protocol output octet count"
                    ::= { lifEntry 85 }
@@ -994,7 +1020,7 @@
                locIfpupInPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "PUP protocol input packet count"
                    ::= { lifEntry 86 }
@@ -1002,7 +1028,7 @@
                locIfpupOutPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "PUP protocol output packet count"
                    ::= { lifEntry 87 }
@@ -1010,7 +1036,7 @@
                locIfpupInOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "PUP protocol input octet count"
                    ::= { lifEntry 88 }
@@ -1018,7 +1044,7 @@
                locIfpupOutOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "PUP protocol output octet count"
                    ::= { lifEntry 89 }
@@ -1026,7 +1052,7 @@
                locIfmopInPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "MOP protocol input packet count"
                    ::= { lifEntry 90 }
@@ -1034,7 +1060,7 @@
                locIfmopOutPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "MOP protocol output packet count"
                    ::= { lifEntry 91 }
@@ -1042,7 +1068,7 @@
                locIfmopInOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "MOP protocol input octet count"
                    ::= { lifEntry 92 }
@@ -1050,7 +1076,7 @@
                locIfmopOutOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "MOP protocol output octet count"
                    ::= { lifEntry 93 }
@@ -1058,7 +1084,7 @@
                locIflanmanInPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "LanMan protocol input packet count"
                    ::= { lifEntry 94 }
@@ -1066,7 +1092,7 @@
                locIflanmanOutPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "LanMan protocol output packet count"
                    ::= { lifEntry 95 }
@@ -1074,7 +1100,7 @@
                locIflanmanInOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "LanMan protocol input octet count"
                    ::= { lifEntry 96 }
@@ -1082,7 +1108,7 @@
                locIflanmanOutOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "LanMan protocol output octet count"
                    ::= { lifEntry 97 }
@@ -1090,7 +1116,7 @@
                locIfstunInPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "STUN protocol input packet count"
                    ::= { lifEntry 98 }
@@ -1098,7 +1124,7 @@
                locIfstunOutPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "STUN protocol output packet count"
                    ::= { lifEntry 99 }
@@ -1106,7 +1132,7 @@
                locIfstunInOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "STUN protocol input octet count"
                    ::= { lifEntry 100 }
@@ -1114,7 +1140,7 @@
                locIfstunOutOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "STUN protocol output octet count"
                    ::= { lifEntry 101 }
@@ -1122,7 +1148,7 @@
                locIfspanInPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Spanning tree input protocol packet count"
                    ::= { lifEntry 102 }
@@ -1130,7 +1156,7 @@
                locIfspanOutPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Spanning tree output protocol packet count"
                    ::= { lifEntry 103 }
@@ -1138,7 +1164,7 @@
                locIfspanInOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Spanning tree input octet packet count"
                    ::= { lifEntry 104 }
@@ -1146,7 +1172,7 @@
                locIfspanOutOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Spanning tree output octet packet count"
                    ::= { lifEntry 105 }
@@ -1154,7 +1180,7 @@
                locIfarpInPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Arp protocol input packet count"
                    ::= { lifEntry 106 }
@@ -1162,7 +1188,7 @@
                locIfarpOutPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Arp protocol output packet count"
                    ::= { lifEntry 107 }
@@ -1170,7 +1196,7 @@
                locIfarpInOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Arp protocol input octet count"
                    ::= { lifEntry 108 }
@@ -1178,7 +1204,7 @@
                locIfarpOutOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Arp protocol output octet count"
                    ::= { lifEntry 109 }
@@ -1186,7 +1212,7 @@
                locIfprobeInPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Probe protocol input packet count"
                    ::= { lifEntry 110 }
@@ -1194,7 +1220,7 @@
                locIfprobeOutPkts OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Probe protocol output packet count"
                    ::= { lifEntry 111 }
@@ -1202,7 +1228,7 @@
                locIfprobeInOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Probe protocol input octet count"
                    ::= { lifEntry 112 }
@@ -1210,7 +1236,7 @@
                locIfprobeOutOctets OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Probe protocol output octet count"
                    ::= { lifEntry 113 }
@@ -1218,7 +1244,7 @@
                locIfDribbleInputs OBJECT-TYPE
                    SYNTAX  Counter
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "The number of good packets received with the
                            dribble condition present"
@@ -1236,7 +1262,7 @@
                lFSIPTable OBJECT-TYPE
                    SYNTAX  SEQUENCE OF LFSIPEntry
                    ACCESS  not-accessible
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                             "A list of card entries for 4T, HSSI,
 		             Mx serial or FSIP."
@@ -1245,7 +1271,7 @@
                lFSIPEntry OBJECT-TYPE
                    SYNTAX LFSIPEntry
                    ACCESS  not-accessible
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                             "A collection of objects specific to 4T,
 			     HSSI, Mx serial or FSIP."
@@ -1283,7 +1309,7 @@
                locIfFSIPIndex OBJECT-TYPE
                    SYNTAX  INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Interface index of this card corresponding
                            to its ifIndex"
@@ -1296,7 +1322,7 @@
                         dce(3)
                    }
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Is this FSIP line DCE or DTE"
                    ::= { lFSIPEntry 2 }
@@ -1308,7 +1334,7 @@
                         down(3)
                    }
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Is the RTS signal up or down"
                    ::= { lFSIPEntry 3 }
@@ -1320,7 +1346,7 @@
                         down(3)
                    }
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Is the CTS signal up or down"
                    ::= { lFSIPEntry 4 }
@@ -1332,7 +1358,7 @@
                         down(3)
                    }
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Is the DTR signal up or down"
                    ::= { lFSIPEntry 5 }
@@ -1344,7 +1370,7 @@
                         down(3)
                    }
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Is the DCD signal up or down"
                    ::= { lFSIPEntry 6 }
@@ -1356,7 +1382,7 @@
                         down(3)
                    }
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Is the DSR signal up or down"
                    ::= { lFSIPEntry 7 }
@@ -1364,7 +1390,7 @@
                locIfFSIPrxClockrate OBJECT-TYPE
                    SYNTAX INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                        "Received clock rate"
                    ::= { lFSIPEntry 8 }
@@ -1372,7 +1398,7 @@
                locIfFSIPrxClockrateHi OBJECT-TYPE
                    SYNTAX INTEGER
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                        "Use when received clock rate 
 			is greater than 2^32 (gigabits)."
@@ -1391,10 +1417,13 @@
 			 x21(6),
 			 rs449(7),
 			 rs530(8),
-		         hssi(9)
+		         hssi(9),
+ 			 g703unbal(10),
+	 		 g703bal(11),
+ 	 		 jt2unbal(12)
                    }
                    ACCESS  read-only
-                   STATUS  mandatory
+                   STATUS  deprecated
                    DESCRIPTION
                            "Cable Type of 4T, HSSI, Mx serial or FSIP"
                    ::= { lFSIPEntry 10 }
