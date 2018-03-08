@@ -1,3 +1,5 @@
+-- $Id: OLD-CISCO-TCP.MIB 1.1 2005/03/14 16:34:15Z aminchew Exp $
+-- $Source: v:/mksroot/rcs/OLD-CISCO-TCP.MIB $
 -- *****************************************************************
 -- OLD-CISCO-TCP-MIB.my:  Old Local TCP MIB file
 --
@@ -14,6 +16,23 @@
 -- NOTE WELL
 -- 
 -- *****************************************************************
+-- $Log: OLD-CISCO-TCP.MIB $
+-- Revision 1.1  2005/03/14 16:34:15Z  aminchew
+-- Initial revision
+-- Revision 1.1.2.1  2005/02/08 01:45:11  bruceg
+-- CGESM_12_2_25
+--
+-- Revision 3.2  1995/11/17  08:36:18  hampton
+-- Remove old entries from the RCS header logs.
+--
+-- Revision 3.1  1995/11/09  10:51:46  shaker
+-- Bump version numbers from 2.x to 3.x.
+--
+-- Revision 2.1  1995/06/07  20:02:29  hampton
+-- Bump version numbers from 1.x to 2.x.
+--
+-- *****************************************************************
+-- $Endlog$
 
             OLD-CISCO-TCP-MIB DEFINITIONS ::= BEGIN
 
