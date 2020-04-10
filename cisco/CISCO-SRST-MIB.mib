@@ -3,7 +3,7 @@
 --
 -- March 2005,  Lizzie Cheung
 --
--- Copyright (c) 2005 by cisco Systems, Inc.
+-- Copyright (c) 2005-2007 by cisco Systems, Inc.
 -- All rights reserved.
 -- *****************************************************************
 
@@ -14,11 +14,11 @@ IMPORTS
         MODULE-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,
         Integer32, Unsigned32, Counter32, Gauge32
                 FROM SNMPv2-SMI
-        TEXTUAL-CONVENTION, TruthValue
+        TEXTUAL-CONVENTION, TruthValue, DisplayString
                 FROM SNMPv2-TC
         MODULE-COMPLIANCE, OBJECT-GROUP, NOTIFICATION-GROUP
                 FROM SNMPv2-CONF
-        SnmpAdminString                      
+        SnmpAdminString
                 FROM SNMP-FRAMEWORK-MIB
         InetAddress, InetAddressType, InetPortNumber
                 FROM INET-ADDRESS-MIB
@@ -29,7 +29,7 @@ IMPORTS
 
 
 ciscoSrstMIB MODULE-IDENTITY
-        LAST-UPDATED        "200506200000Z"
+        LAST-UPDATED        "200702270000Z"
         ORGANIZATION        "Cisco Systems, Inc."
         CONTACT-INFO
                 "       Cisco Systems
@@ -44,11 +44,11 @@ ciscoSrstMIB MODULE-IDENTITY
                 E-mail: cs-ccme-srst@cisco.com"
         DESCRIPTION
                 "This MIB allows management of Cisco Survivable Remote
-                Site Telephony (SRST) feature in Cisco IOS. SRST is 
-                an optional software feature that provides Cisco  
+                Site Telephony (SRST) feature in Cisco IOS. SRST is
+                an optional software feature that provides Cisco
                 CallManager with fallback support for Cisco  IP
-                phones attached to a Cisco router on a local 
-                network. 
+                phones attached to a Cisco router on a local
+                network.
                 The CISCO-CCME-MIB provides management of Cisco
                 CallManager Express (CCME) feature in Cisco IOS.
                 CCME is an optional software feature that enables
@@ -56,14 +56,26 @@ ciscoSrstMIB MODULE-IDENTITY
                 small office environment.
                 Ephone, ephoneDN, button association tables are
                 common to both CCME and SRST MIBs and are defined
-                in CISCO-CCME-MIB. Ephone specific notifications 
+                in CISCO-CCME-MIB. Ephone specific notifications
                 which are common to CCME and SRST are also defined
                 in CISCO-CCME-MIB."
+        REVISION        "200702270000Z"
+        DESCRIPTION
+                "[1] Default value for csrstTransferSystem is changed
+                     from 'blind' to 'fullConsult'.
+                 [2] Added csrstUserLocaleInfoRev1 which is the revised
+                     version for csrstUserLocaleInfo. It can support 5
+                     user locale at the same time.
+                 [3] csrstConfGroup is deprecated and revised with
+                     csrstConfGroupRev1.
+                 [4] ciscoSrstMIBCompliance is deprecated and revised with
+                     ciscoSrstMIBComplianceRev1."
+
         REVISION        "200506200000Z"
         DESCRIPTION
                 "Initial version of this MIB module."
 
-        ::= { ciscoMgmt 441 } 
+        ::= { ciscoMgmt 441 }
 
 
 ciscoSrstMIBNotifications  OBJECT IDENTIFIER ::=  { ciscoSrstMIB 0 }
@@ -104,7 +116,7 @@ csrstSipConf         OBJECT IDENTIFIER ::= { ciscoSrstMIBObjects 4 }
 
 --
 --
--- csrst Global Group 
+-- csrst Global Group
 -- This group displays information on objects that are common for
 -- Telephony and SIP SRST modes.
 -- No objects defined at this time.
@@ -112,7 +124,7 @@ csrstSipConf         OBJECT IDENTIFIER ::= { ciscoSrstMIBObjects 4 }
 
 --
 --
--- csrstConf Group 
+-- csrstConf Group
 --
 --
 csrstEnabled OBJECT-TYPE
@@ -120,7 +132,7 @@ csrstEnabled OBJECT-TYPE
        MAX-ACCESS read-only
        STATUS     current
        DESCRIPTION
-               "Cisco SRST support is enabled or 
+               "Cisco SRST support is enabled or
                disabled. When enabled, the router
                is in fallback mode to provide
                call-handling support to IP phones.
@@ -143,7 +155,7 @@ csrstIPAddressType OBJECT-TYPE
        DESCRIPTION
                "Internet address type governing the address
                type format for one or more InetAddress
-               objects in this MIB.  The associated 
+               objects in this MIB.  The associated
                InetAddress objects' description will refer
                back to this type object as appropriate.
                "
@@ -186,7 +198,7 @@ csrstMaxConferences OBJECT-TYPE
                "Maximum number of simultaneous three-party
                conference calls configured on the router.
                Range is IOS version and platform dependent.
-               With SRST Version 3.0 onwards, the following 
+               With SRST Version 3.0 onwards, the following
                are the maximum values for each platform -
                    Cisco 1751, Cisco 1760, Cisco 2600, Cisco
                    3640
@@ -194,8 +206,8 @@ csrstMaxConferences OBJECT-TYPE
                    Cisco 3660, Cisco 3725, Cisco 3745
                        - 16 conferences.
 
-               Default is half the maximum number of 
-               simultaneous three-party conferences for 
+               Default is half the maximum number of
+               simultaneous three-party conferences for
                each platform."
        ::= { csrstConf 6 }
 
@@ -234,8 +246,8 @@ csrstSipPhoneUnRegThreshold OBJECT-TYPE
        MAX-ACCESS read-write
        STATUS     current
        DESCRIPTION
-               "This object indicates a threshold for 
-               the number of SIP phones unregistered to 
+               "This object indicates a threshold for
+               the number of SIP phones unregistered to
                SRST. This threshold is changeable by the
                NMS user.
                "
@@ -246,9 +258,9 @@ csrstCallFwdNoAnswer OBJECT-TYPE
        MAX-ACCESS read-only
        STATUS     current
        DESCRIPTION
-               "Cisco SRST call forwarding number  
+               "Cisco SRST call forwarding number
                when a Cisco IP phone is not answered.
-               This directory number is a fully 
+               This directory number is a fully
                qualified E.164 number."
        REFERENCE
                 "ITU-T E.164, Q.931 chapter 4.5.10"
@@ -261,7 +273,7 @@ csrstCallFwdNoAnswerTo OBJECT-TYPE
        STATUS     current
        DESCRIPTION
                "Timeout in seconds if a Cisco IP phone
-               is not answered, Cisco SRST will call 
+               is not answered, Cisco SRST will call
                forward to another directory number.
                "
        ::= { csrstConf 11 }
@@ -271,7 +283,7 @@ csrstCallFwdBusy OBJECT-TYPE
        MAX-ACCESS read-only
        STATUS     current
        DESCRIPTION
-               "Cisco SRST call forwarding number  
+               "Cisco SRST call forwarding number
                when a Cisco IP phone is busy.
                This directory number is a fully
                qualified E.164 number."
@@ -284,7 +296,7 @@ csrstMohFilename OBJECT-TYPE
        MAX-ACCESS read-only
        STATUS     current
        DESCRIPTION
-               "Cisco SRST Music-On-Hold is enabled 
+               "Cisco SRST Music-On-Hold is enabled
                with file on flash, or disabled without a
                file on flash.
                MOH is enabled by default."
@@ -297,7 +309,7 @@ csrstMohMulticastAddrType OBJECT-TYPE
        DESCRIPTION
                "Internet address type governing the address
                type format for one or more InetAddress
-               objects in this MIB.  The associated 
+               objects in this MIB.  The associated
                InetAddress objects' description will refer
                back to this type object as appropriate.
                "
@@ -308,13 +320,13 @@ csrstMohMulticastAddr OBJECT-TYPE
        MAX-ACCESS read-only
        STATUS     current
        DESCRIPTION
-               "This object indicates Cisco SRST 
-               Music-On-Hold Multicast IP address. 
-               When configured, this feature enables 
+               "This object indicates Cisco SRST
+               Music-On-Hold Multicast IP address.
+               When configured, this feature enables
                continuous IP multicast output of MOH
                from a Flash MOH file. This object has
                no significance if MOH is not configured.
-               Default is the csrstIPAddress object 
+               Default is the csrstIPAddress object
                for Cisco SRST.
                The type of IP address used here is
                indicated by the csrstMohMulticastAddrType
@@ -327,10 +339,10 @@ csrstMohMulticastPort OBJECT-TYPE
        MAX-ACCESS read-only
        STATUS     current
        DESCRIPTION
-               "This object indicates Cisco SRST 
+               "This object indicates Cisco SRST
                Music-On-Hold Multicast TCP port which
                is range limited.
-               When configured, this feature enables 
+               When configured, this feature enables
                continuous IP multicast output of MOH
                from a Flash MOH file. This object has
                no significance if MOH is not configured.
@@ -344,9 +356,9 @@ csrstVoiceMailNumber OBJECT-TYPE
        STATUS     current
        DESCRIPTION
                "Cisco SRST voice mail number that is
-               speed-dialed when the messages button on 
+               speed-dialed when the messages button on
                a Cisco IP phone is pressed. This voice
-               mail number is a fully qualified E.164 
+               mail number is a fully qualified E.164
                number.
                If voice-mail number is not configured,
                this object will have a string length
@@ -361,7 +373,7 @@ csrstSystemMessagePrimary OBJECT-TYPE
        MAX-ACCESS read-only
        STATUS     current
        DESCRIPTION
-               "Cisco SRST system static text message 
+               "Cisco SRST system static text message
                that is displayed on Cisco IP phone during
                fallback.
                Length of text string is less than
@@ -376,14 +388,14 @@ csrstSystemMessageSecondary OBJECT-TYPE
        MAX-ACCESS read-only
        STATUS     current
        DESCRIPTION
-               "Cisco SRST system message that is 
-               displayed on Cisco IP phone that 
-               does not support static text message  
-               and have a limited display space during 
+               "Cisco SRST system message that is
+               displayed on Cisco IP phone that
+               does not support static text message
+               and have a limited display space during
                fallback.
                Length of text string is less than
                20 characters.
-               Default messages is 'CM Fallback 
+               Default messages is 'CM Fallback
                Service'.
                "
        ::= { csrstConf 19 }
@@ -393,7 +405,7 @@ csrstScriptName OBJECT-TYPE
        MAX-ACCESS read-only
        STATUS     current
        DESCRIPTION
-               "Cisco SRST session-level IVR application 
+               "Cisco SRST session-level IVR application
                script. This application can be written
                written in Tool Command Language (TCL)
                and is applied to all Cisco IP phone lines
@@ -406,7 +418,7 @@ csrstScriptName OBJECT-TYPE
        ::= { csrstConf 20 }
 
 csrstSecondaryDialTone OBJECT-TYPE
-       SYNTAX     CvE164Address (SIZE(1..32)) 
+       SYNTAX     CvE164Address (SIZE(1..32))
        MAX-ACCESS read-only
        STATUS     current
        DESCRIPTION
@@ -428,7 +440,7 @@ csrstTransferSystem OBJECT-TYPE
        MAX-ACCESS read-only
        STATUS     current
        DESCRIPTION
-               "Cisco SRST call transfer method using 
+               "Cisco SRST call transfer method using
                the ITU-T H.450.2 standard.
                Default setting is blind.
 
@@ -437,7 +449,7 @@ csrstTransferSystem OBJECT-TYPE
                        line and the Cisco proprietary
                        method.
                fullBlind - Calls are transferred without
-                       consultation using H.450.2 standard 
+                       consultation using H.450.2 standard
                        methods.
                fullConsult - Calls are transferred using
                        H.450.2 with consultation using the
@@ -446,7 +458,7 @@ csrstTransferSystem OBJECT-TYPE
                        if the second line is unavailable.
                localConsult - Calls are transferred with
                        local consultation using the second
-                       phone line if available, or the 
+                       phone line if available, or the
                        calls fall back to blind for non-
                        local consultation or transfer
                        target. This mode is intended for
@@ -455,16 +467,20 @@ csrstTransferSystem OBJECT-TYPE
                "
        REFERENCE
                "ITU-T H.450.2 Call Transfers"
-       DEFVAL  { blind }
+       DEFVAL  { fullConsult }
        ::= { csrstConf 22 }
 
 csrstUserLocaleInfo OBJECT-TYPE
-       SYNTAX     CountryCode 
+       SYNTAX     CountryCode
        MAX-ACCESS read-only
-       STATUS     current
+       STATUS     deprecated
        DESCRIPTION
-               "Cisco SRST language for displays on 
+               "Cisco SRST language for displays on
                Cisco IP phone by country.
+               Deprecated and superseded by
+               csrstUserLocaleInfoRev1, as current
+               implementation supports 5 user locales
+               at the same time.
                "
        DEFVAL  { "US" }
        ::= { csrstConf 23 }
@@ -508,7 +524,7 @@ csrstInterdigitTo OBJECT-TYPE
        MAX-ACCESS read-only
        STATUS     current
        DESCRIPTION
-               "Cisco SRST interdigit timeout duration 
+               "Cisco SRST interdigit timeout duration
                in seconds for Cisco IP phones.
                "
        DEFVAL  { 10 }
@@ -520,8 +536,8 @@ csrstBusyTo OBJECT-TYPE
        MAX-ACCESS read-only
        STATUS     current
        DESCRIPTION
-               "Cisco SRST time in seconds before 
-               disconnect when destination is busy, 
+               "Cisco SRST time in seconds before
+               disconnect when destination is busy,
                without call-forwarding.
                "
        DEFVAL  { 10 }
@@ -533,8 +549,8 @@ csrstAlertTo OBJECT-TYPE
        MAX-ACCESS read-only
        STATUS     current
        DESCRIPTION
-               "Cisco SRST time in seconds before 
-               disconnect when call is not answered, 
+               "Cisco SRST time in seconds before
+               disconnect when call is not answered,
                without call-forwarding.
                "
        DEFVAL  { 180 }
@@ -549,7 +565,7 @@ csrstXlateCalledNumber OBJECT-TYPE
                corresponding translation rule, which
                utilizes the number-translation mechanism
                of the IOS to translate a called number
-               on the Cisco SRST router. 
+               on the Cisco SRST router.
                "
        ::= { csrstConf 29 }
 
@@ -571,7 +587,7 @@ csrstXlateCallingNumber OBJECT-TYPE
 --
 -- This table displays information about each configured alias
 -- pattern on the Cisco SRST router. The alias pattern provides
--- a mechanism for rerouting calls to telephone numbers that 
+-- a mechanism for rerouting calls to telephone numbers that
 -- are unavailable during call-manager fallback.
 --
 --
@@ -591,9 +607,9 @@ csrstAliasEntry OBJECT-TYPE
         MAX-ACCESS not-accessible
         STATUS current
         DESCRIPTION
-                "Information about a configured alias 
+                "Information about a configured alias
                 pattern.
-                There is an entry in this table for each 
+                There is an entry in this table for each
                 alias pattern configured on this device."
         INDEX { csrstAliasIndex }
         ::= { csrstAliasTable 1 }
@@ -615,7 +631,7 @@ csrstAliasIndex OBJECT-TYPE
         DESCRIPTION
                 "An index in sequential order that indicates
                 an alias pattern configured on this SRST
-                router. 
+                router.
                 "
         ::= { csrstAliasEntry 1 }
 
@@ -626,7 +642,7 @@ csrstAliasTag OBJECT-TYPE
         DESCRIPTION
                 "A unique sequence number that indicates a
                 particular alias pattern configured on this
-                SRST router. 
+                SRST router.
                 "
         ::= { csrstAliasEntry 2 }
 
@@ -636,7 +652,7 @@ csrstAliasNumPattern OBJECT-TYPE
         STATUS     current
         DESCRIPTION
                 "This object indicates the pattern to match
-                the incoming telephone number. It may 
+                the incoming telephone number. It may
                 include wildcards.
                 "
         ::= { csrstAliasEntry 3 }
@@ -647,7 +663,7 @@ csrstAliasAltNumber OBJECT-TYPE
         STATUS     current
         DESCRIPTION
                 "This object indicates the alternate tele-
-                phone number to route incoming calls to 
+                phone number to route incoming calls to
                 match the number pattern. This has to be
                 a valid extension for an IP phone actively
                 registered on the SRST router.
@@ -673,8 +689,8 @@ csrstAliasHuntStopEnabled OBJECT-TYPE
                 "This object specifies that if hunt
                 stop is enabled, after the caller tried
                 the alternate number according to the
-                alias pattern, it will stop call 
-                hunting. If hunt stop is disabled, it 
+                alias pattern, it will stop call
+                hunting. If hunt stop is disabled, it
                 will rollover to another directory
                 number if available.
                 "
@@ -686,12 +702,12 @@ csrstAliasHuntStopEnabled OBJECT-TYPE
 --
 -- This table displays information about each configured access-
 -- code on the Cisco SRST router.
--- The access-code configures trunk access codes for each type of 
--- line - BRI, E&M, FXO, and PRI. The access-code also creates 
+-- The access-code configures trunk access codes for each type of
+-- line - BRI, E&M, FXO, and PRI. The access-code also creates
 -- temporary POTS voice dial peers for all the selected types of
 -- voice ports. This allows the Cisco IP phone access to trunk
 -- lines during Cisco CallManager fallback when Cisco SRST is
--- enabled. 
+-- enabled.
 --
 --
 
@@ -711,7 +727,7 @@ csrstAccessCodeEntry OBJECT-TYPE
         STATUS current
         DESCRIPTION
                 "Information about a configured access-code
-                to trunk lines. 
+                to trunk lines.
                 There is an entry in this table for each
                 access configured on this device."
         INDEX { csrstAccessCodeType }
@@ -765,7 +781,7 @@ csrstAccessCodeDIDEnabled OBJECT-TYPE
         DESCRIPTION
                 "This object indicates the direct-inward-
                 dial on a POTS dial-peer is enabled or
-                disabled. 
+                disabled.
                 "
         ::= { csrstAccessCodeEntry 3 }
 
@@ -835,7 +851,7 @@ csrstLimitDN OBJECT-TYPE
         DESCRIPTION
                 "This object indicates the maximum number
                 of directory numbers available to each
-                type of IP phone. 
+                type of IP phone.
                 The current range of maximum lines setting
                 is from 1 to 34. The default is 34.
        DEFVAL  { 34 }
@@ -859,6 +875,41 @@ csrstNotificationEnabled OBJECT-TYPE
         DEFVAL {false}
         ::= { csrstConf 34 }
 
+csrstUserLocaleInfoRev1 OBJECT-TYPE
+       SYNTAX     DisplayString  (SIZE (14..64))
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "Cisco SRST language for displays on Cisco IP phone by country.
+                Every set of character separated by a forward slash ('/')
+                represents one user-locale whose value may be any one of
+                the following languages or one configured by the user.
+                At the same time 5 user locales can be configured.
+                 ---------------------------
+                | DE     Germany            |
+                | DK     Denmark            |
+                | ES     Spain              |
+                | FR     France             |
+                | IT     Italy              |
+                | JP     Japan              |
+                | NL     Netherlands        |
+                | NO     Norway             |
+                | PT     Portugal           |
+                | RU     Russian Federation |
+                | SE     Sweden             |
+                | US     United States      |
+                 ---------------------------
+
+                Example: if csrstUserLocaleInfoRev1 returns 'DE/US/SE/FR/RU'
+                         then : UserLocale 1 = DE
+                                UserLocale 2 = US
+                                UserLocale 3 = SE
+                                UserLocale 4 = FR
+                                UserLocale 5 = RU
+               "
+       DEFVAL  { "US/US/US/US/US" }
+       ::= { csrstConf 35 }
+
 --
 -- SRST Notification Information Group
 --
@@ -875,12 +926,12 @@ csrstSysNotifSeverity OBJECT-TYPE
         MAX-ACCESS accessible-for-notify
         STATUS     current
         DESCRIPTION
-             "The internally-defined severity of the 
+             "The internally-defined severity of the
              particular alarm condition, associated with
              the most recent SNMP notification. A subsequent
              event in which the alarm condition changes from
              its failed state back to a 'normal' state has a
-             severity of 'clear'. This severity-level value 
+             severity of 'clear'. This severity-level value
              is supplied with each SRST specific notification.
              "
         ::= { csrstNotifInfoGroup 1 }
@@ -890,7 +941,7 @@ csrstSysNotifReason OBJECT-TYPE
         MAX-ACCESS accessible-for-notify
         STATUS     current
         DESCRIPTION
-             "The internally-defined failure cause of 
+             "The internally-defined failure cause of
              the particular alarm condition, associated
              with the most recent system notification.
              "
@@ -908,12 +959,12 @@ csrstState OBJECT-TYPE
        DESCRIPTION
                "This object indicates the current state of
                Cisco SRST feature on this router.
-               Active - At least one IP or SIP phone is 
+               Active - At least one IP or SIP phone is
                         registered
                Inactive - Cisco SRST has no IP or SIP phones
                           registered
 
-               This object has no significance if 
+               This object has no significance if
                csrstEnabled object is disabled.
                "
        ::= { csrstActiveStats 1 }
@@ -923,8 +974,8 @@ csrstSipPhoneCurrentRegistered OBJECT-TYPE
        MAX-ACCESS read-only
        STATUS     current
        DESCRIPTION
-               "Total number of SIP phones currently 
-               registered to the SRST router. 
+               "Total number of SIP phones currently
+               registered to the SRST router.
                "
        ::= { csrstActiveStats 2 }
 
@@ -934,7 +985,7 @@ csrstSipCallLegs OBJECT-TYPE
        STATUS     current
        DESCRIPTION
                "Total number of SIP call legs routed
-               through the SRST router since going active. 
+               through the SRST router since going active.
                This includes incoming and outgoing calls.
                "
        ::= { csrstActiveStats 3 }
@@ -946,11 +997,11 @@ csrstTotalUpTime OBJECT-TYPE
        STATUS     current
        DESCRIPTION
                "Accumulated total number of minutes that
-               router is active in SRST mode.  
+               router is active in SRST mode.
                "
        ::= { csrstActiveStats 4 }
 
--- 
+--
 -- SIP SRST Configuration Group
 --
 --
@@ -992,7 +1043,7 @@ csrstSipIp2IpGlobalEnabled OBJECT-TYPE
        STATUS     current
        DESCRIPTION
                "This object indicates whether voip calls
-               are re-directed ip to ip globally. 
+               are re-directed ip to ip globally.
                "
        DEFVAL { false }
        ::= { csrstSipConf 3 }
@@ -1012,7 +1063,7 @@ csrstSipSend300MultSupport OBJECT-TYPE
                bestMatch - Uses the current system
                         configuration to set the order
                         of contacts.
-               longestMatch - Sets the contact order 
+               longestMatch - Sets the contact order
                         by using the destination pattern
                         longest match first, and then
                         the second longest match, the
@@ -1037,7 +1088,7 @@ csrstSipVoRegPoolTable OBJECT-TYPE
         MAX-ACCESS not-accessible
         STATUS current
         DESCRIPTION
-                "This table contains general information 
+                "This table contains general information
                 about the configured voice register
                 pool for SIP endpoints (dial-peers) on
                 this SRST router.
@@ -1049,7 +1100,7 @@ csrstSipVoRegPoolEntry OBJECT-TYPE
         MAX-ACCESS not-accessible
         STATUS current
         DESCRIPTION
-                "Information about a configured voice 
+                "Information about a configured voice
                 register pool for SIP dial-peers.
                 There is an entry in this table for
                 each voice register pool configured
@@ -1088,7 +1139,7 @@ csrstSipNetId OBJECT-TYPE
        STATUS     current
        DESCRIPTION
                "This object indicates the network ident-
-               ification information of the SIP voice 
+               ification information of the SIP voice
                register pool configured on this router.
                This object can be the network Id, IP
                address, or MAC address.
@@ -1102,7 +1153,7 @@ csrstSipVoRegPoolIpAddrType OBJECT-TYPE
        DESCRIPTION
                "Internet address type governing the address
                type format for one or more InetAddress
-               objects in this MIB.  The associated 
+               objects in this MIB.  The associated
                InetAddress objects' description will refer
                back to this type object as appropriate.
                "
@@ -1113,7 +1164,7 @@ csrstSipNetMask OBJECT-TYPE
        MAX-ACCESS read-only
        STATUS     current
        DESCRIPTION
-               "This object indicates the IP subnet 
+               "This object indicates the IP subnet
                configured for the SIP voice register
                pool.
                The type of IP subnet used here is
@@ -1147,7 +1198,7 @@ csrstSipProxySrvPref OBJECT-TYPE
                in the voice register pool. Setting the
                preference enables the desired dial peer
                to be selected when multiple dial peers
-               within a hunt group are matched for a 
+               within a hunt group are matched for a
                dial string.
                A value of 0 has the highest preference.
                "
@@ -1162,8 +1213,8 @@ csrstSipProxySrvMonitor OBJECT-TYPE
        MAX-ACCESS read-only
        STATUS     current
        DESCRIPTION
-               "Cisco SIP SRST monitoring protocol of 
-               the proxy server configured for the SIP 
+               "Cisco SIP SRST monitoring protocol of
+               the proxy server configured for the SIP
                voice register pool. This monitoring
                protocol can be ICMP ping or RTR probes.
                "
@@ -1189,8 +1240,8 @@ csrstSipDefaultPreference OBJECT-TYPE
        MAX-ACCESS read-only
        STATUS     current
        DESCRIPTION
-               "This object indicates the default 
-               preference of the proxy dial-peers 
+               "This object indicates the default
+               preference of the proxy dial-peers
                created in the voice register pool.
                If csrstSipProxySrvPref object is not
                set, the default preference is applied
@@ -1226,10 +1277,10 @@ csrstSipVoRegNumberListTable OBJECT-TYPE
         MAX-ACCESS not-accessible
         STATUS current
         DESCRIPTION
-                "This table contains information 
+                "This table contains information
                 about the configured number list
-                for the corresponding voice 
-                register pool on this SIP SRST 
+                for the corresponding voice
+                register pool on this SIP SRST
                 router.
                 "
         ::= { csrstSipConf 6 }
@@ -1239,13 +1290,13 @@ csrstSipVoRegNumberListEntry OBJECT-TYPE
         MAX-ACCESS not-accessible
         STATUS current
         DESCRIPTION
-                "Information about a configured number 
+                "Information about a configured number
                 list for the corresponding voice register
                 pool.
                 There is an entry in this table for each
                 number list configured on this device.
                 "
-        INDEX { csrstSipVoRegPoolTag, 
+        INDEX { csrstSipVoRegPoolTag,
                 csrstSipVoRegNumberListIndex }
         ::= { csrstSipVoRegNumberListTable 1 }
 
@@ -1274,7 +1325,7 @@ csrstSipVoRegNumberListTag OBJECT-TYPE
        MAX-ACCESS read-only
        STATUS     current
        DESCRIPTION
-               "This object indicates the particular 
+               "This object indicates the particular
                index of the number list configured
                for the corresponding voice register
                pool.
@@ -1289,7 +1340,7 @@ csrstSipVoRegNumberPattern OBJECT-TYPE
                "This object indicates the number pattern
                that the registrar permits to handle the
                register message from the SIP phone.
-               This number pattern is a fully 
+               This number pattern is a fully
                qualified E.164 number."
        REFERENCE
                 "ITU-T E.164, Q.931 chapter 4.5.10"
@@ -1313,10 +1364,10 @@ csrstSipVoRegNumberHuntstopEnabled OBJECT-TYPE
        STATUS     current
        DESCRIPTION
                "This object indicates huntstop is enabled
-               (true) or disabled (false) for the number 
+               (true) or disabled (false) for the number
                pattern configured for the corresponding
                voice register pool.
-               If enabled, the incoming call will stop 
+               If enabled, the incoming call will stop
                hunting if the dial-peer is busy.
                If disabled, the incoming call will hunt
                further for dial-peers.
@@ -1332,10 +1383,10 @@ csrstSipVoRegNumberHuntstopEnabled OBJECT-TYPE
 -- configured on the Cisco SRST router.
 -- The information is related to the dynamically created
 -- (configured) SIP dial-peers (endpoints) which
--- corresponds to each DN/line configured on the phone. 
--- This table is complimentary to the 
--- CISCO-VOICE-DIAL-CONTROL-MIB which contains 
--- information pertinent to each dial-peer. 
+-- corresponds to each DN/line configured on the phone.
+-- This table is complimentary to the
+-- CISCO-VOICE-DIAL-CONTROL-MIB which contains
+-- information pertinent to each dial-peer.
 --
 --
 csrstSipEndpointTable OBJECT-TYPE
@@ -1343,7 +1394,7 @@ csrstSipEndpointTable OBJECT-TYPE
         MAX-ACCESS not-accessible
         STATUS current
         DESCRIPTION
-                "This table contains general information 
+                "This table contains general information
                 about the configured SIP dial-peers
                 (endpoints) on this SIP SRST router.
                 "
@@ -1376,7 +1427,7 @@ csrstSipEndpointTag OBJECT-TYPE
         STATUS     current
         DESCRIPTION
                 "A unique sequence number that indicates
-                 a SIP endpoint configured on this SRST 
+                 a SIP endpoint configured on this SRST
                  router.
                 "
         ::= { csrstSipEndpointEntry 1 }
@@ -1399,7 +1450,7 @@ csrstSipEndpointIpAddrType OBJECT-TYPE
        DESCRIPTION
                "Internet address type governing the address
                type format for one or more InetAddress
-               objects in this MIB.  The associated 
+               objects in this MIB.  The associated
                InetAddress objects' description will refer
                back to this type object as appropriate.
                "
@@ -1410,7 +1461,7 @@ csrstSipEndpointIpAddress OBJECT-TYPE
        MAX-ACCESS read-only
        STATUS     current
        DESCRIPTION
-               "This object indicates the SIP endpoint 
+               "This object indicates the SIP endpoint
                IP address configured on this router.
                The type of IP address used here is
                indicated by the csrstSipEndpointIpAddrType
@@ -1424,7 +1475,7 @@ csrstSipEndpointDN OBJECT-TYPE
        STATUS     current
        DESCRIPTION
                "This object indicates the SIP phone's DN
-               or line number assigned to the SIP endpoint.	
+               or line number assigned to the SIP endpoint.
                "
        ::= {csrstSipEndpointEntry 5 }
 
@@ -1440,9 +1491,9 @@ csrstStateChange NOTIFICATION-TYPE
     STATUS      current
     DESCRIPTION
             "An SRST up or down state change notification
-            is generated. This indicates one or more phones 
+            is generated. This indicates one or more phones
             is registered to the SRST router or none is
-            registered. 
+            registered.
             "
          ::= { ciscoSrstMIBNotifications 1 }
 
@@ -1466,11 +1517,11 @@ csrstSipPhoneUnRegThresholdExceed NOTIFICATION-TYPE
             "A SIP phone unregistration notification is
              generated when the number of SIP phone
              unregistrations have exceeded the threshold.
-             The number of currently registered SIP 
-             phones is provided here by 
+             The number of currently registered SIP
+             phones is provided here by
              csrstSipPhoneCurrentRegistered object
-             as a reference such that if 
-             csrstSipPhoneCurrentRegistered falls below 
+             as a reference such that if
+             csrstSipPhoneCurrentRegistered falls below
              csrstSipPhoneUnRegThreshold,
              a notification will be generated to indicate
              that the number of unregistered SIP phones
@@ -1484,7 +1535,7 @@ csrstSipPhoneRegFailed NOTIFICATION-TYPE
     STATUS      current
     DESCRIPTION
             "A SIP phone fail registration notification
-             is generated when the SIP phone fails to 
+             is generated when the SIP phone fails to
              register.
             "
          ::= { ciscoSrstMIBNotifications 4 }
@@ -1502,19 +1553,19 @@ csrstConferenceFailed NOTIFICATION-TYPE
 
 -- Conformance
 
-ciscoSrstMIBCompliances 
+ciscoSrstMIBCompliances
           OBJECT IDENTIFIER ::= { ciscoSrstMIBConformance 1 }
-ciscoSrstMIBGroups      
+ciscoSrstMIBGroups
           OBJECT IDENTIFIER ::= { ciscoSrstMIBConformance 2 }
 
 ciscoSrstMIBCompliance MODULE-COMPLIANCE
-    STATUS  current
+    STATUS  deprecated
     DESCRIPTION
             "The compliance statement for the Cisco
             Survivable Remote Site Telephony (SRST) MIB.
             "
     MODULE  -- this module
-    MANDATORY-GROUPS {  
+    MANDATORY-GROUPS {
                         csrstConfGroup,
                         csrstNotifInfoGroup,
                         csrstSipConfGroup,
@@ -1547,6 +1598,47 @@ ciscoSrstMIBCompliance MODULE-COMPLIANCE
             values supported at this time."
 
          ::= { ciscoSrstMIBCompliances 1 }
+
+ciscoSrstMIBComplianceRev1 MODULE-COMPLIANCE
+    STATUS  current
+    DESCRIPTION
+            "The compliance statement for the Cisco
+            Survivable Remote Site Telephony (SRST) MIB.
+            "
+    MODULE  -- this module
+    MANDATORY-GROUPS {
+                        csrstNotifInfoGroup,
+                        csrstSipConfGroup,
+                        csrstActiveStatsGroup,
+                        csrstMIBNotifsGroup,
+                        csrstConfGroupRev1
+                     }
+
+    OBJECT csrstIPAddressType
+    SYNTAX INTEGER {ipv4(1), ipv6(2) }
+    DESCRIPTION
+            "The values of ipv4 and ipv6 are the only
+            values supported at this time."
+
+    OBJECT csrstMohMulticastAddrType
+    SYNTAX INTEGER {ipv4(1), ipv6(2) }
+    DESCRIPTION
+            "The values of ipv4 and ipv6 are the only
+            values supported at this time."
+
+    OBJECT csrstSipVoRegPoolIpAddrType
+    SYNTAX INTEGER {ipv4(1), ipv6(2) }
+    DESCRIPTION
+            "The values of ipv4 and ipv6 are the only
+            values supported at this time."
+
+    OBJECT csrstSipEndpointIpAddrType
+    SYNTAX INTEGER {ipv4(1), ipv6(2) }
+    DESCRIPTION
+            "The values of ipv4 and ipv6 are the only
+            values supported at this time."
+
+         ::= { ciscoSrstMIBCompliances 2 }
 
 -- Units of Conformance
 
@@ -1594,10 +1686,10 @@ csrstConfGroup OBJECT-GROUP
                 csrstLimitDN,
                 csrstNotificationEnabled
             }
-    STATUS      current
+    STATUS      deprecated
     DESCRIPTION
             "A collection of objects which are used to
-            show the current running configuration of 
+            show the current running configuration of
             Cisco SRST feature.
             "
          ::= { ciscoSrstMIBGroups 1 }
@@ -1658,7 +1750,7 @@ csrstSipConfGroup OBJECT-GROUP
     STATUS      current
     DESCRIPTION
             "A collection of objects which are used to
-            show the current running configuration of 
+            show the current running configuration of
             Cisco SIP SRST feature.
             "
          ::= { ciscoSrstMIBGroups 4 }
@@ -1676,5 +1768,57 @@ csrstMIBNotifsGroup NOTIFICATION-GROUP
             SRST or SIP SRST feature.
             "
          ::= { ciscoSrstMIBGroups 5 }
+
+csrstConfGroupRev1 OBJECT-GROUP
+    OBJECTS {
+                csrstEnabled,
+                csrstVersion,
+                csrstIPAddressType,
+                csrstIPAddress,
+                csrstPortNumber,
+                csrstMaxConferences,
+                csrstMaxEphones,
+                csrstMaxDN,
+                csrstSipPhoneUnRegThreshold,
+                csrstCallFwdNoAnswer,
+                csrstCallFwdNoAnswerTo,
+                csrstCallFwdBusy,
+                csrstMohFilename,
+                csrstMohMulticastAddrType,
+                csrstMohMulticastAddr,
+                csrstMohMulticastPort,
+                csrstVoiceMailNumber,
+                csrstSystemMessagePrimary,
+                csrstSystemMessageSecondary,
+                csrstScriptName,
+                csrstSecondaryDialTone,
+                csrstTransferSystem,
+                csrstDateFormat,
+                csrstTimeFormat,
+                csrstInterdigitTo,
+                csrstBusyTo,
+                csrstAlertTo,
+                csrstXlateCalledNumber,
+                csrstXlateCallingNumber,
+                csrstAliasTag,
+                csrstAliasNumPattern,
+                csrstAliasAltNumber,
+                csrstAliasPreference,
+                csrstAliasHuntStopEnabled,
+                csrstAccessCodeType,
+                csrstAccessCode,
+                csrstAccessCodeDIDEnabled,
+                csrstLimitDNType,
+                csrstLimitDN,
+                csrstNotificationEnabled,
+                csrstUserLocaleInfoRev1
+            }
+    STATUS      current
+    DESCRIPTION
+            "A collection of objects which are used to
+            show the current running configuration of
+            Cisco SRST feature.
+            "
+         ::= { ciscoSrstMIBGroups 6 }
 
 END
