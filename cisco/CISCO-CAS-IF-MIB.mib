@@ -1,10 +1,10 @@
 -- *****************************************************************
 -- CISCO-CAS-IF-MIB.my: Channel Associated Signal Interface MIB file
 --
--- July 1997  Hongchi Shih   
+-- July 1997  Hongchi Shih
 -- Jan. 1999  Rick Chen
 --
--- Copyright (c) 1997-1999, 2000, 2003 by cisco Systems, Inc.
+-- Copyright (c) 1997-1999, 2000, 2003, 2004 by cisco Systems, Inc.
 -- All rights reserved.
 -- *****************************************************************
 
@@ -13,10 +13,10 @@ CISCO-CAS-IF-MIB DEFINITIONS ::= BEGIN
 IMPORTS
         MODULE-IDENTITY,
         OBJECT-TYPE,
-        Integer32 
+        Integer32
                 FROM SNMPv2-SMI
         RowStatus,
-        TruthValue, 
+        TruthValue,
         DisplayString
                 FROM SNMPv2-TC
         MODULE-COMPLIANCE,
@@ -35,7 +35,7 @@ IMPORTS
 
 
 ciscoCasIfMIB MODULE-IDENTITY
-        LAST-UPDATED    "200304180000Z"
+        LAST-UPDATED    "200410130000Z"
         ORGANIZATION    "Cisco Systems, Inc."
         CONTACT-INFO
                 "       Cisco Systems
@@ -53,24 +53,52 @@ ciscoCasIfMIB MODULE-IDENTITY
                  This MIB manages the generic CAS (Channel Associated
                  Signal)or DS0 clear channel Interfaces in the router.
                 "
+        REVISION    "200410130000Z"
+        DESCRIPTION
+                "Extend CcasGrpEMTmEntry to include
+                     ccasGrpEMTmPttXmt
+                     ccasGrpEMTmPttRcv
+                     ccasGrpEMTmDelayVoice
+                 Extend CcasGrpEMCfgEntry to include
+                     ccasGrpEMCfgAutoGainControl
+                 add ccasEMGroupRev2
+                 add ccasIfMIBComplianceRev3
+                "
+
+        REVISION    "200409300000Z"
+        DESCRIPTION
+                "Extend ccasGrpCfgServiceType to include
+                 xgcp (11)"
+
+        REVISION    "200401150000Z"
+        DESCRIPTION
+                "Deprecated ccasEMGroup
+                 Add ccasEMGroupRev1
+                 Extend ccasGrpCfgType to include emLmr (27)
+                 Extend CcasGrpEMCfgEntry to include
+                 ccasGrpEMCfgLmrMCap & ccasGrpEMCfgLmrECap
+                 Extend CcasGrpEMTmEntry to include
+                 ccasGrpEMTmVoiceHangover &
+                 ccasGrpEMTmLmrTeardown
+                "
 
         REVISION    "200304180000Z"
         DESCRIPTION
-                "Extend ccasGrpCfgServiceType to include 
+                "Extend ccasGrpCfgServiceType to include
                  h248 (9) and ds0xconn (10)"
 
         REVISION    "200210020000Z"
         DESCRIPTION
-                "Extend ccasGrpCfgServiceType to include 
+                "Extend ccasGrpCfgServiceType to include
                  trunkingService(8)."
 
         REVISION    "9901180000Z"
         DESCRIPTION
                 "Add ccasXgcpCfgTable to configure continuity test
-                 (COT) tone frequencies. 
-                 Add object ccasGrpCfgServiceType for displaying service 
+                 (COT) tone frequencies.
+                 Add object ccasGrpCfgServiceType for displaying service
                  type.
-                 Extend ccsaGrpCfgType to include fgdOS, fgdEANA and 
+                 Extend ccsaGrpCfgType to include fgdOS, fgdEANA and
                  nullSignaling"
 
         ::= { ciscoMgmt 85 }
@@ -78,7 +106,7 @@ ciscoCasIfMIB MODULE-IDENTITY
 --
 -- ifEntry for the all type of Channel Associated Signal channel (CAS)
 -- supports the ifGeneralInformationGroup of Cisco IF-MIB.
--- 
+--
 
 -- ifTable           Comments
 -- ==============    ==================================================
@@ -89,7 +117,7 @@ ciscoCasIfMIB MODULE-IDENTITY
 -- ifSpeed           contains 64000 for CAS channel.
 -- ifPhysAddress     contains an octet string of zero length.
 --
--- ifAdminStatus     Only support the read-only ifAdminStatus.  
+-- ifAdminStatus     Only support the read-only ifAdminStatus.
 -- ifOperStatus      The current operational status of the CAS channel
 --                   interface port. Note that dormant(5) is explicitly
 --                   being used as defined in RFC 1573.
@@ -105,7 +133,7 @@ ciscoCasIfMIB MODULE-IDENTITY
 --                   octet string of zero length.
 --
 
-             
+
 --
 -- Relationship to the IETF Dial Control MIB (RFC 2128)
 --
@@ -113,13 +141,13 @@ ciscoCasIfMIB MODULE-IDENTITY
 -- a connection can be explicitly handled using an ifStack. If a
 -- call connection is established, the managed system stacks the call
 -- associated voice encapsulation interface on top of CAS channel of
--- T1/E1. 
+-- T1/E1.
 -- Refer to the section 2.2.1 of RFC 2128 and the section 3.2.1 of
 -- RFC 2127 for the detailed information.
 
 --
 -- Using ifStackTable
--- 
+--
 --   This section describes by example how to use ifStackTable to
 --   represent the relationship of dial-up peer with ds0 and ds1
 --   interfaces.
@@ -142,7 +170,7 @@ ciscoCasIfMIB MODULE-IDENTITY
 --        +===+   +===+   +===+
 --          |       |       |
 --       +=====================+
---       |         DS1         | 
+--       |         DS1         |
 --       +=====================+
 --
 --   The assignment of the index values could for example be:
@@ -174,8 +202,8 @@ ciscoCasIfMIB MODULE-IDENTITY
 --
 --
 --   The Signaling type of the DS0 group is enhanced to include null
---   signaling. When configured as null signaling, the DS0 group 
---   can provide voice/data path. 
+--   signaling. When configured as null signaling, the DS0 group
+--   can provide voice/data path.
 
 
 
@@ -196,11 +224,11 @@ ccasGrpABCDObjects     OBJECT IDENTIFIER ::= { ccasGrpObjects 5 }
 --*********************************************************************
 -- [1] CAS/DS0 General Configuration for T1/E1
 -- [2] CAS/DS0 General Configuration group
--- [3] CAS E&M group                
--- [4] CAS FXO/SAO group            
--- [5] CAS FXS/SAS group            
--- [6] CAS custom ABCD bits configuration group            
--- [7] CAS channel group          
+-- [3] CAS E&M group
+-- [4] CAS FXO/SAO group
+-- [5] CAS FXS/SAS group
+-- [6] CAS custom ABCD bits configuration group
+-- [7] CAS channel group
 
 --*********************************************************************
 -- The CAS/DS0  General Configuration Table for T1/E1
@@ -211,7 +239,7 @@ ccasDs1IfCfgTable OBJECT-TYPE
         STATUS      current
         DESCRIPTION
                 "The CAS/DS0 General Configuration Table for T1/E1.  It
-                 contains the CAS/DS0 related standard configuration 
+                 contains the CAS/DS0 related standard configuration
                  information for T1/E1.
                 "
         ::= { ccasDS1Objects 1 }
@@ -239,13 +267,13 @@ ccasDs1IfCfgDs0ChannelsConfigurable OBJECT-TYPE
         DESCRIPTION
                 "This object contains the bit map of the available DS0
                  channel in the DS1.
-                 The MSB (most significant bit) is DS0 channel number 1. 
+                 The MSB (most significant bit) is DS0 channel number 1.
                  The missing bytes is default to a value of 0.
                  A 1-bit indicates the channel is available for
                  configuration and a 0-bit indicates it isn't.
                  The length of this object is either 3 octets (for T1)
                  or 4 octets (for E1).
-                 
+
                  The most significant bit is transmitted first.
                 "
         ::= { ccasDs1IfCfgEntry 1 }
@@ -287,7 +315,7 @@ ccasGrpCfgEntry OBJECT-TYPE
 CcasGrpCfgEntry ::=
         SEQUENCE {
                 ccasGrpCfgIndex            Integer32,
-                ccasGrpCfgType             INTEGER,    
+                ccasGrpCfgType             INTEGER,
                 ccasGrpCfgDs0Channels      OCTET STRING,
                 ccasGrpCfgServiceType      INTEGER,
                 ccasGrpCfgRowStatus        RowStatus
@@ -309,59 +337,74 @@ ccasGrpCfgType OBJECT-TYPE
             emWinkStartFgd   (2),
             emImmedStart     (3),
             emDelayDial      (4),
-            fxsLoopStart     (5),  
-            fxsGroundStart   (6),  
+            fxsLoopStart     (5),
+            fxsGroundStart   (6),
             sasLoopStart     (7),
             sasGroundStart   (8),
             r2Analog         (9),
             r2Digital        (10),
             r2Pulse          (11),
-            p7               (12), 
+            p7               (12),
             fxoLoopStart     (13),
-            fxoGroundStart   (14), 
+            fxoGroundStart   (14),
             fgdOS            (15),
             nullSignaling    (16),
             r1Itu            (17),
             r1Modified       (18),
             r1Turkey         (19),
-            fgdEANA         (20)
-        }         
+            fgdEANA          (20),
+            emMelImmedStart  (21),
+            emMelWink        (22),
+            emMelDelayDial   (23),
+            fxsMelcas        (24),
+            fxoMelcas        (25),
+            extsig           (26),
+            emLmr            (27)
+        }
         MAX-ACCESS  read-create
         STATUS      current
         DESCRIPTION
                 "The Signaling type of the DS0 group.
-                 emWinkStart    - CAS E&M Wink Start.                   
+                 emWinkStart    - CAS E&M Wink Start.
                  emWinkStartFgd - CAS E&M Wink Start with Feature
                                   group D.
-                 emImmedStart   - CAS E&M Immediate Start.     
-                 emDelayDial    - CAS E&M Delay Dial.                   
+                 emImmedStart   - CAS E&M Immediate Start.
+                 emDelayDial    - CAS E&M Delay Dial.
                  fxsLoopStart   - CAS FXS Loop Start.
                  fxsGroundStart - CAS FXS Ground Start.
                  sasLoopStart   - CAS SAS Loop Start.
                  sasGroundStart - CAS SAS Ground Start.
                  r2Analog       - R2 ITU Q411.
                  r2Digital      - R2 ITU Q421.
-                 r2Pulse        - R2 ITU Supplement 7. 
+                 r2Pulse        - R2 ITU Supplement 7.
                  p7             - P7 switch.
-                 fgdOS          - Bellcore Feature Group D : 
-                                         Operator Services Signaling 
+                 fgdOS          - Bellcore Feature Group D :
+                                         Operator Services Signaling
                  nullSignaling  - 64k clear channel
                  r1Itu          - R1 ITU.
                  r1Modified     - R1 Modified.
                  r1Turkey       - R1 Turkey.
                  fgdEANA        - FGD Exchange Access North American.
+                 emMelImmedStart - CAS E&M Melcas Immediate Start
+                 emMelWink      -  CAS E&M Melcas Wink Start
+                 emMelDelayDial -  CAS E&M Melcas Delay Dial
+                 fxsMelcas      -  CAS FXS Melcas
+                 fxoMelcas      -  CAS FXO Melcas
+                 extsig         -  External Signal
+                 emLmr          -  CAS E&M Land Mobil Radio(LMR)
+                                   interface
                 "
         REFERENCE
             "EIA/TIA-464B, chapter 6.2.1.1 Signaling Interface Types.
              ITU-T Q411 - Specifications of signalling system R2 line
                           signalling, analogue version.
              ITU-T Q421 - Specifications of signalling system R2 line
-                          signalling, digital version. 
+                          signalling, digital version.
              ITU-T R2 Supplement 7 - Specifications of signalling system
                           R2 line signalling, pulsed version.
              Bellcore, TR-NPL-000258 -  Feature Group D
-                       section 3.4 for Exchange Access North American 
-                       section 3.6 for Operator Services Signaling 
+                       section 3.4 for Exchange Access North American
+                       section 3.6 for Operator Services Signaling
             "
         DEFVAL      { emWinkStart }
         ::= { ccasGrpCfgEntry 2 }
@@ -371,7 +414,7 @@ ccasGrpCfgDs0Channels OBJECT-TYPE
         MAX-ACCESS  read-create
         STATUS      current
         DESCRIPTION
-                "This object contains the bit map of the selected DS0 
+                "This object contains the bit map of the selected DS0
                  channels to be added into this group.
                  The MSB (most significant bit) is DS0 channel number 1.
                  For T1, only higher 24 bits are used to specify the
@@ -385,7 +428,7 @@ ccasGrpCfgDs0Channels OBJECT-TYPE
 ccasGrpCfgServiceType OBJECT-TYPE
         SYNTAX      INTEGER {
                     none            (1),
-                    casServSw56     (2), 
+                    casServSw56     (2),
                     casServModem    (3),
                     casServAuto     (4),
                     sgcp            (5),
@@ -393,30 +436,37 @@ ccasGrpCfgServiceType OBJECT-TYPE
                     other           (7),
                     trunkingService (8),
                     h248            (9),
-                    ds0xconn        (10)
+                    ds0xconn        (10),
+                    xgcp            (11)
                   }
         MAX-ACCESS  read-create
         STATUS      current
         DESCRIPTION
                 "Specify the Service type of the CAS/DS0 group.
-                 none - no service type 
+                 none - no service type
                  casServSw56 -  sw56 service for CAS
                  casServModme -  modem service for CAS
                  casServAuto -  auto service for CAS
                  sgcp -  Simple Gateway Control Protocol
-                         (SGCP) service. Used when DS0 is  
+                         (SGCP) service. Used when DS0 is
                          configured for null signaling.
-                 mgcp -  Media Gateway Control Protocol 
-                         (MGCP) service. Used when DS0 is  
+                 mgcp -  Media Gateway Control Protocol
+                         (MGCP) service. Used when DS0 is
                          configured for null signaling.
-                 other - none of the above and the below.  
-                 trunkingService - 
+                 other - none of the above and the below.
+                 trunkingService -
                          This DS0 group is handled by
-                         trunking service application. 
-                 h248 - ITU H.248 Media Gateway Control 
+                         trunking service application.
+                 h248 - ITU H.248 Media Gateway Control
                         service. Used when DS0 is
                         configured for null signaling.
                  ds0xconn - Used for DS0 cross connection.
+                 xgcp -  Media Gateway Control Protocol
+                         (MGCP) extension service including
+                         TGCP (Trunking Gateway Control
+                         Protocol) profiles feature.
+                         Used when DS0 is  configured for
+                         null signaling.
                 "
         DEFVAL     { none }
         ::= { ccasGrpCfgEntry 5 }
@@ -429,10 +479,10 @@ ccasGrpCfgRowStatus OBJECT-TYPE
                 "This object is used to create a new row or modify
                  or delete an existing row in this table. The
                  corresponding instance of ccasGrpCfgType can not be
-                 modified while this object has the value 'active'. 
+                 modified while this object has the value 'active'.
                 "
         ::= { ccasGrpCfgEntry 4 }
- 
+
 
 
 --*********************************************************************
@@ -468,8 +518,10 @@ ccasGrpEMCfgEntry OBJECT-TYPE
 CcasGrpEMCfgEntry ::=
         SEQUENCE {
                 ccasGrpEMCfgDialType         INTEGER,
-                ccasGrpEMCfgDnisAni          BITS
-
+                ccasGrpEMCfgDnisAni          BITS,
+                ccasGrpEMCfgLmrMCap          INTEGER,
+                ccasGrpEMCfgLmrECap          INTEGER,
+                ccasGrpEMCfgAutoGainControl  TruthValue
         }
 
 
@@ -513,6 +565,57 @@ ccasGrpEMCfgDnisAni OBJECT-TYPE
                 "
         ::= { ccasGrpEMCfgEntry 2 }
 
+ccasGrpEMCfgLmrMCap OBJECT-TYPE
+        SYNTAX      INTEGER {
+                    inact     (1),
+                    audio     (2),
+                    dial      (3)
+        }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+                "The M lead behavior of E&M LMR interface.
+                 inact - The m-lead status should be ignored.
+                 audio -  The m-lead status is used to control
+                          generating voice packet.
+                 dial - The first m-lead off to on status indicates
+                        call setup request. The following m-lead
+                        status change during the call should be
+                        ignored.
+                "
+        DEFVAL { inact }
+        ::= { ccasGrpEMCfgEntry 3 }
+
+ccasGrpEMCfgLmrECap OBJECT-TYPE
+        SYNTAX      INTEGER {
+                    seize     (4),
+                    voice     (5),
+                    inactive  (6)
+        }
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+                "The E lead behavior of E&M LMR interface.
+                 seize - The e-lead used as seize signal.
+                 voice -  The e-lead status is used to indicate
+                          voice packet received or not.
+                 inactive -- e-lead is inactive.
+                "
+        DEFVAL { seize }
+        ::= { ccasGrpEMCfgEntry 4 }
+
+ccasGrpEMCfgAutoGainControl OBJECT-TYPE
+        SYNTAX      TruthValue
+        MAX-ACCESS  read-write
+        STATUS      current
+        DESCRIPTION
+                "This object is used to enabling or disabling automatic
+                 gain control on this interface. AGC allows dsp to
+                 adjust the input voice volume and avoid rapid
+                 voice volume change.
+                "
+        DEFVAL { false }
+        ::= { ccasGrpEMCfgEntry 5 }
 
 --*********************************************************************
 -- The CAS Group E&M Timing Parameters Table
@@ -525,7 +628,7 @@ ccasGrpEMTmTable OBJECT-TYPE
         MAX-ACCESS  not-accessible
         STATUS      current
         DESCRIPTION
-                "The E&M interface Timing Parameters table. It 
+                "The E&M interface Timing Parameters table. It
                  contains the configuration of the various E&M signaling
                  protocol timing parameters.
                 "
@@ -552,8 +655,12 @@ CcasGrpEMTmEntry ::=
                 ccasGrpEMTmDigitDuration            Integer32,
                 ccasGrpEMTmInterDigitDuration       Integer32,
                 ccasGrpEMTmPulseRate                Integer32,
-                ccasGrpEMTmPulseInterDigitDuration  Integer32
-
+                ccasGrpEMTmPulseInterDigitDuration  Integer32,
+                ccasGrpEMTmVoiceHangover            Integer32,
+                ccasGrpEMTmLmrTeardown              Integer32,
+                ccasGrpEMTmPttXmt                   Integer32,
+                ccasGrpEMTmPttRcv                   Integer32,
+                ccasGrpEMTmDelayVoice               Integer32
         }
 
 
@@ -578,7 +685,7 @@ ccasGrpEMTmMaxWinkWaitDuration        OBJECT-TYPE
        STATUS     current
        DESCRIPTION
                "Maximum wink wait duration for sending out wink start
-                signaling. 
+                signaling.
                 This object is relevant to the interfaces in the CAS
                 group if the ccasGrpCfgType object
                 is emWinkStart(1) or emWinkStartFgd(2).
@@ -593,7 +700,7 @@ ccasGrpEMTmMaxWinkDuration        OBJECT-TYPE
        DESCRIPTION
                "Maximum wink duration for sending out wink start
                 signaling.
-                This object is relevant to the interfaces in the CAS 
+                This object is relevant to the interfaces in the CAS
                 group if the ccasGrpCfgType object is emWinkStart(1)
                 or emWinkStartFgd(2).
                 The default value of this object is 200 milliseconds."
@@ -606,7 +713,7 @@ ccasGrpEMTmDelayStart        OBJECT-TYPE
        STATUS     current
        DESCRIPTION
                "Timing of generation of outgoing delayed start signal
-                from detection of incoming seizure. 
+                from detection of incoming seizure.
                 This object is relevant to the interfaces of the CAS
                 group if the ccasGrpCfgType object is emDelayDial(4).
                 The default value of this object is 300 milliseconds."
@@ -619,7 +726,7 @@ ccasGrpEMTmMaxDelayDuration        OBJECT-TYPE
        STATUS     current
        DESCRIPTION
                "Maximum delay signal duration for sending out delay dial
-                signaling. 
+                signaling.
                 This object is relevant to the interfaces in the CAS
                 group if the ccasGrpCfgType object is emDelayDial(4).
                 The default value of this object is 2000 milliseconds."
@@ -650,9 +757,9 @@ ccasGrpEMTmDigitDuration  OBJECT-TYPE
                 the interfaces in the CAS group if ccasGrpCfgDialType
                 is dtmf or R2 tone.
                 The default value of this object is 100 milliseconds.
-               " 
+               "
        ::= { ccasGrpEMTmEntry 7 }
- 
+
 ccasGrpEMTmInterDigitDuration  OBJECT-TYPE
        SYNTAX     Integer32 (50..500)
        UNITS      "milliseconds"
@@ -664,7 +771,7 @@ ccasGrpEMTmInterDigitDuration  OBJECT-TYPE
                 the interfaces in the CAS group if ccasGrpCfgDialType
                 is dtmf or R2 tone.
                 The default value of this object is 100 milliseconds.
-               " 
+               "
        ::= { ccasGrpEMTmEntry 8 }
 
 ccasGrpEMTmPulseRate  OBJECT-TYPE
@@ -678,9 +785,9 @@ ccasGrpEMTmPulseRate  OBJECT-TYPE
                 interfaces in the CAS group only if ccasGrpCfgDialType
                 is pulse.
                 The default value of this object is 10 pps.
-               " 
+               "
        ::= { ccasGrpEMTmEntry 9 }
- 
+
 ccasGrpEMTmPulseInterDigitDuration  OBJECT-TYPE
        SYNTAX     Integer32 (100..1000)
        UNITS      "milliseconds"
@@ -693,10 +800,73 @@ ccasGrpEMTmPulseInterDigitDuration  OBJECT-TYPE
                 interfaces in the CAS group only if ccasGrpCfgDialType
                 is pulse.
                 The default value of this object is 500 milliseconds.
-               " 
+               "
        ::= { ccasGrpEMTmEntry 10 }
 
+ccasGrpEMTmVoiceHangover  OBJECT-TYPE
+       SYNTAX     Integer32 (0..10000)
+       UNITS      "milliseconds"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "The hangover time used to determine there is no more
+                voice packet arrived.
+                The default value of this object is 250 milliseconds.
+               "
+       ::= { ccasGrpEMTmEntry 11 }
 
+ccasGrpEMTmLmrTeardown  OBJECT-TYPE
+       SYNTAX     Integer32 (-1 | 5..60000)
+       UNITS      "seconds"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "LMR port tear down  timeout.
+                This object is relevant to the waiting time of
+                teardown call on LMR port.
+                If the value of this object is '-1', then the timeout
+                is disable.
+               "
+       DEFVAL { 1800 }
+       ::= { ccasGrpEMTmEntry 12 }
+
+ccasGrpEMTmPttXmt  OBJECT-TYPE
+       SYNTAX     Integer32 (0..30)
+       UNITS      "minutes"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "This object signifies LMR port maximum transmit time.
+                This object is relevant to how long LMR port can
+                continue transmit voice packet without pause.
+               "
+       DEFVAL { 0 }
+       ::= { ccasGrpEMTmEntry 13 }
+
+ccasGrpEMTmPttRcv  OBJECT-TYPE
+       SYNTAX     Integer32 (0..30)
+       UNITS      "minutes"
+       MAX-ACCESS read-write
+       STATUS     current
+       DESCRIPTION
+               "This object signifies LMR port maximum receive time.
+                This object is relevant to how long LMR port can
+                continue receive voice packet without pause.
+               "
+       DEFVAL { 0 }
+       ::= { ccasGrpEMTmEntry 14 }
+
+ccasGrpEMTmDelayVoice  OBJECT-TYPE
+       SYNTAX     Integer32 (0..1500)
+       UNITS      "milliseconds"
+       MAX-ACCESS read-only
+       STATUS     current
+       DESCRIPTION
+               "This object is relevant to how long LMR will delay
+                sending the voice packet to the LMR port.
+               "
+       DEFVAL { 0 }
+       ::= { ccasGrpEMTmEntry 15 }
 
 --*********************************************************************
 -- The CAS Group FXS/SAS Standard Configuration Table
@@ -729,8 +899,8 @@ ccasGrpLineCfgEntry OBJECT-TYPE
 
 CcasGrpLineCfgEntry ::=
         SEQUENCE {
-                ccasGrpLineCfgNumberRings      Integer32,    
-                ccasGrpLineCfgSupDisconnect    TruthValue, 
+                ccasGrpLineCfgNumberRings      Integer32,
+                ccasGrpLineCfgSupDisconnect    TruthValue,
                 ccasGrpLineCfgDialType         INTEGER
         }
 
@@ -756,7 +926,7 @@ ccasGrpLineCfgSupDisconnect OBJECT-TYPE
        MAX-ACCESS read-write
        STATUS     current
        DESCRIPTION
-               " Specifies whether a supervisory disconnect signal will 
+               " Specifies whether a supervisory disconnect signal will
                  be presented to the interface when the connected party
                  at the interface hangs up. this object is only relevant
                  to the ccasGrpCfgType is fxsLoopStart or sasLoopStart.
@@ -826,7 +996,7 @@ ccasGrpLineTmDigitDuration  OBJECT-TYPE
                 the interfaces in the CAS group if ccasGrpLineCfgDialType
                 is dtmf.
                 The default value of this object is 100 milliseconds.
-               " 
+               "
        ::= { ccasGrpLineTmEntry 1 }
 
 ccasGrpLineTmInterDigitDuration  OBJECT-TYPE
@@ -840,7 +1010,7 @@ ccasGrpLineTmInterDigitDuration  OBJECT-TYPE
                 of the interfaces in the CAS group if
                 ccasGrpLineCfgDialType is dtmf.
                 The default value of this object is 100 milliseconds.
-               " 
+               "
        ::= { ccasGrpLineTmEntry 2 }
 
 ccasGrpLineTmPulseRate  OBJECT-TYPE
@@ -854,9 +1024,9 @@ ccasGrpLineTmPulseRate  OBJECT-TYPE
                 interfaces in the CAS group only if ccasGrpStaCfgDialType
                 is pulse.
                 The default value of this object is 10 pps.
-               " 
+               "
        ::= { ccasGrpLineTmEntry 3 }
- 
+
 ccasGrpLineTmPulseInterDigitDuration  OBJECT-TYPE
        SYNTAX     Integer32 (100..1000)
        UNITS      "milliseconds"
@@ -868,7 +1038,7 @@ ccasGrpLineTmPulseInterDigitDuration  OBJECT-TYPE
                 timing of the interfaces in the CAS group only if
                 ccasGrpStaCfgDialType is pulse.
                 The default value of this object is 500 milliseconds.
-               " 
+               "
        ::= { ccasGrpLineTmEntry 4 }
 
 
@@ -888,8 +1058,8 @@ ccasGrpStaCfgTable OBJECT-TYPE
                 "The FXO/SAO standard configuration table. It contains
                  FXO/SAO configuration parameters, one entry per FXO/SAO
                  interface.
-                 The configuration information of this table is set by 
-                 its default setting when the CAS group is created by 
+                 The configuration information of this table is set by
+                 its default setting when the CAS group is created by
                  the configuration commands.
                 "
         ::= { ccasGrpStaObjects 1 }
@@ -925,7 +1095,7 @@ ccasGrpStaCfgNumberRings        OBJECT-TYPE
                "The number of rings sent before sending reorder to the
                 originator and releasing resources.
                 If the value of this object is 0, then sending
-                reorder to the originator is disabled. 
+                reorder to the originator is disabled.
                 The default value of this object is 20 rings.
                "
        ::= { ccasGrpStaCfgEntry 1 }
@@ -944,7 +1114,7 @@ ccasGrpStaCfgDialType OBJECT-TYPE
                  The default value of this object is dtmf(1).
                 "
         ::= { ccasGrpStaCfgEntry 2 }
- 
+
 
 --*********************************************************************
 -- The FXO/SAO Timing Parameters Table
@@ -957,7 +1127,7 @@ ccasGrpStaTmTable OBJECT-TYPE
         MAX-ACCESS  not-accessible
         STATUS      current
         DESCRIPTION
-                "The FXO/SAO interface Timing Parameters table. It 
+                "The FXO/SAO interface Timing Parameters table. It
                  contains the configuration of the various FXO/SAO
                  signaling protocol timing parameters.
                 "
@@ -992,7 +1162,7 @@ ccasGrpStaTmDigitDuration  OBJECT-TYPE
                 the interfaces in the CAS group if ccasGrpStaCfgDialType
                 is dtmf.
                 The default value of this object is 100 milliseconds.
-               " 
+               "
        ::= { ccasGrpStaTmEntry 1 }
 
 ccasGrpStaTmInterDigitDuration  OBJECT-TYPE
@@ -1006,7 +1176,7 @@ ccasGrpStaTmInterDigitDuration  OBJECT-TYPE
                 the interfaces in the CAS group if ccasGrpStaCfgDialType
                 is dtmf.
                 The default value of this object is 100 milliseconds.
-               " 
+               "
        ::= { ccasGrpStaTmEntry 2 }
 
 ccasGrpStaTmPulseRate  OBJECT-TYPE
@@ -1020,9 +1190,9 @@ ccasGrpStaTmPulseRate  OBJECT-TYPE
                 interfaces in the CAS group only if ccasGrpStaCfgDialType
                 is pulse.
                 The default value of this object is 10 pps.
-               " 
+               "
        ::= { ccasGrpStaTmEntry 3 }
- 
+
 ccasGrpStaTmPulseInterDigitDuration  OBJECT-TYPE
        SYNTAX     Integer32 (100..1000)
        UNITS      "milliseconds"
@@ -1034,7 +1204,7 @@ ccasGrpStaTmPulseInterDigitDuration  OBJECT-TYPE
                 timing of the interfaces in the CAS group only if
                 ccasGrpStaCfgDialType is pulse.
                 The default value of this object is 500 milliseconds.
-               " 
+               "
        ::= { ccasGrpStaTmEntry 4 }
 
 
@@ -1063,7 +1233,7 @@ ccasGrpABCDCfgEntry OBJECT-TYPE
                 "An entry in the custom ABCD configuration table for
                  each CAS Group on an E1 interface.
                  The entry is created when a CAS group is configured
-                 on a E1. The entry is deleted when the CAS Group is 
+                 on a E1. The entry is deleted when the CAS Group is
                  de-configured from E1.
                 "
         INDEX   { ifIndex, ccasGrpCfgIndex }
@@ -1072,44 +1242,44 @@ ccasGrpABCDCfgEntry OBJECT-TYPE
 CcasGrpABCDCfgEntry ::=
         SEQUENCE {
                 ccasGrpABCDCfgInvertBits         BITS,
-                ccasGrpABCDCfgUnusedBits         BITS 
+                ccasGrpABCDCfgUnusedBits         BITS
         }
 
 
 ccasGrpABCDCfgInvertBits        OBJECT-TYPE
         SYNTAX      BITS {
                  dBit (0),
-                 cBit (1), 
+                 cBit (1),
                  bBit (2),
-                 aBit (3) 
+                 aBit (3)
         }
        MAX-ACCESS read-write
        STATUS     current
        DESCRIPTION
                "Specify the A/B/C/D bit mask to invert the A/B/C/D bits
                 value before the A/B/C/D bits are sent or
-                after the A/B/C/D bits are received. 
+                after the A/B/C/D bits are received.
                 1-bit  - enable bit inversion.
                 0-bit  - disable bit inversion.
-                The default value of this object is '00'H 
+                The default value of this object is '00'H.
                "
        ::= { ccasGrpABCDCfgEntry 1 }
 
 ccasGrpABCDCfgUnusedBits OBJECT-TYPE
         SYNTAX      BITS {
                  dBit (0),
-                 cBit (1), 
+                 cBit (1),
                  bBit (2),
-                 aBit (3) 
+                 aBit (3)
         }
        MAX-ACCESS  read-write
        STATUS      current
        DESCRIPTION
                "Specify the Unused A/B/C/D bit values to transmit.
                 If any A/B/C/D bit is unused, the bit values in this
-                object will be used to transmit for the unused 
+                object will be used to transmit for the unused
                 A/B/C/D bits.
-                The default value of this object is '00'H 
+                The default value of this object is '00'H
                "
        ::= { ccasGrpABCDCfgEntry 2 }
 
@@ -1146,7 +1316,7 @@ CcasChannelCfgEntry ::=
                 ccasChannelCfgDS1IfIndex       InterfaceIndex,
                 ccasChannelCfgGroup            Integer32,
                 ccasChannelCfgTimeSlot         Integer32,
-                ccasChannelCfgBusyOut          TruthValue         
+                ccasChannelCfgBusyOut          TruthValue
         }
 
 ccasChannelCfgDS1IfIndex OBJECT-TYPE
@@ -1154,7 +1324,7 @@ ccasChannelCfgDS1IfIndex OBJECT-TYPE
         MAX-ACCESS  read-only
         STATUS      current
         DESCRIPTION
-                "the ifIndex of this CAS channel associated T1/E1.     
+                "the ifIndex of this CAS channel associated T1/E1.
                 "
         ::= { ccasChannelCfgEntry 1 }
 
@@ -1168,7 +1338,7 @@ ccasChannelCfgGroup OBJECT-TYPE
         ::= { ccasChannelCfgEntry 2 }
 
 ccasChannelCfgTimeSlot OBJECT-TYPE
-        SYNTAX      Integer32(1..31) 
+        SYNTAX      Integer32(1..31)
         MAX-ACCESS  read-only
         STATUS      current
         DESCRIPTION
@@ -1176,12 +1346,12 @@ ccasChannelCfgTimeSlot OBJECT-TYPE
         ::= { ccasChannelCfgEntry 3 }
 
 ccasChannelCfgBusyOut    OBJECT-TYPE
-        SYNTAX      TruthValue         
+        SYNTAX      TruthValue
         MAX-ACCESS  read-write
         STATUS      current
         DESCRIPTION
                 "The CAS channel busyout configuration.
-                 true  - the CAS channel is busied out.     
+                 true  - the CAS channel is busied out.
                  false - the CAS is normal.
                  The default value for this object is 'false'.
                 "
@@ -1196,7 +1366,7 @@ ccasChannelStatusTable OBJECT-TYPE
         MAX-ACCESS  not-accessible
         STATUS      current
         DESCRIPTION
-                "The CAS channel Status Table.  It contains general 
+                "The CAS channel Status Table.  It contains general
                  information about the status of CAS channel.
                 "
         ::= { ccasChannelObjects 2 }
@@ -1206,7 +1376,7 @@ ccasChannelStatusEntry OBJECT-TYPE
         MAX-ACCESS  not-accessible
         STATUS      current
         DESCRIPTION
-                "An entry in the status table for each CAS channel. 
+                "An entry in the status table for each CAS channel.
                 "
         AUGMENTS   { ccasChannelCfgEntry }
         ::= { ccasChannelStatusTable 1 }
@@ -1214,7 +1384,7 @@ ccasChannelStatusEntry OBJECT-TYPE
 CcasChannelStatusEntry ::=
         SEQUENCE {
                 ccasChannelStatusRecvSignalBits     BITS,
-                ccasChannelStatusBusyOut            TruthValue,    
+                ccasChannelStatusBusyOut            TruthValue,
                 ccasChannelStatusInfoType           INTEGER,
                 ccasChannelStatusXmitSignalBits     BITS
         }
@@ -1222,9 +1392,9 @@ CcasChannelStatusEntry ::=
 ccasChannelStatusRecvSignalBits OBJECT-TYPE
         SYNTAX      BITS {
                  dBit (0),
-                 cBit (1), 
+                 cBit (1),
                  bBit (2),
-                 aBit (3) 
+                 aBit (3)
         }
         MAX-ACCESS  read-only
         STATUS      current
@@ -1244,12 +1414,12 @@ ccasChannelStatusRecvSignalBits OBJECT-TYPE
         ::= { ccasChannelStatusEntry 1 }
 
 ccasChannelStatusBusyOut    OBJECT-TYPE
-        SYNTAX      TruthValue         
+        SYNTAX      TruthValue
         MAX-ACCESS  read-only
         STATUS      current
         DESCRIPTION
                 "The CAS channel busyout state.
-                 true  - the CAS channel is busied out.     
+                 true  - the CAS channel is busied out.
                  false - the CAS is normal.
                 "
         ::= { ccasChannelStatusEntry 2 }
@@ -1294,9 +1464,9 @@ ccasChannelStatusInfoType              OBJECT-TYPE
 ccasChannelStatusXmitSignalBits OBJECT-TYPE
         SYNTAX      BITS {
                  dBit (0),
-                 cBit (1), 
+                 cBit (1),
                  bBit (2),
-                 aBit (3) 
+                 aBit (3)
         }
         MAX-ACCESS  read-only
         STATUS      current
@@ -1306,7 +1476,7 @@ ccasChannelStatusXmitSignalBits OBJECT-TYPE
                  bBit  - the signaling bit in the 12th frame
                  cBit  - the signaling bit in the 18th frame
                  dBit  - the signaling bit in the 24th frame
-                 the cBit and dBit are only valid for E1 or T1 
+                 the cBit and dBit are only valid for E1 or T1
                  interface is operating in extended superframe (ESF)
                  mode.
                 "
@@ -1316,8 +1486,8 @@ ccasChannelStatusXmitSignalBits OBJECT-TYPE
         ::= { ccasChannelStatusEntry 4 }
 
 
---  
--- Voice specific Configuration Table for a DS0 group 
+--
+-- Voice specific Configuration Table for a DS0 group
 --
 ccasVoiceCfgTable OBJECT-TYPE
         SYNTAX      SEQUENCE OF CcasVoiceCfgEntry
@@ -1335,7 +1505,7 @@ ccasVoiceCfgEntry OBJECT-TYPE
         MAX-ACCESS  not-accessible
         STATUS      current
         DESCRIPTION
-            "An entry in the voice specific configuration table for each 
+            "An entry in the voice specific configuration table for each
              CAS/DS0 group of a DS1.
              The entry is created if the associated CAS/DS0 group is
              created and the voice hardware is detected to support the
@@ -1349,9 +1519,9 @@ ccasVoiceCfgEntry OBJECT-TYPE
 
 CcasVoiceCfgEntry ::=
         SEQUENCE {
-            ccasVoiceCfgNoiseRegEnable         TruthValue, 
-            ccasVoiceCfgNonLinearProcEnable    TruthValue, 
-            ccasVoiceCfgMusicOnHoldThreshold   Integer32, 
+            ccasVoiceCfgNoiseRegEnable         TruthValue,
+            ccasVoiceCfgNonLinearProcEnable    TruthValue,
+            ccasVoiceCfgMusicOnHoldThreshold   Integer32,
             ccasVoiceCfgInGain                 Integer32,
             ccasVoiceCfgOutAttn                Integer32,
             ccasVoiceCfgEchoCancelEnable       TruthValue,
@@ -1388,7 +1558,7 @@ ccasVoiceCfgNonLinearProcEnable OBJECT-TYPE
 
 ccasVoiceCfgMusicOnHoldThreshold OBJECT-TYPE
         SYNTAX      Integer32 (-70..-30)
-        UNITS       "dBm" 
+        UNITS       "dBm"
         MAX-ACCESS  read-write
         STATUS      current
         DESCRIPTION
@@ -1416,14 +1586,14 @@ ccasVoiceCfgInGain OBJECT-TYPE
         ::= { ccasVoiceCfgEntry 4 }
 
 ccasVoiceCfgOutAttn OBJECT-TYPE
-        SYNTAX      Integer32 (0..14)     
+        SYNTAX      Integer32 (0..14)
         UNITS      "dB"
         MAX-ACCESS  read-write
         STATUS      current
         DESCRIPTION
                 "This object contains the amount of attenuation inserted
-                 at the transmit side of the interface. 
-                 The output attenuation settings only define a loss 
+                 at the transmit side of the interface.
+                 The output attenuation settings only define a loss
                  relative to the 0 dB setting.
                  The absolute loss at the 0 dB setting could be
                  implementation dependent based on the desired network
@@ -1437,7 +1607,7 @@ ccasVoiceCfgEchoCancelEnable OBJECT-TYPE
         MAX-ACCESS  read-write
         STATUS      current
         DESCRIPTION
-            "The object specifies whether or not the Echo Cancellation 
+            "The object specifies whether or not the Echo Cancellation
              is enabled for the interface.
              The default value of this object is 'true'.
             "
@@ -1499,11 +1669,11 @@ ccasVoiceCfgConnectionMode OBJECT-TYPE
         ::= { ccasVoiceCfgEntry 8 }
 
 ccasVoiceCfgConnectionNumber OBJECT-TYPE
-        SYNTAX      DisplayString (SIZE (0..32))           
+        SYNTAX      DisplayString (SIZE (0..32))
         MAX-ACCESS  read-write
         STATUS      current
         DESCRIPTION
-            "This is the E.164 phone number that is used to 
+            "This is the E.164 phone number that is used to
              establish connection with trunking mode or PLAR mode.
              If the ccasVoiceCfgConnectionMode is 'normal', then  this
              object will be a zero length string.
@@ -1546,7 +1716,7 @@ ccasVoiceCfgInterDigitTimeOut OBJECT-TYPE
         ::= { ccasVoiceCfgEntry 11 }
 
 ccasVoiceCfgRegionalTone OBJECT-TYPE
-        SYNTAX      CountryCode      
+        SYNTAX      CountryCode
         MAX-ACCESS  read-write
         STATUS      current
         DESCRIPTION
@@ -1555,8 +1725,8 @@ ccasVoiceCfgRegionalTone OBJECT-TYPE
                 "
         ::= { ccasVoiceCfgEntry 12 }
 
---  
--- XGCP Configuration Table for a DS0 group 
+--
+-- XGCP Configuration Table for a DS0 group
 --
 ccasXgcpCfgTable OBJECT-TYPE
         SYNTAX      SEQUENCE OF CcasXgcpCfgEntry
@@ -1564,26 +1734,26 @@ ccasXgcpCfgTable OBJECT-TYPE
         STATUS      current
         DESCRIPTION
             "The XGCP configuration Table contains
-             information about DS0 usage by XGCP(SGCP/MGCP).  
-      
+             information about DS0 usage by XGCP(SGCP/MGCP).
+
              XGCP is meant to represent both Simple Gateway Control
              Protocol (SGCP) and Media Gateway Control Protocol (MGCP).
             "
-       ::= { ccasXgcpCfgObjects 1 }    
+       ::= { ccasXgcpCfgObjects 1 }
 
 ccasXgcpCfgEntry OBJECT-TYPE
         SYNTAX      CcasXgcpCfgEntry
         MAX-ACCESS  not-accessible
         STATUS      current
         DESCRIPTION
-            "An entry in the configuration table for each 
+            "An entry in the configuration table for each
              DS0 group of a DS1.
 
-             The entry is created if the DS0 group is configured as   
+             The entry is created if the DS0 group is configured as
              null-signaling and ccasGrpCfgServiceType is configured
              as either sgcp or mgcp.
 
-             The entry is deleted when the signaling type is configured 
+             The entry is deleted when the signaling type is configured
              as non null-signaling.
             "
         INDEX   { ifIndex, ccasGrpCfgIndex }
@@ -1609,11 +1779,11 @@ ccasXgcpCfgCotToneCo1 OBJECT-TYPE
                 "
         REFERENCE
             "Bellcore GR-317-CORE spec, Rev 3, Nov. 1996, section
-             3.1.1.3. 
+             3.1.1.3.
             "
-        
+
         ::= { ccasXgcpCfgEntry 1 }
- 
+
 ccasXgcpCfgCotToneCo2 OBJECT-TYPE
         SYNTAX      Integer32 (280..3800)
         UNITS       "hertz"
@@ -1622,11 +1792,11 @@ ccasXgcpCfgCotToneCo2 OBJECT-TYPE
         DESCRIPTION
                 "This object specifies the continuity test tone
                  frequencies for co2. Co2 is the COT tone frequency from
-                 the originating switch only in transponder mode.  
-                " 
+                 the originating switch only in transponder mode.
+                "
         REFERENCE
             "Bellcore GR-317-CORE spec, Rev 3, Nov. 1996, section
-             3.1.1.3. 
+             3.1.1.3.
             "
         ::= { ccasXgcpCfgEntry 2 }
 
@@ -1649,7 +1819,7 @@ ccasIfMIBGroups
 -- compliance statements
 
 ccasIfMIBCompliance MODULE-COMPLIANCE
-        STATUS  obsolete   -- superseded by ccasIfMIBComplianceRev1 
+        STATUS  obsolete   -- superseded by ccasIfMIBComplianceRev1
         DESCRIPTION
                 "The compliance statement for entities which implement
                  the Cisco Voice Digital interface MIB"
@@ -1785,7 +1955,7 @@ ccasIfMIBCompliance MODULE-COMPLIANCE
 
 
 ccasIfMIBComplianceRev1 MODULE-COMPLIANCE
-        STATUS  current
+        STATUS  deprecated   -- superseded by ccasIfMIBComplianceRev2
         DESCRIPTION
                 "The compliance statement for entities which implement
                  the Cisco Voice Digital interface MIB"
@@ -1794,7 +1964,7 @@ ccasIfMIBComplianceRev1 MODULE-COMPLIANCE
                    ccasIfDS1Group,
                    ccasGeneralInfoGroupRev1
                 }
-                GROUP ccasEMGroup
+                GROUP ccasEMGroupRev1
                 DESCRIPTION
                         "The CAS E&M group is mandatory for T1/E1 that
                          supports CAS E&M signal interface.
@@ -1817,8 +1987,8 @@ ccasIfMIBComplianceRev1 MODULE-COMPLIANCE
                         "
                 GROUP ccasVoiceGroup
                 DESCRIPTION
-                        "The CAS Voice group is mandatory for a CAS group
-                         that supports voice/fax call capability.
+                        "The CAS Voice group is mandatory for a CAS
+                         group that supports voice/fax call capability.
                         "
                 GROUP ccasChannelInfoGroup
                 DESCRIPTION
@@ -1827,7 +1997,7 @@ ccasIfMIBComplianceRev1 MODULE-COMPLIANCE
                          applicable to Channel Associated Signaling
                          interfaces.
                         "
-                GROUP ccasXgcpCfgGroup 
+                GROUP ccasXgcpCfgGroup
                 DESCRIPTION
                         "The XGCP Cfg group is mandatory for DS0 group
                          that supports XGCP protocol entity.
@@ -1871,6 +2041,195 @@ ccasIfMIBComplianceRev1 MODULE-COMPLIANCE
 
         ::= { ccasIfMIBCompliances 2 }
 
+ccasIfMIBComplianceRev2 MODULE-COMPLIANCE
+        STATUS  deprecated   -- superseded by ccasIfMIBComplianceRev3
+        DESCRIPTION
+                "The compliance statement for entities which implement
+                 the Cisco Voice Digital interface MIB"
+        MODULE  -- compliance to this module
+                MANDATORY-GROUPS {
+                   ccasIfDS1Group,
+                   ccasGeneralInfoGroupRev1
+                }
+                GROUP ccasEMGroupRev1
+                DESCRIPTION
+                        "The CAS E&M group is mandatory for T1/E1 that
+                         supports CAS E&M signal interface.
+                        "
+                GROUP ccasLineGroup
+                DESCRIPTION
+                        "The CAS Line group is mandatory for T1/E1 that
+                         supports CAS FXO/SAO signal interfaces.
+                        "
+                GROUP ccasStaGroup
+                DESCRIPTION
+                        "The CAS Station group is mandatory for T1/E1
+                         that supports CAS FXS/SAS signal interfaces.
+                        "
+                GROUP ccasCustomABCDGroup
+                DESCRIPTION
+                        "The CAS custom ABCD bits configuration group is
+                         mandatory for E1 that supports CAS signal
+                         interfaces.
+                        "
+                GROUP ccasVoiceGroup
+                DESCRIPTION
+                        "The CAS Voice group is mandatory for a CAS group
+                         that supports voice/fax call capability.
+                        "
+                GROUP ccasChannelInfoGroup
+                DESCRIPTION
+                        "The Channel Info group is mandatory for
+                         providing channel signaling information
+                         applicable to Channel Associated Signaling
+                         interfaces.
+                        "
+                GROUP ccasXgcpCfgGroup
+                DESCRIPTION
+                        "The XGCP Cfg group is mandatory for DS0 group
+                         that supports XGCP protocol entity.
+                        "
+                OBJECT  ccasGrpCfgType
+                MIN-ACCESS  read-only
+                DESCRIPTION
+                        "Create/Write access is not required."
+
+                OBJECT   ccasGrpCfgDs0Channels
+                MIN-ACCESS  read-only
+                DESCRIPTION
+                        "Create/Write access is not required."
+
+                OBJECT   ccasGrpCfgRowStatus
+                MIN-ACCESS  read-only
+                DESCRIPTION
+                        "Create/Write access is not required."
+
+                OBJECT   ccasGrpEMCfgDialType
+                MIN-ACCESS  read-only
+                DESCRIPTION
+                        "Write access is not required."
+
+                OBJECT   ccasGrpEMCfgDnisAni
+                MIN-ACCESS  read-only
+                DESCRIPTION
+                        "Write access is not required."
+
+
+                OBJECT   ccasGrpABCDCfgInvertBits
+                MIN-ACCESS  read-only
+                DESCRIPTION
+                        "Write access is not required."
+
+                OBJECT   ccasGrpABCDCfgUnusedBits
+                MIN-ACCESS  read-only
+                DESCRIPTION
+                        "Write access is not required."
+
+
+        ::= { ccasIfMIBCompliances 3 }
+
+ccasIfMIBComplianceRev3 MODULE-COMPLIANCE
+        STATUS  current
+        DESCRIPTION
+                "The compliance statement for entities which implement
+                 the Cisco Voice Digital interface MIB"
+        MODULE  -- compliance to this module
+                MANDATORY-GROUPS {
+                   ccasIfDS1Group,
+                   ccasGeneralInfoGroupRev1
+                }
+                GROUP ccasEMGroupRev2
+                DESCRIPTION
+                        "The CAS E&M group is mandatory for T1/E1 that
+                         supports CAS E&M signal interface.
+                        "
+                GROUP ccasLineGroup
+                DESCRIPTION
+                        "The CAS Line group is mandatory for T1/E1 that
+                         supports CAS FXO/SAO signal interfaces.
+                        "
+                GROUP ccasStaGroup
+                DESCRIPTION
+                        "The CAS Station group is mandatory for T1/E1
+                         that supports CAS FXS/SAS signal interfaces.
+                        "
+                GROUP ccasCustomABCDGroup
+                DESCRIPTION
+                        "The CAS custom ABCD bits configuration group is
+                         mandatory for E1 that supports CAS signal
+                         interfaces.
+                        "
+                GROUP ccasVoiceGroup
+                DESCRIPTION
+                        "The CAS Voice group is mandatory for a CAS
+                         group that supports voice/fax call capability.
+                        "
+                GROUP ccasChannelInfoGroup
+                DESCRIPTION
+                        "The Channel Info group is mandatory for
+                         providing channel signaling information
+                         applicable to Channel Associated Signaling
+                         interfaces.
+                        "
+                GROUP ccasXgcpCfgGroup
+                DESCRIPTION
+                        "The XGCP Cfg group is mandatory for DS0 group
+                         that supports XGCP protocol entity.
+                        "
+                OBJECT  ccasGrpCfgType
+                MIN-ACCESS  read-only
+                DESCRIPTION
+                        "Create/Write access is not required."
+
+                OBJECT   ccasGrpCfgDs0Channels
+                MIN-ACCESS  read-only
+                DESCRIPTION
+                        "Create/Write access is not required."
+
+                OBJECT   ccasGrpCfgRowStatus
+                MIN-ACCESS  read-only
+                DESCRIPTION
+                        "Create/Write access is not required."
+
+                OBJECT   ccasGrpEMCfgDialType
+                MIN-ACCESS  read-only
+                DESCRIPTION
+                        "Write access is not required."
+
+                OBJECT   ccasGrpEMCfgDnisAni
+                MIN-ACCESS  read-only
+                DESCRIPTION
+                        "Write access is not required."
+
+
+                OBJECT   ccasGrpABCDCfgInvertBits
+                MIN-ACCESS  read-only
+                DESCRIPTION
+                        "Write access is not required."
+
+                OBJECT   ccasGrpABCDCfgUnusedBits
+                MIN-ACCESS  read-only
+                DESCRIPTION
+                        "Write access is not required."
+
+                OBJECT  ccasGrpEMCfgLmrMCap
+                MIN-ACCESS  read-only
+                DESCRIPTION
+                        "Write access is not required."
+
+                OBJECT  ccasGrpEMCfgLmrECap
+                MIN-ACCESS  read-only
+                DESCRIPTION
+                        "Write access is not required."
+
+                OBJECT  ccasGrpEMCfgAutoGainControl
+                MIN-ACCESS  read-only
+                DESCRIPTION
+                        "Write access is not required."
+
+
+        ::= { ccasIfMIBCompliances 4 }
+
 -- units of conformance
 
 ccasIfDS1Group OBJECT-GROUP
@@ -1879,7 +2238,7 @@ ccasIfDS1Group OBJECT-GROUP
         }
         STATUS  current
         DESCRIPTION
-                "The collection of objects providing CAS/DS0 related 
+                "The collection of objects providing CAS/DS0 related
                  T1/E1 information.
                 "
         ::= { ccasIfMIBGroups 1 }
@@ -1920,7 +2279,7 @@ ccasEMGroup OBJECT-GROUP
                 ccasGrpEMTmPulseRate,
                 ccasGrpEMTmPulseInterDigitDuration
         }
-        STATUS  current
+        STATUS  deprecated  -- superceded by ccasEMGroupRev1
         DESCRIPTION
                 "A collection of objects providing information applicable
                  to the CAS E&M signal interfaces.
@@ -1929,14 +2288,14 @@ ccasEMGroup OBJECT-GROUP
 
 ccasLineGroup OBJECT-GROUP
         OBJECTS {
-                ccasGrpLineCfgNumberRings,    
+                ccasGrpLineCfgNumberRings,
                 ccasGrpLineCfgSupDisconnect,
                 ccasGrpLineCfgDialType,
                 ccasGrpLineTmDigitDuration,
                 ccasGrpLineTmInterDigitDuration,
                 ccasGrpLineTmPulseRate,
                 ccasGrpLineTmPulseInterDigitDuration
- 
+
         }
         STATUS  current
         DESCRIPTION
@@ -1964,7 +2323,7 @@ ccasStaGroup OBJECT-GROUP
 
 ccasCustomABCDGroup OBJECT-GROUP
         OBJECTS {
-                ccasGrpABCDCfgInvertBits, 
+                ccasGrpABCDCfgInvertBits,
                 ccasGrpABCDCfgUnusedBits
         }
         STATUS  current
@@ -1977,9 +2336,9 @@ ccasCustomABCDGroup OBJECT-GROUP
 
 ccasVoiceGroup OBJECT-GROUP
         OBJECTS {
-                ccasVoiceCfgNoiseRegEnable, 
-                ccasVoiceCfgNonLinearProcEnable, 
-                ccasVoiceCfgMusicOnHoldThreshold, 
+                ccasVoiceCfgNoiseRegEnable,
+                ccasVoiceCfgNonLinearProcEnable,
+                ccasVoiceCfgMusicOnHoldThreshold,
                 ccasVoiceCfgInGain,
                 ccasVoiceCfgOutAttn,
                 ccasVoiceCfgEchoCancelEnable,
@@ -2025,8 +2384,8 @@ ccasChannelInfoGroup OBJECT-GROUP
         }
         STATUS  current
         DESCRIPTION
-                "A collection of objects providing channel signaling 
-                 information applicable to Channel Associated Signaling 
+                "A collection of objects providing channel signaling
+                 information applicable to Channel Associated Signaling
                  interfaces.
                 "
         ::= { ccasIfMIBGroups 9 }
@@ -2038,10 +2397,66 @@ ccasXgcpCfgGroup OBJECT-GROUP
         }
         STATUS  current
         DESCRIPTION
-                "A collection of objects providing XGCP specific 
+                "A collection of objects providing XGCP specific
                  information applicable to DS0.
                 "
         ::= { ccasIfMIBGroups 10 }
 
-END
+ccasEMGroupRev1 OBJECT-GROUP
+        OBJECTS {
+                ccasGrpEMCfgDialType,
+                ccasGrpEMCfgDnisAni,
+                ccasGrpEMTmClearWaitDuration,
+                ccasGrpEMTmMaxWinkWaitDuration,
+                ccasGrpEMTmMaxWinkDuration,
+                ccasGrpEMTmDelayStart,
+                ccasGrpEMTmMaxDelayDuration,
+                ccasGrpEMTmMinDelayPulseWidth,
+                ccasGrpEMTmDigitDuration,
+                ccasGrpEMTmInterDigitDuration,
+                ccasGrpEMTmPulseRate,
+                ccasGrpEMTmPulseInterDigitDuration,
+                ccasGrpEMCfgLmrMCap,
+                ccasGrpEMCfgLmrECap,
+                ccasGrpEMTmVoiceHangover,
+                ccasGrpEMTmLmrTeardown
+        }
+        STATUS  deprecated  -- superceded by ccasEMGroupRev2
+        DESCRIPTION
+                "A collection of objects providing information
+                 applicable to the CAS E&M signal interfaces.
+                "
+        ::= { ccasIfMIBGroups 11}
 
+ccasEMGroupRev2 OBJECT-GROUP
+        OBJECTS {
+                ccasGrpEMCfgDialType,
+                ccasGrpEMCfgDnisAni,
+                ccasGrpEMTmClearWaitDuration,
+                ccasGrpEMTmMaxWinkWaitDuration,
+                ccasGrpEMTmMaxWinkDuration,
+                ccasGrpEMTmDelayStart,
+                ccasGrpEMTmMaxDelayDuration,
+                ccasGrpEMTmMinDelayPulseWidth,
+                ccasGrpEMTmDigitDuration,
+                ccasGrpEMTmInterDigitDuration,
+                ccasGrpEMTmPulseRate,
+                ccasGrpEMTmPulseInterDigitDuration,
+                ccasGrpEMCfgLmrMCap,
+                ccasGrpEMCfgLmrECap,
+                ccasGrpEMTmVoiceHangover,
+                ccasGrpEMTmLmrTeardown,
+                ccasGrpEMCfgAutoGainControl,
+                ccasGrpEMTmPttXmt,
+                ccasGrpEMTmPttRcv,
+                ccasGrpEMTmDelayVoice
+        }
+        STATUS  current
+        DESCRIPTION
+                "A collection of objects providing information
+                 applicable to the CAS E&M signal interfaces.
+                "
+        ::= { ccasIfMIBGroups 12}
+
+
+END
