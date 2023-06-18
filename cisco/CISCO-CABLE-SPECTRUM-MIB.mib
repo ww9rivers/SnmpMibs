@@ -1,10 +1,10 @@
 -- *****************************************************************
 -- CISCO-CABLE-SPECTRUM-MIB.my: Cisco Data Over Cable Spectrum
 -- Management MIB file
---   
+--
 -- October 1998 Frances Shen
---   
--- Copyright (c) 1998, 2000-2006 by Cisco Systems, Inc.
+--
+-- Copyright (c) 1998, 2000-20011, 2011 by Cisco Systems Inc.
 -- All rights reserved.
 -- *****************************************************************
 
@@ -40,7 +40,7 @@ IMPORTS
 
 
 ciscoCableSpectrumMIB MODULE-IDENTITY
-    LAST-UPDATED    "200610100000Z"
+    LAST-UPDATED    "201104080000Z"
     ORGANIZATION    "Cisco Systems, Inc."
     CONTACT-INFO
             "Cisco Systems
@@ -74,6 +74,11 @@ ciscoCableSpectrumMIB MODULE-IDENTITY
         detected to go on-line and off-line by flap detectors, the
         cable operators can look at the flap list and spectrum
         tables to determine the possible causes."
+    REVISION        "201104080000Z"
+    DESCRIPTION
+        "1. Changed Range Of Ccsfrequency And Ccsmeasuredfrequency
+        Textual-Convention To Support The Docsis 3.0 Extended Upstream
+        Frequency Range."
     REVISION        "200610100000Z"
     DESCRIPTION
         "1. Added spectrum group global configuration table
@@ -101,14 +106,14 @@ ciscoCableSpectrumMIB MODULE-IDENTITY
     REVISION        "200409050000Z"
     DESCRIPTION
         "1. Included 0 as part of ccsUpSpecMgmtSnrThres,
-        ccsUpSpecMgmtCnrThres, ccsUpSpecMgmtFecCorrectThres, 
+        ccsUpSpecMgmtCnrThres, ccsUpSpecMgmtFecCorrectThres,
         ccsUpSpecMgmtFecUnCorrectThres ranges.
         2. Increased  ccsUpSpecMgmtFecCorrectThres and
         ccsUpSpecMgmtFecUnCorrectThres range to 30"
     REVISION        "200407140000Z"
     DESCRIPTION
         "1. Modified ccsUpSpecMgmtSNR's description to reflect its
-        name since there's a new object defined for CNR. 
+        name since there's a new object defined for CNR.
         2. Added ccsUpSpecMgmtCnrThres1, ccsUpSpecMgmtCnrThres1,
         ccsUpSpecMgmtCNR, ccsUpSpecMgmtMissedMaintMsgThres,
         ccsUpSpecMgmtHopPeriod, ccsUpSpecMgmtCriteria.
@@ -121,7 +126,7 @@ ciscoCableSpectrumMIB MODULE-IDENTITY
     DESCRIPTION
         "1. Modified description for ccsFlapListMaxSize and
         ccsFlapListCurrentSize.
-        2. Implement ccsCmFlapTable using downstream, upstream and 
+        2. Implement ccsCmFlapTable using downstream, upstream and
         Mac as indices to replace ccsFlapTable.
         3. Modified description for ccsSNRRequestTable.
         4. Added ccsUpSpecMgmtUpperBoundFreq.
@@ -133,10 +138,10 @@ ciscoCableSpectrumMIB MODULE-IDENTITY
     REVISION        "200206100000Z"
     DESCRIPTION
         "1. Changed range for ccsUpSpecMgmtFecCorrectThres1,
-        ccsUpSpecMgmtFecCorrectThres2, 
+        ccsUpSpecMgmtFecCorrectThres2,
         ccsUpSpecMgmtFecUnCorrectThres1,
         ccsUpSpecMgmtFecUnCorrectThres2 and ccsUpSpecMgmtSnrThres2.
-        2. Changed modemOffline(1) enumeration to 
+        2. Changed modemOffline(1) enumeration to
         stationMaintainenceMiss.
         3. Added ccsUpSpecMgmtGroupRev1 to ccsCompliance4."
     REVISION        "200102010000Z"
@@ -161,7 +166,7 @@ ciscoCableSpectrumMIB MODULE-IDENTITY
         1. ccsSpectrumObjects to provide spectrum information
         2. ccsConfigObjects to support spectrum management
            functions."
-          ::= { ciscoMgmt 114 }
+    ::= { ciscoMgmt 114 }
 
 
 
@@ -170,21 +175,22 @@ CCSFrequency ::= TEXTUAL-CONVENTION
     DESCRIPTION
         "This data type represents the frequency.
         The unit is in KHz.
-        A range of 5000KHz to 42000KHz is appropriate for a cable
-        plant using a North American Sub-Split channel plan.
-        The spectrum range has been expanded to accommodate
-        an upper edge of 65000KHz for some European channel plans.
-        If DOCSIS is extended to cover other types of channel
-        plans (and frequency allocations) this object will
-        be modified accordingly."
-    SYNTAX          Integer32 (5000..65000 )
+        A range of 5000KHz to 42000KHz is appropriate for a cable plant
+        using a North American Sub-Split channel plan. The spectrum
+        range has been expanded to accommodate an upper edge of 65000KHz
+        for some European channel plans. The spectrum range has been
+        further expanded with DOCSIS 3.0 to an upper edge of 85000KHz.If
+        DOCSIS is extended to cover other types of channel plans (and
+        frequency allocations) this object will be modified
+        accordingly."
+    SYNTAX          Integer32 (5000..85000)
 
 CCSMeasuredFrequency ::= TEXTUAL-CONVENTION
     STATUS          current
     DESCRIPTION
         "This data type represents the actual measured frequency.
         The unit is in KHz."
-    SYNTAX          Integer32 (4000..65000 )
+    SYNTAX          Integer32 (4000..85000)
 
 CCSRequestOperation ::= TEXTUAL-CONVENTION
     STATUS          current
@@ -251,18 +257,18 @@ ccsConfigObjects  OBJECT IDENTIFIER
 
 
 -- Flap List Group
---   
+--
 -- CMTS maintains a list of polled cable modems, when a polled cable
 -- modem triggers a flap detector the modem is considered intermittent
 -- and is added into the Flap List.
---   
+--
 -- The flap detector is an information filter to avoid inundating a
 -- management agent with data which is less meaningful as a function of
 -- size.
---   
+--
 -- There are 3 flap detectors defined.  The flap count (ccsFlapTotal)
 -- will be incremented when any one of the flap detectors is triggered.
---   
+--
 -- (1) Registration Flap:
 -- A CM may fail the registration process due to not being able
 -- to get an IP address.  When that happens the CMTS will receive
@@ -272,14 +278,14 @@ ccsConfigObjects  OBJECT IDENTIFIER
 -- these two counters may tend to track each other for
 -- unauthorized modems.  Another cause of registration flap may
 -- be downstream loss of sync or upstream ranging failure.
---   
+--
 -- (2) Station Maintenance Flap:
 -- When the CMTS receives a Miss followed by a Hit then the modem
 -- will be added into the Flap List and the flap count will be
 -- incremented.
 -- If ratio of Miss/Hit is high, then an upstream impairment is
 -- indicated.
---   
+--
 -- (3) Power Adjustment Flap:
 -- When the CM upstream transmit power is adjusted and the
 -- adjustment is greater than the threshold
@@ -289,35 +295,36 @@ ccsConfigObjects  OBJECT IDENTIFIER
 -- poor or failing plant components.  It may also
 -- indicate the exposure of plant components to the forces of wind,
 -- moisture, or temperature.
+
 ccsFlapListMaxSize OBJECT-TYPE
-    SYNTAX          Integer32 (1..65536 )
+    SYNTAX          Integer32 (1..65536)
     UNITS           "modems"
     MAX-ACCESS      read-write
     STATUS          current
     DESCRIPTION
         "The maximum number of flapped modem entries
-        (ccsCmFlapEntry) per Cable downstream interface that 
+        (ccsCmFlapEntry) per Cable downstream interface that
         can be reported in the ccsCmFlapTable.  If the Cable
         downstream interface has more flapped modems than
-        the ccsFlapListMaxSize, some of the flapped modems 
+        the ccsFlapListMaxSize, some of the flapped modems
         will not be shown in the ccsCmFlapTable.  In this case,
         the users may want to increase the ccsFlapMaxSize."
-    DEFVAL          { 100 } 
+    DEFVAL          { 100 }
     ::= { ccsFlapObjects 1 }
 
 ccsFlapListCurrentSize OBJECT-TYPE
-    SYNTAX          Gauge32 (0..65536 )
+    SYNTAX          Gauge32 (0..65536)
     UNITS           "modems"
     MAX-ACCESS      read-only
     STATUS          current
     DESCRIPTION
         "The total number of flapped modem entries (ccsCmFlapEntry)
-        that reported in the ccsCmFlapTable.  The maximum value 
-        will be ccsFlapListMaxSize * <no of downstreams>." 
+        that reported in the ccsCmFlapTable.  The maximum value
+        will be ccsFlapListMaxSize * <no of downstreams>."
     ::= { ccsFlapObjects 2 }
 
 ccsFlapAging OBJECT-TYPE
-    SYNTAX          Integer32 (1..86400 )
+    SYNTAX          Integer32 (1..86400)
     UNITS           "minutes"
     MAX-ACCESS      read-write
     STATUS          current
@@ -325,11 +332,11 @@ ccsFlapAging OBJECT-TYPE
         "The flap entry aging threshold.  Periodically, the
         aging process scans through the flap list and removes the
         cable modems that have not flapped for that many minutes."
-    DEFVAL          { 10080 } 
+    DEFVAL          { 10080 }
     ::= { ccsFlapObjects 3 }
 
 ccsFlapInsertionTime OBJECT-TYPE
-    SYNTAX          Integer32 (60..86400 )
+    SYNTAX          Integer32 (60..86400)
     UNITS           "seconds"
     MAX-ACCESS      read-write
     STATUS          current
@@ -342,11 +349,11 @@ ccsFlapInsertionTime OBJECT-TYPE
         insertion time.  If the cable modem has not completed the
         registration stage within this insertion-time setting, the
         cable modem will be inserted into the flap-list."
-    DEFVAL          { 90 } 
+    DEFVAL          { 90 }
     ::= { ccsFlapObjects 4 }
 
 ccsFlapTable OBJECT-TYPE
-    SYNTAX          SEQUENCE OF CcsFlapEntry 
+    SYNTAX          SEQUENCE OF CcsFlapEntry
     MAX-ACCESS      not-accessible
     STATUS          deprecated
     DESCRIPTION
@@ -364,7 +371,7 @@ ccsFlapEntry OBJECT-TYPE
         "List of attributes for an entry in the ccsFlapTable.
         An entry in this table exists for each cable modem that
         triggered one of our flap detectors."
-    INDEX           { ccsFlapMacAddr } 
+    INDEX           { ccsFlapMacAddr }
     ::= { ccsFlapTable 1 }
 
 CcsFlapEntry ::= SEQUENCE {
@@ -396,8 +403,8 @@ ccsFlapMacAddr OBJECT-TYPE
     STATUS          deprecated
     DESCRIPTION
         "MAC address of the Cable Modem's Cable interface
-        which identifies a flap-list entry for a flapping 
-        Cable Modem." 
+        which identifies a flap-list entry for a flapping
+        Cable Modem."
     ::= { ccsFlapEntry 1 }
 
 ccsFlapUpstreamIfIndex OBJECT-TYPE
@@ -407,7 +414,7 @@ ccsFlapUpstreamIfIndex OBJECT-TYPE
     DESCRIPTION
         "The ifIndex of the Cable upstream interface whose ifType is
         docsCableUpstream(129).  The CMTS detects a flapping Cable
-        Modem from its Cable upstream interface." 
+        Modem from its Cable upstream interface."
     ::= { ccsFlapEntry 2 }
 
 ccsFlapDownstreamIfIndex OBJECT-TYPE
@@ -416,7 +423,7 @@ ccsFlapDownstreamIfIndex OBJECT-TYPE
     STATUS          deprecated
     DESCRIPTION
         "The ifIndex of the Cable downstream interface whose ifType
-        is docsCableDownstream(128)." 
+        is docsCableDownstream(128)."
     ::= { ccsFlapEntry 3 }
 
 ccsFlapInsertionFails OBJECT-TYPE
@@ -452,7 +459,7 @@ ccsFlapInsertionFails OBJECT-TYPE
         ccsFlapCreateTime."
     REFERENCE
         "Data over Cable Radio Frequency Interface specification,
-             Section 7.2." 
+             Section 7.2."
     ::= { ccsFlapEntry 4 }
 
 ccsFlapHits OBJECT-TYPE
@@ -478,7 +485,7 @@ ccsFlapHits OBJECT-TYPE
         Discontinuites in the value of this counter can occur if
         this entry is removed from the table and then re-added, and
         are indicated by a change in the value of
-        ccsFlapCreateTime." 
+        ccsFlapCreateTime."
     ::= { ccsFlapEntry 5 }
 
 ccsFlapMisses OBJECT-TYPE
@@ -507,14 +514,14 @@ ccsFlapMisses OBJECT-TYPE
 
         Laser clipping can happen if the signal power is too high
         when the upstream electrical signal is converted to an
-        optical signal.  When it happens the more input produces 
-        less output, until finally there is no more increase in 
+        optical signal.  When it happens the more input produces
+        less output, until finally there is no more increase in
         output.  This phenomena is called laser clipping.
 
         Discontinuites in the value of this counter can occur if
         this entry is removed from the table and then re-added, and
         are indicated by a change in the value of
-        ccsFlapCreateTime." 
+        ccsFlapCreateTime."
     ::= { ccsFlapEntry 6 }
 
 ccsFlapCrcErrors OBJECT-TYPE
@@ -536,13 +543,13 @@ ccsFlapCrcErrors OBJECT-TYPE
 
         Laser clipping can happen if the signal power is too high
         when the upstream electrical signal is converted to an
-        optical signal.  When it happens the more input produces 
-        less output, until finally there is no more increase in 
+        optical signal.  When it happens the more input produces
+        less output, until finally there is no more increase in
         output.  This phenomena is called laser clipping.
         Discontinuites in the value of this counter can occur if
         this entry is removed from the table and then re-added, and
         are indicated by a change in the value of
-        ccsFlapCreateTime." 
+        ccsFlapCreateTime."
     ::= { ccsFlapEntry 7 }
 
 ccsFlapPowerAdjustments OBJECT-TYPE
@@ -576,7 +583,7 @@ ccsFlapPowerAdjustments OBJECT-TYPE
         ccsFlapCreateTime."
     REFERENCE
         "Data over Cable Radio Frequency Interface specification,
-             Section 7.2." 
+             Section 7.2."
     ::= { ccsFlapEntry 8 }
 
 ccsFlapTotal OBJECT-TYPE
@@ -601,7 +608,7 @@ ccsFlapTotal OBJECT-TYPE
         ccsFlapCreateTime."
     REFERENCE
         "Data over Cable Radio Frequency Interface specification,
-             Appendix B." 
+             Appendix B."
     ::= { ccsFlapEntry 9 }
 
 ccsFlapLastFlapTime OBJECT-TYPE
@@ -610,7 +617,7 @@ ccsFlapLastFlapTime OBJECT-TYPE
     STATUS          deprecated
     DESCRIPTION
         "The flap time is set whenever the Cable Modem triggers a
-        flap detector." 
+        flap detector."
     ::= { ccsFlapEntry 10 }
 
 ccsFlapCreateTime OBJECT-TYPE
@@ -621,8 +628,8 @@ ccsFlapCreateTime OBJECT-TYPE
         "The time that this entry was added to the table. If an
         entry is removed and then later re-added, there may be a
         discontinuity in the counters associated with this entry.
-        This timestamp can be used to detect those 
-        discontinuities." 
+        This timestamp can be used to detect those
+        discontinuities."
     ::= { ccsFlapEntry 11 }
 
 ccsFlapRowStatus OBJECT-TYPE
@@ -635,8 +642,8 @@ ccsFlapRowStatus OBJECT-TYPE
         When a cable modem triggers a flap detector, if an entry
         does not already exist for this cable modem, and
         ccsFlapListCurrentSize is less than ccsFlapListMaxSize,
-        then an entry will be created in this table. The new 
-        instance of this object will be set to active(1).  All 
+        then an entry will be created in this table. The new
+        instance of this object will be set to active(1).  All
         flapping modems have the status of active(1).
 
         Active entries are removed from the table after they have
@@ -645,7 +652,7 @@ ccsFlapRowStatus OBJECT-TYPE
         this instance to destroy(6) will remove the entry
         immediately.
 
-        createAndGo(4) and createAndWait(5) are not supported." 
+        createAndGo(4) and createAndWait(5) are not supported."
     ::= { ccsFlapEntry 12 }
 
 ccsFlapInsertionFailNum OBJECT-TYPE
@@ -679,7 +686,7 @@ ccsFlapInsertionFailNum OBJECT-TYPE
         reset to zero if this entry is removed from the table and then
         re-added, or if a user resets all the statistical objects for
         this entry. The value of the object ccsFlapLastResetTime
-        indicates the last reset time." 
+        indicates the last reset time."
     ::= { ccsFlapEntry 13 }
 
 ccsFlapHitNum OBJECT-TYPE
@@ -705,7 +712,7 @@ ccsFlapHitNum OBJECT-TYPE
         value of this object can be reset to zero if this entry is
         removed from the table and then re-added, or if an user resets
         all the statistical objects for this entry. The value of the
-        object ccsFlapLastResetTime indicates the last reset time." 
+        object ccsFlapLastResetTime indicates the last reset time."
     ::= { ccsFlapEntry 14 }
 
 ccsFlapMissNum OBJECT-TYPE
@@ -742,7 +749,7 @@ ccsFlapMissNum OBJECT-TYPE
         is removed from the table and then re-added, or if an user
         resets all the statistical objects for this entry. The value
         of the object ccsFlapLastResetTime indicates the last reset
-        time." 
+        time."
     ::= { ccsFlapEntry 15 }
 
 ccsFlapCrcErrorNum OBJECT-TYPE
@@ -764,8 +771,8 @@ ccsFlapCrcErrorNum OBJECT-TYPE
 
         Laser clipping can happen if the signal power is too high
         when the upstream electrical signal is converted to an
-        optical signal.  When it happens the more input produces 
-        less output, until finally there is no more increase in 
+        optical signal.  When it happens the more input produces
+        less output, until finally there is no more increase in
         output.  This phenomena is called laser clipping.
 
         This object is going to replace the object ccsFlapCrcErrors
@@ -773,7 +780,7 @@ ccsFlapCrcErrorNum OBJECT-TYPE
         entry is removed from the table and then re-added, or if a
         user resets all the statistical objects for this entry. The
         value of the object ccsFlapLastResetTime indicates the last
-        reset time." 
+        reset time."
     ::= { ccsFlapEntry 16 }
 
 ccsFlapPowerAdjustmentNum OBJECT-TYPE
@@ -782,9 +789,9 @@ ccsFlapPowerAdjustmentNum OBJECT-TYPE
     STATUS          deprecated
     DESCRIPTION
         "The number of times the Cable Modem upstream transmit power
-        is adjusted during station maintenance.  When the adjustment 
-        is greater than the power adjustment threshold the number 
-        will be incremented. The power adjustment threshold is chosen 
+        is adjusted during station maintenance.  When the adjustment
+        is greater than the power adjustment threshold the number
+        will be incremented. The power adjustment threshold is chosen
         in an implementation-dependent manner
 
         The Flap number (ccsFlapTotalNum) will be incremented when
@@ -805,7 +812,7 @@ ccsFlapPowerAdjustmentNum OBJECT-TYPE
         reset to zero if this entry is removed from the table and
         then re-added, or if a user resets all the statistical objects
         for this entry. The value of the object ccsFlapLastResetTime
-        indicates the last reset time." 
+        indicates the last reset time."
     ::= { ccsFlapEntry 17 }
 
 ccsFlapTotalNum OBJECT-TYPE
@@ -829,7 +836,7 @@ ccsFlapTotalNum OBJECT-TYPE
         is removed from the table and then re-added, or if an user
         resets all the statistical objects for this entry. The value
         of the object ccsFlapLastResetTime indicates the last reset
-        time." 
+        time."
     ::= { ccsFlapEntry 18 }
 
 ccsFlapResetNow OBJECT-TYPE
@@ -842,7 +849,7 @@ ccsFlapResetNow OBJECT-TYPE
         ccsFlapMissesNum, ccsFlapCrcErrorsNum, ccsFlapPowerAdjustmentsNum
         and ccsFlapTotalNum. Setting this object to true does not destroy
         the entry, so the ccsFlapCreateTime will be unchanged. Reading
-        this object always returns false(2)." 
+        this object always returns false(2)."
     ::= { ccsFlapEntry 19 }
 
 ccsFlapLastResetTime OBJECT-TYPE
@@ -858,13 +865,13 @@ ccsFlapLastResetTime OBJECT-TYPE
         timestamp can be used to know the last time the statistical
         objects are started from zero. The special value of all '00'Hs
         indicates that these statistical objects of this entry in the
-        ccsFlapTable have never been reset." 
+        ccsFlapTable have never been reset."
     ::= { ccsFlapEntry 20 }
- 
+
 
 
 ccsFlapPowerAdjustThreshold OBJECT-TYPE
-    SYNTAX          Integer32 (1..10 )
+    SYNTAX          Integer32 (1..10)
     UNITS           "db"
     MAX-ACCESS      read-write
     STATUS          deprecated
@@ -872,19 +879,19 @@ ccsFlapPowerAdjustThreshold OBJECT-TYPE
         "The power adjust threshold.  When the power of the modem is
         adjusted beyond this threshold, the modem will be inserted
         into the flap-list."
-    DEFVAL          { 1 } 
+    DEFVAL          { 1 }
     ::= { ccsFlapObjects 6 }
 
 ccsFlapMissThreshold OBJECT-TYPE
-    SYNTAX          Unsigned32 (1..12 )
+    SYNTAX          Unsigned32 (1..12)
     MAX-ACCESS      read-write
     STATUS          deprecated
     DESCRIPTION
         "Per modem miss threshold which triggers polling flap detector.
-        When the number of times a cable modem does not acknowledge a 
-        MAC-layer keepalive message from a cable modem card exceeds the 
+        When the number of times a cable modem does not acknowledge a
+        MAC-layer keepalive message from a cable modem card exceeds the
         miss threshold, the cable modem is placed in the flap list."
-    DEFVAL          { 6 } 
+    DEFVAL          { 6 }
     ::= { ccsFlapObjects 7 }
 
 ccsFlapResetAll OBJECT-TYPE
@@ -893,10 +900,10 @@ ccsFlapResetAll OBJECT-TYPE
     STATUS          deprecated
     DESCRIPTION
         "Setting this object to true(1) causes ccsFlapInsertionFailNum,
-        ccsFlapHitNum, ccsFlapMissNum, ccsFlapCrcErrorNum, 
+        ccsFlapHitNum, ccsFlapMissNum, ccsFlapCrcErrorNum,
         ccsFlapPowerAdjustmentNum and ccsFlapTotalNum objects of each
-        entry in ccsFlapTable to be started from zero. Reading this 
-        object always returns false(2)." 
+        entry in ccsFlapTable to be started from zero. Reading this
+        object always returns false(2)."
     ::= { ccsFlapObjects 8 }
 
 ccsFlapClearAll OBJECT-TYPE
@@ -911,7 +918,7 @@ ccsFlapClearAll OBJECT-TYPE
         will be created.  The newly created entry for that modem will
         have new value of ccsFlapCreateTime and all the statistical
         objects will be started from zero. Reading this object always
-        returns false(2)." 
+        returns false(2)."
     ::= { ccsFlapObjects 9 }
 
 ccsFlapLastClearTime OBJECT-TYPE
@@ -926,20 +933,20 @@ ccsFlapLastClearTime OBJECT-TYPE
         Interface. This timestamp can be used to know when all the
         entries in the ccsFlapTable are destroyed. The special value
         of all '00'Hs indicates that the entries in the ccsFlapTable
-        have never been destroyed." 
+        have never been destroyed."
     ::= { ccsFlapObjects 10 }
 
 ccsCmFlapTable OBJECT-TYPE
-    SYNTAX          SEQUENCE OF CcsCmFlapEntry 
+    SYNTAX          SEQUENCE OF CcsCmFlapEntry
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
         "This table keeps the records of modem state changes,
-        so it can be used to identify the problematic cable 
+        so it can be used to identify the problematic cable
         modems.
-        An entry per modem is added to the table automatically 
+        An entry per modem is added to the table automatically
         by the system when it detects any state changes to
-        the modem.  Therefore, it can be deleted but 
+        the modem.  Therefore, it can be deleted but
         can not be added by the management system."
     ::= { ccsFlapObjects 11 }
 
@@ -955,7 +962,7 @@ ccsCmFlapEntry OBJECT-TYPE
                         ccsCmFlapDownstreamIfIndex,
                         ccsCmFlapUpstreamIfIndex,
                         ccsCmFlapMacAddr
-                    } 
+                    }
     ::= { ccsCmFlapTable 1 }
 
 CcsCmFlapEntry ::= SEQUENCE {
@@ -981,7 +988,7 @@ ccsCmFlapDownstreamIfIndex OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "The ifIndex of the Cable downstream interface whose ifType
-        is docsCableDownstream(128)." 
+        is docsCableDownstream(128)."
     ::= { ccsCmFlapEntry 1 }
 
 ccsCmFlapUpstreamIfIndex OBJECT-TYPE
@@ -991,7 +998,7 @@ ccsCmFlapUpstreamIfIndex OBJECT-TYPE
     DESCRIPTION
         "The ifIndex of the Cable upstream interface whose ifType is
         docsCableUpstream(129).  The CMTS detects a flapping Cable
-        Modem from its Cable upstream interface." 
+        Modem from its Cable upstream interface."
     ::= { ccsCmFlapEntry 2 }
 
 ccsCmFlapMacAddr OBJECT-TYPE
@@ -1000,7 +1007,7 @@ ccsCmFlapMacAddr OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "MAC address of the Cable Modem's Cable interface which
-        identifies a flapping Cable Modem." 
+        identifies a flapping Cable Modem."
     ::= { ccsCmFlapEntry 3 }
 
 ccsCmFlapLastFlapTime OBJECT-TYPE
@@ -1009,7 +1016,7 @@ ccsCmFlapLastFlapTime OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "The flap time is set whenever the Cable Modem triggers a
-        flap detector." 
+        flap detector."
     ::= { ccsCmFlapEntry 4 }
 
 ccsCmFlapCreateTime OBJECT-TYPE
@@ -1020,8 +1027,8 @@ ccsCmFlapCreateTime OBJECT-TYPE
         "The time that this entry was added to the table. If an
         entry is removed and then later re-added, there may be a
         discontinuity in the counters associated with this entry.
-        This timestamp can be used to detect those 
-        discontinuities." 
+        This timestamp can be used to detect those
+        discontinuities."
     ::= { ccsCmFlapEntry 5 }
 
 ccsCmFlapInsertionFailNum OBJECT-TYPE
@@ -1050,10 +1057,10 @@ ccsCmFlapInsertionFailNum OBJECT-TYPE
         The Flap number (ccsCmFlapTotalNum) will be incremented when
         this object is incremented.
 
-        The value of this object can be reset to zero if this entry 
-        is removed from the table and then re-added, or if the 
-        ccsCmFlapResetNow object was set to true(1). The value of the 
-        object ccsCmFlapLastResetTime indicates the last reset time." 
+        The value of this object can be reset to zero if this entry
+        is removed from the table and then re-added, or if the
+        ccsCmFlapResetNow object was set to true(1). The value of the
+        object ccsCmFlapLastResetTime indicates the last reset time."
     ::= { ccsCmFlapEntry 6 }
 
 ccsCmFlapHitNum OBJECT-TYPE
@@ -1075,10 +1082,10 @@ ccsCmFlapHitNum OBJECT-TYPE
         The Hit and Miss objects keep-alive polling statistics. The
         Hit object should be much greater than the Misses count.
 
-        The value of this object can be reset to zero if this entry 
-        is removed from the table and then re-added, or if the 
-        ccsCmFlapResetNow object was set to true(1). The value of the 
-        object ccsCmFlapLastResetTime indicates the last reset time." 
+        The value of this object can be reset to zero if this entry
+        is removed from the table and then re-added, or if the
+        ccsCmFlapResetNow object was set to true(1). The value of the
+        object ccsCmFlapLastResetTime indicates the last reset time."
     ::= { ccsCmFlapEntry 7 }
 
 ccsCmFlapMissNum OBJECT-TYPE
@@ -1095,8 +1102,8 @@ ccsCmFlapMissNum OBJECT-TYPE
         Object will be incremented.
 
         If ccsCmFlapTotalNum is high, Hit and Miss are high but
-        ccsCmFlapPowerAdjustmentNum and ccsCmFlapInsertionFailNum 
-        are low then the flapping is probably caused by the modem 
+        ccsCmFlapPowerAdjustmentNum and ccsCmFlapInsertionFailNum
+        are low then the flapping is probably caused by the modem
         going up and down.
 
         Miss object can indicate:
@@ -1110,10 +1117,10 @@ ccsCmFlapMissNum OBJECT-TYPE
         output, until finally there is no more increase in output.
         This phenomena is called laser clipping.
 
-        The value of this object can be reset to zero if this entry 
-        is removed from the table and then re-added, or if the 
-        ccsCmFlapResetNow object was set to true(1). The value of the 
-        object ccsCmFlapLastResetTime indicates the last reset time." 
+        The value of this object can be reset to zero if this entry
+        is removed from the table and then re-added, or if the
+        ccsCmFlapResetNow object was set to true(1). The value of the
+        object ccsCmFlapLastResetTime indicates the last reset time."
     ::= { ccsCmFlapEntry 8 }
 
 ccsCmFlapCrcErrorNum OBJECT-TYPE
@@ -1139,10 +1146,10 @@ ccsCmFlapCrcErrorNum OBJECT-TYPE
         output, until finally there is no more increase in output.
         This phenomena is called laser clipping.
 
-        The value of this object can be reset to zero if this entry 
-        is removed from the table and then re-added, or if the 
-        ccsCmFlapResetNow object was set to true(1). The value of the 
-        object ccsCmFlapLastResetTime indicates the last reset time." 
+        The value of this object can be reset to zero if this entry
+        is removed from the table and then re-added, or if the
+        ccsCmFlapResetNow object was set to true(1). The value of the
+        object ccsCmFlapLastResetTime indicates the last reset time."
     ::= { ccsCmFlapEntry 9 }
 
 ccsCmFlapPowerAdjustmentNum OBJECT-TYPE
@@ -1159,10 +1166,10 @@ ccsCmFlapPowerAdjustmentNum OBJECT-TYPE
         The Flap number (ccsCmFlapTotalNum) will be incremented when
         this object is incremented.
 
-        If ccsCmFlapTotalNum is high, ccsCmFlapPowerAdjustmentNum is 
-        high but the Hit and Miss are low and 
-        ccsCmFlapInsertionFailNum are low then the flapping is 
-        probably caused by an improper transmit power level 
+        If ccsCmFlapTotalNum is high, ccsCmFlapPowerAdjustmentNum is
+        high but the Hit and Miss are low and
+        ccsCmFlapInsertionFailNum are low then the flapping is
+        probably caused by an improper transmit power level
         setting at the modem end.
 
         This object can indicate:
@@ -1170,10 +1177,10 @@ ccsCmFlapPowerAdjustmentNum OBJECT-TYPE
             Poor connections, or
             Wind, moisture, or temperature sensitivity.
 
-        The value of this object can be reset to zero if this entry 
-        is removed from the table and then re-added, or if the 
-        ccsCmFlapResetNow object was set to true(1). The value of the 
-        object ccsCmFlapLastResetTime indicates the last reset time." 
+        The value of this object can be reset to zero if this entry
+        is removed from the table and then re-added, or if the
+        ccsCmFlapResetNow object was set to true(1). The value of the
+        object ccsCmFlapLastResetTime indicates the last reset time."
     ::= { ccsCmFlapEntry 10 }
 
 ccsCmFlapTotalNum OBJECT-TYPE
@@ -1192,10 +1199,10 @@ ccsCmFlapTotalNum OBJECT-TYPE
         (3) When ccsCmFlapPowerAdjustmentNum is increased the Flap
             number will be increased.
 
-        The value of this object can be reset to zero if this entry 
-        is removed from the table and then re-added, or if the 
-        ccsCmFlapResetNow object was set to true(1). The value of the 
-        object ccsCmFlapLastResetTime indicates the last reset time." 
+        The value of this object can be reset to zero if this entry
+        is removed from the table and then re-added, or if the
+        ccsCmFlapResetNow object was set to true(1). The value of the
+        object ccsCmFlapLastResetTime indicates the last reset time."
     ::= { ccsCmFlapEntry 11 }
 
 ccsCmFlapResetNow OBJECT-TYPE
@@ -1205,8 +1212,8 @@ ccsCmFlapResetNow OBJECT-TYPE
     DESCRIPTION
         "Setting this object to true(1) will set the value of
         certain objects in this table to 0 and does not
-        destroy the entry, so the ccsCmFlapCreateTime will be 
-        unchanged. Reading this object always returns false(2)." 
+        destroy the entry, so the ccsCmFlapCreateTime will be
+        unchanged. Reading this object always returns false(2)."
     ::= { ccsCmFlapEntry 12 }
 
 ccsCmFlapLastResetTime OBJECT-TYPE
@@ -1222,7 +1229,7 @@ ccsCmFlapLastResetTime OBJECT-TYPE
         timestamp can be used to know the last time the statistical
         objects are started from zero. The special value of all '00'Hs
         indicates that these statistical objects of this entry in the
-        ccsCmFlapTable have never been reset." 
+        ccsCmFlapTable have never been reset."
     ::= { ccsCmFlapEntry 13 }
 
 ccsCmFlapRowStatus OBJECT-TYPE
@@ -1233,7 +1240,7 @@ ccsCmFlapRowStatus OBJECT-TYPE
         "Controls and reflects the status of rows in this table.
 
         When a cable modem triggers a flap detector, if an entry
-        does not already exist for this cable modem, 
+        does not already exist for this cable modem,
         an entry will be created in this table.  The new instance
         of this object will be set to active(1).  All flapping
         modems have the status of active(1).
@@ -1244,12 +1251,12 @@ ccsCmFlapRowStatus OBJECT-TYPE
         this instance to destroy(6) will remove the entry
         immediately.
 
-        createAndGo(4) and createAndWait(5) are not supported." 
+        createAndGo(4) and createAndWait(5) are not supported."
     ::= { ccsCmFlapEntry 14 }
- 
+
 
 -- Upstream Spectrum Information Group
---   
+--
 -- There are a variety of internal and external noise sources
 -- to the cable plant system which would impair the upstream
 -- communication between the CMTS and CM.  With the help of the
@@ -1257,13 +1264,13 @@ ccsCmFlapRowStatus OBJECT-TYPE
 -- retrieve the receiving power and Carrier to Noise Ratio (CNR)
 -- from the CMTS.  This information can be presented graphically
 -- for system troubleshooting or trend analysis.
---   
+--
 
---   
+--
 -- Spectrum Request Table
 
 ccsSpectrumRequestTable OBJECT-TYPE
-    SYNTAX          SEQUENCE OF CcsSpectrumRequestEntry 
+    SYNTAX          SEQUENCE OF CcsSpectrumRequestEntry
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
@@ -1287,7 +1294,7 @@ ccsSpectrumRequestEntry OBJECT-TYPE
         and its associated data (example: ccsSpectrumDataEntry)
         to be cleaned up properly.  It is suggested the entry
         to be set to 'destroy' when the row is no longer in use."
-    INDEX           { ccsSpectrumRequestIndex } 
+    INDEX           { ccsSpectrumRequestIndex }
     ::= { ccsSpectrumRequestTable 1 }
 
 CcsSpectrumRequestEntry ::= SEQUENCE {
@@ -1305,11 +1312,11 @@ CcsSpectrumRequestEntry ::= SEQUENCE {
 }
 
 ccsSpectrumRequestIndex OBJECT-TYPE
-    SYNTAX          Integer32 (1..100 )
+    SYNTAX          Integer32 (1..100)
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
-        "An arbitrary integer to uniquely identify the entry." 
+        "An arbitrary integer to uniquely identify the entry."
     ::= { ccsSpectrumRequestEntry 1 }
 
 ccsSpectrumRequestIfIndex OBJECT-TYPE
@@ -1325,7 +1332,7 @@ ccsSpectrumRequestIfIndex OBJECT-TYPE
         The receiving power measurement is requested when
         ccsSpectrumRequestMacAddr is specified; In this case,
         ccsSpectrumRequestIfIndex is the ifIndex of the
-        remote CM's upstream." 
+        remote CM's upstream."
     ::= { ccsSpectrumRequestEntry 2 }
 
 ccsSpectrumRequestMacAddr OBJECT-TYPE
@@ -1343,7 +1350,7 @@ ccsSpectrumRequestMacAddr OBJECT-TYPE
         Other values indicate that the receiving power test
         is requested for the ccsSpectrumRequestMacAddr
         with CM signals."
-    DEFVAL          { '000000000000'H } 
+    DEFVAL          { '000000000000'H }
     ::= { ccsSpectrumRequestEntry 3 }
 
 ccsSpectrumRequestLowFreq OBJECT-TYPE
@@ -1364,7 +1371,7 @@ ccsSpectrumRequestLowFreq OBJECT-TYPE
           ccsSpectrumRequestLowFreq = center frequency - (aFactor * 12K)
 
         where 12K is the FFT's bin size."
-    DEFVAL          { 5000 } 
+    DEFVAL          { 5000 }
     ::= { ccsSpectrumRequestEntry 4 }
 
 ccsSpectrumRequestUpperFreq OBJECT-TYPE
@@ -1382,11 +1389,11 @@ ccsSpectrumRequestUpperFreq OBJECT-TYPE
 
         Refer to the ccsSpectrumRequestLowFreq DESCRIPTION for
         the adjustment calculation."
-    DEFVAL          { 42000 } 
+    DEFVAL          { 42000 }
     ::= { ccsSpectrumRequestEntry 5 }
 
 ccsSpectrumRequestResolution OBJECT-TYPE
-    SYNTAX          Integer32 (12..37000 )
+    SYNTAX          Integer32 (12..37000)
     UNITS           "KHz"
     MAX-ACCESS      read-create
     STATUS          current
@@ -1399,7 +1406,7 @@ ccsSpectrumRequestResolution OBJECT-TYPE
 
         ccsSpectrumRequestResolution is adjusted to a value which
         is divisible by FFT's 12KHz bin size."
-    DEFVAL          { 60 } 
+    DEFVAL          { 60 }
     ::= { ccsSpectrumRequestEntry 6 }
 
 ccsSpectrumRequestOperation OBJECT-TYPE
@@ -1425,7 +1432,7 @@ ccsSpectrumRequestOperation OBJECT-TYPE
 
         Note: The SNMP SET is rejected if ccsSpectrumRequestStatus
         is not 'active'."
-    DEFVAL          { none } 
+    DEFVAL          { none }
     ::= { ccsSpectrumRequestEntry 7 }
 
 ccsSpectrumRequestOperState OBJECT-TYPE
@@ -1441,7 +1448,7 @@ ccsSpectrumRequestOperState OBJECT-TYPE
         CCSRequestOperState is in the 'running' state.
 
         For a detailed description, see the CCSRequestOperState
-        DESCRIPTION." 
+        DESCRIPTION."
     ::= { ccsSpectrumRequestEntry 8 }
 
 ccsSpectrumRequestStartTime OBJECT-TYPE
@@ -1450,7 +1457,7 @@ ccsSpectrumRequestStartTime OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "The value of sysUpTime when the spectrum measurement
-        operation starts." 
+        operation starts."
     ::= { ccsSpectrumRequestEntry 9 }
 
 ccsSpectrumRequestStoppedTime OBJECT-TYPE
@@ -1459,7 +1466,7 @@ ccsSpectrumRequestStoppedTime OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "The value of sysUpTime when the spectrum measurement
-        operation stops." 
+        operation stops."
     ::= { ccsSpectrumRequestEntry 10 }
 
 ccsSpectrumRequestStatus OBJECT-TYPE
@@ -1469,14 +1476,14 @@ ccsSpectrumRequestStatus OBJECT-TYPE
     DESCRIPTION
         "The control that allows modification, creation, and
         deletion of entries.  For detailed rules, see the
-        ccsSpectrumRequestEntry DESCRIPTION." 
+        ccsSpectrumRequestEntry DESCRIPTION."
     ::= { ccsSpectrumRequestEntry 11 }
- 
+
 
 -- Spectrum Data Table
 
 ccsSpectrumDataTable OBJECT-TYPE
-    SYNTAX          SEQUENCE OF CcsSpectrumDataEntry 
+    SYNTAX          SEQUENCE OF CcsSpectrumDataEntry
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
@@ -1496,7 +1503,7 @@ ccsSpectrumDataEntry OBJECT-TYPE
     INDEX           {
                         ccsSpectrumRequestIndex,
                         ccsSpectrumDataFreq
-                    } 
+                    }
     ::= { ccsSpectrumDataTable 1 }
 
 CcsSpectrumDataEntry ::= SEQUENCE {
@@ -1517,7 +1524,7 @@ ccsSpectrumDataFreq OBJECT-TYPE
         if off comparing to the configured frequency.
 
         Refer to ccsSpectrumRequestLowFreq DESCRIPTIONS
-        for the adjustment calculation." 
+        for the adjustment calculation."
     ::= { ccsSpectrumDataEntry 1 }
 
 ccsSpectrumDataPower OBJECT-TYPE
@@ -1527,17 +1534,18 @@ ccsSpectrumDataPower OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "The receiving power measured at the
-        ccsSpectrumDataFreq." 
+        ccsSpectrumDataFreq."
     ::= { ccsSpectrumDataEntry 2 }
- 
+
 
 -- SNR Request Table
 
 ccsSNRRequestTable OBJECT-TYPE
-    SYNTAX          SEQUENCE OF CcsSNRRequestEntry 
+    SYNTAX          SEQUENCE OF CcsSNRRequestEntry
     MAX-ACCESS      not-accessible
     STATUS          current
-    DESCRIPTION     "A table of CNR requests."
+    DESCRIPTION
+        "A table of CNR requests."
     ::= { ccsSpectrumObjects 3 }
 
 ccsSNRRequestEntry OBJECT-TYPE
@@ -1548,7 +1556,7 @@ ccsSNRRequestEntry OBJECT-TYPE
         "Information about an CNR request.  The management
         system uses ccsSNRRequestStatus to control entry
         modification, creation, and deletion."
-    INDEX           { ccsSNRRequestIndex } 
+    INDEX           { ccsSNRRequestIndex }
     ::= { ccsSNRRequestTable 1 }
 
 CcsSNRRequestEntry ::= SEQUENCE {
@@ -1563,11 +1571,11 @@ CcsSNRRequestEntry ::= SEQUENCE {
 }
 
 ccsSNRRequestIndex OBJECT-TYPE
-    SYNTAX          Integer32 (1..100 )
+    SYNTAX          Integer32 (1..100)
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
-        "An arbitrary integer to uniquely identify this entry." 
+        "An arbitrary integer to uniquely identify this entry."
     ::= { ccsSNRRequestEntry 1 }
 
 ccsSNRRequestMacAddr OBJECT-TYPE
@@ -1577,18 +1585,18 @@ ccsSNRRequestMacAddr OBJECT-TYPE
     DESCRIPTION
         "A MAC address that identifies the remote online CM
         that the CNR measurement operation is being
-        performed on." 
+        performed on."
     ::= { ccsSNRRequestEntry 2 }
 
 ccsSNRRequestSNR OBJECT-TYPE
-    SYNTAX          Integer32 (-100..100 )
+    SYNTAX          Integer32 (-100..100)
     UNITS           "dB"
     MAX-ACCESS      read-only
     STATUS          current
     DESCRIPTION
         "A snap shot of the CNR value that is measured over
         the in-use band frequency.  The ccsSNRRequestSNR is set
-        to 0 when ccsSNRRequestOperState is in the 'running' state." 
+        to 0 when ccsSNRRequestOperState is in the 'running' state."
     ::= { ccsSNRRequestEntry 3 }
 
 ccsSNRRequestOperation OBJECT-TYPE
@@ -1609,7 +1617,7 @@ ccsSNRRequestOperation OBJECT-TYPE
         Only 'start' when request is to be started and 'abort' when
         request is to be aborted can be set by the user. It is set to
         'none' only on completion of the request by the FFT engine."
-    DEFVAL          { none } 
+    DEFVAL          { none }
     ::= { ccsSNRRequestEntry 4 }
 
 ccsSNRRequestOperState OBJECT-TYPE
@@ -1620,7 +1628,7 @@ ccsSNRRequestOperState OBJECT-TYPE
         "The operational state of the test.
 
         ccsSNRRequestMacAddr, cannot be changed when the
-        ccsSNRRequestOperState is in the 'running' state." 
+        ccsSNRRequestOperState is in the 'running' state."
     ::= { ccsSNRRequestEntry 5 }
 
 ccsSNRRequestStartTime OBJECT-TYPE
@@ -1629,7 +1637,7 @@ ccsSNRRequestStartTime OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "The value of sysUpTime when the CNR measurement
-        operation starts." 
+        operation starts."
     ::= { ccsSNRRequestEntry 6 }
 
 ccsSNRRequestStoppedTime OBJECT-TYPE
@@ -1638,7 +1646,7 @@ ccsSNRRequestStoppedTime OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "The value of sysUpTime when the CNR measurement
-        operation stops." 
+        operation stops."
     ::= { ccsSNRRequestEntry 7 }
 
 ccsSNRRequestStatus OBJECT-TYPE
@@ -1648,14 +1656,13 @@ ccsSNRRequestStatus OBJECT-TYPE
     DESCRIPTION
         "The control that allows modification, creation, and
         deletion of entries.  For detailed rules see the
-        ccsSpectrumRequestEntry DESCRIPTION.
-        " 
+        ccsSpectrumRequestEntry DESCRIPTION."
     ::= { ccsSNRRequestEntry 8 }
- 
+
 
 
 ccsUpInSpecGroupTable OBJECT-TYPE
-    SYNTAX          SEQUENCE OF CcsUpInSpecGroupEntry 
+    SYNTAX          SEQUENCE OF CcsUpInSpecGroupEntry
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
@@ -1675,7 +1682,7 @@ ccsUpInSpecGroupEntry OBJECT-TYPE
     INDEX           {
                         ccsSpecGroupNumber,
                         ccsSpecGroupUpstreamIfIndex
-                    } 
+                    }
     ::= { ccsUpInSpecGroupTable 1 }
 
 CcsUpInSpecGroupEntry ::= SEQUENCE {
@@ -1686,12 +1693,12 @@ CcsUpInSpecGroupEntry ::= SEQUENCE {
 }
 
 ccsSpecGroupNumber OBJECT-TYPE
-    SYNTAX          Unsigned32 (1..4294967295 )
+    SYNTAX          Unsigned32 (1..4294967295)
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
         "The spectrum group number. The value of the object is same as
-        the value of ccsUpSpecMgmtSpecGroup object except value 0." 
+        the value of ccsUpSpecMgmtSpecGroup object except value 0."
     ::= { ccsUpInSpecGroupEntry 1 }
 
 ccsSpecGroupUpstreamIfIndex OBJECT-TYPE
@@ -1701,14 +1708,15 @@ ccsSpecGroupUpstreamIfIndex OBJECT-TYPE
     DESCRIPTION
         "The ifIndex of the Cable upstream interface belonging to
         this Spectrum Group. The value of the corresponding
-        instance of ifType is 'docsCableUpstream(129)'." 
+        instance of ifType is 'docsCableUpstream(129)'."
     ::= { ccsUpInSpecGroupEntry 2 }
 
 ccsSpecGroupUpstreamStorage OBJECT-TYPE
     SYNTAX          StorageType
     MAX-ACCESS      read-create
     STATUS          current
-    DESCRIPTION     "The storage type for this conceptual row." 
+    DESCRIPTION
+        "The storage type for this conceptual row."
     ::= { ccsUpInSpecGroupEntry 3 }
 
 ccsSpecGroupUpstreamRowStatus OBJECT-TYPE
@@ -1717,13 +1725,13 @@ ccsSpecGroupUpstreamRowStatus OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "The status for this conceptual row. This object is used
-        for creating/deleting entries in ccsUpInSpecGroupTable." 
+        for creating/deleting entries in ccsUpInSpecGroupTable."
     ::= { ccsUpInSpecGroupEntry 4 }
- 
+
 
 
 ccsUpInFiberNodeTable OBJECT-TYPE
-    SYNTAX          SEQUENCE OF CcsUpInFiberNodeEntry 
+    SYNTAX          SEQUENCE OF CcsUpInFiberNodeEntry
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
@@ -1743,7 +1751,7 @@ ccsUpInFiberNodeEntry OBJECT-TYPE
     INDEX           {
                         ccsFiberNodeNumber,
                         ccsFiberNodeUpstreamIfIndex
-                    } 
+                    }
     ::= { ccsUpInFiberNodeTable 1 }
 
 CcsUpInFiberNodeEntry ::= SEQUENCE {
@@ -1754,12 +1762,12 @@ CcsUpInFiberNodeEntry ::= SEQUENCE {
 }
 
 ccsFiberNodeNumber OBJECT-TYPE
-    SYNTAX          Unsigned32 (1..4294967295 )
+    SYNTAX          Unsigned32 (1..4294967295)
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
         "The fiber-node number. The value of the object is same as
-        the value of ccsUpSpecMgmtSharedSpectrum except value 0." 
+        the value of ccsUpSpecMgmtSharedSpectrum except value 0."
     ::= { ccsUpInFiberNodeEntry 1 }
 
 ccsFiberNodeUpstreamIfIndex OBJECT-TYPE
@@ -1769,14 +1777,15 @@ ccsFiberNodeUpstreamIfIndex OBJECT-TYPE
     DESCRIPTION
         "The ifIndex of the Cable upstream interface belonging to
         this Spectrum Group. The value of the corresponding
-        instance of ifType is 'docsCableUpstream(129)'." 
+        instance of ifType is 'docsCableUpstream(129)'."
     ::= { ccsUpInFiberNodeEntry 2 }
 
 ccsFiberNodeUpstreamStorage OBJECT-TYPE
     SYNTAX          StorageType
     MAX-ACCESS      read-create
     STATUS          current
-    DESCRIPTION     "The storage type for this conceptual row." 
+    DESCRIPTION
+        "The storage type for this conceptual row."
     ::= { ccsUpInFiberNodeEntry 3 }
 
 ccsFiberNodeUpstreamRowStatus OBJECT-TYPE
@@ -1785,14 +1794,14 @@ ccsFiberNodeUpstreamRowStatus OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "The status for this conceptual row. This object is used
-        for creating/deleting entries in ccsUpInFiberNodeTable." 
+        for creating/deleting entries in ccsUpInFiberNodeTable."
     ::= { ccsUpInFiberNodeEntry 4 }
- 
+
 
 -- cable upstream interface spectrum management parameters
 
 ccsUpSpecMgmtTable OBJECT-TYPE
-    SYNTAX          SEQUENCE OF CcsUpSpecMgmtEntry 
+    SYNTAX          SEQUENCE OF CcsUpSpecMgmtEntry
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
@@ -1801,7 +1810,7 @@ ccsUpSpecMgmtTable OBJECT-TYPE
         to be used for improving performance and proactive
         hopping.
 
-        Proactive hopping is achieved by setting the SNR 
+        Proactive hopping is achieved by setting the SNR
         polling period over the in-use band without CM
         signals."
     ::= { ccsConfigObjects 1 }
@@ -1812,11 +1821,11 @@ ccsUpSpecMgmtEntry OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "Upstream interface's spectrum management information."
-    INDEX           { ifIndex } 
+    INDEX           { ifIndex }
     ::= { ccsUpSpecMgmtTable 1 }
 
 CcsUpSpecMgmtEntry ::= SEQUENCE {
-        ccsUpSpecMgmtHopPriority         INTEGER ,
+        ccsUpSpecMgmtHopPriority         INTEGER,
         ccsUpSpecMgmtSnrThres1           Integer32,
         ccsUpSpecMgmtSnrThres2           Integer32,
         ccsUpSpecMgmtFecCorrectThres1    Integer32,
@@ -1824,7 +1833,7 @@ CcsUpSpecMgmtEntry ::= SEQUENCE {
         ccsUpSpecMgmtFecUnCorrectThres1  Integer32,
         ccsUpSpecMgmtFecUnCorrectThres2  Integer32,
         ccsUpSpecMgmtSnrPollPeriod       Integer32,
-        ccsUpSpecMgmtHopCondition        INTEGER ,
+        ccsUpSpecMgmtHopCondition        INTEGER,
         ccsUpSpecMgmtFromCenterFreq      Unsigned32,
         ccsUpSpecMgmtToCenterFreq        Unsigned32,
         ccsUpSpecMgmtFromBandWidth       Unsigned32,
@@ -1868,11 +1877,11 @@ ccsUpSpecMgmtHopPriority OBJECT-TYPE
         clean band is still not available, the bandwidth is
         reduced until an acceptable band is found or a minimum
         bandwidth of 200KHz."
-    DEFVAL          { frqModChannel } 
+    DEFVAL          { frqModChannel }
     ::= { ccsUpSpecMgmtEntry 1 }
 
 ccsUpSpecMgmtSnrThres1 OBJECT-TYPE
-    SYNTAX          Integer32 (0 |  5..35 )
+    SYNTAX          Integer32 (0 | 5..35)
     UNITS           "dB"
     MAX-ACCESS      read-write
     STATUS          current
@@ -1886,11 +1895,11 @@ ccsUpSpecMgmtSnrThres1 OBJECT-TYPE
         ccsUpSpecMgmtSnrThres2.
 
         A value 0 indicates to bypass the threshold check."
-    DEFVAL          { 25 } 
+    DEFVAL          { 25 }
     ::= { ccsUpSpecMgmtEntry 2 }
 
 ccsUpSpecMgmtSnrThres2 OBJECT-TYPE
-    SYNTAX          Integer32 (0 |  5..35 )
+    SYNTAX          Integer32 (0 | 5..35)
     UNITS           "dB"
     MAX-ACCESS      read-write
     STATUS          current
@@ -1898,21 +1907,21 @@ ccsUpSpecMgmtSnrThres2 OBJECT-TYPE
         "The Signal to Noise (SNR) threshold.  This object
         is applicable for modulation profile 2.
 
-        Refer to ccsUpSpecMgmtCriteria on how 
-        ccsUpSpecMgmtSnrThres2 can trigger a change 
+        Refer to ccsUpSpecMgmtCriteria on how
+        ccsUpSpecMgmtSnrThres2 can trigger a change
         in frequency, modulation or channel width.
 
         A value 0 indicates to bypass the threshold check.
 
-        Note: The SNMP SET is rejected if both 
+        Note: The SNMP SET is rejected if both
         ccsUpSpecMgmtSnrThres1, ccsUpSpecMgmtSnrThres2
         are non-zero and ccsUpSpecMgmtSnrThres2
         is higher than ccsUpSpecMgmtSnrThres1."
-    DEFVAL          { 15 } 
+    DEFVAL          { 15 }
     ::= { ccsUpSpecMgmtEntry 3 }
 
 ccsUpSpecMgmtFecCorrectThres1 OBJECT-TYPE
-    SYNTAX          Integer32 (0 |  1..30 )
+    SYNTAX          Integer32 (0 | 1..30)
     MAX-ACCESS      read-write
     STATUS          current
     DESCRIPTION
@@ -1925,11 +1934,11 @@ ccsUpSpecMgmtFecCorrectThres1 OBJECT-TYPE
         higher than ccsUpSpecMgmtFecCorrectThres1, it
         switch to Profile 2.  Therefore,
         ccsUpSpecMgmtFecCorrectThres1 should be smaller
-        than ccsUpSpecMgmtFecCorrectThres2." 
+        than ccsUpSpecMgmtFecCorrectThres2."
     ::= { ccsUpSpecMgmtEntry 4 }
 
 ccsUpSpecMgmtFecCorrectThres2 OBJECT-TYPE
-    SYNTAX          Integer32 (1..20 )
+    SYNTAX          Integer32 (1..20)
     MAX-ACCESS      read-write
     STATUS          deprecated
     DESCRIPTION
@@ -1940,13 +1949,13 @@ ccsUpSpecMgmtFecCorrectThres2 OBJECT-TYPE
         than ccsUpSpecMgmtFecCorrectThres2, modulation change can
         occur, depending on the type of ccsUpSpecMgmtHopPriority.
 
-        Note: SNMP SET will be rejected if 
-        ccsUpSpecMgmtFecCorrectThres2 is lower than 
-        ccsUpSpecMgmtFecCorrectThres1." 
+        Note: SNMP SET will be rejected if
+        ccsUpSpecMgmtFecCorrectThres2 is lower than
+        ccsUpSpecMgmtFecCorrectThres1."
     ::= { ccsUpSpecMgmtEntry 5 }
 
 ccsUpSpecMgmtFecUnCorrectThres1 OBJECT-TYPE
-    SYNTAX          Integer32 (0 |  1..30 )
+    SYNTAX          Integer32 (0 | 1..30)
     MAX-ACCESS      read-write
     STATUS          current
     DESCRIPTION
@@ -1958,11 +1967,11 @@ ccsUpSpecMgmtFecUnCorrectThres1 OBJECT-TYPE
         When CMTS detects that FEC uncorrectable count goes higher than
         ccsUpSpecMgmtFecUnCorrectThres1, it switches to Profile 2.
         Therefore, ccsUpSpecMgmtFecUnCorrectThres1 should be smaller
-        than ccsUpSpecMgmtFecUnCorrectThres2." 
+        than ccsUpSpecMgmtFecUnCorrectThres2."
     ::= { ccsUpSpecMgmtEntry 6 }
 
 ccsUpSpecMgmtFecUnCorrectThres2 OBJECT-TYPE
-    SYNTAX          Integer32 (0 |  1..30 )
+    SYNTAX          Integer32 (0 | 1..30)
     MAX-ACCESS      read-write
     STATUS          current
     DESCRIPTION
@@ -1971,16 +1980,16 @@ ccsUpSpecMgmtFecUnCorrectThres2 OBJECT-TYPE
 
         A value 0 indicates to bypass the threshold check.
 
-        Refer to ccsUpSpecMgmtCriteria on how 
-        ccsUpSpecMgmtFecUnCorrectThres2 can trigger a change 
+        Refer to ccsUpSpecMgmtCriteria on how
+        ccsUpSpecMgmtFecUnCorrectThres2 can trigger a change
         in frequency, modulation or channel width.
 
         Note: SNMP SET is rejected if ccsUpSpecMgmtFecUnCorrectThres2
-        is lower than ccsUpSpecMgmtFecUnCorrectThres1." 
+        is lower than ccsUpSpecMgmtFecUnCorrectThres1."
     ::= { ccsUpSpecMgmtEntry 7 }
 
 ccsUpSpecMgmtSnrPollPeriod OBJECT-TYPE
-    SYNTAX          Integer32 (500..25000 )
+    SYNTAX          Integer32 (500..25000)
     UNITS           "msec"
     MAX-ACCESS      read-write
     STATUS          deprecated
@@ -1993,7 +2002,7 @@ ccsUpSpecMgmtSnrPollPeriod OBJECT-TYPE
         meet ccsUpSpecMgmtSnrThres1 or ccsUpSpecMgmtSnrThres2,
         a possible hopping occurs, depending on the type of
         ccsUpSpecMgmtHopPriority."
-    DEFVAL          { 500 } 
+    DEFVAL          { 500 }
     ::= { ccsUpSpecMgmtEntry 8 }
 
 ccsUpSpecMgmtHopCondition OBJECT-TYPE
@@ -2010,12 +2019,12 @@ ccsUpSpecMgmtHopCondition OBJECT-TYPE
         The SNR condition occurs when SNR does not meet
         the ccsUpSpecMgmtSnrThres1 or ccsUpSpecMgmtSnrThres2.
 
-        The stationMaintainenceMiss condition occurs when the 
-        percentage of offline CMs is reached." 
+        The stationMaintainenceMiss condition occurs when the
+        percentage of offline CMs is reached."
     ::= { ccsUpSpecMgmtEntry 9 }
 
 ccsUpSpecMgmtFromCenterFreq OBJECT-TYPE
-    SYNTAX          Unsigned32 (0 |  5000..65000 )
+    SYNTAX          Unsigned32 (0 | 5000..65000)
     UNITS           "KHz"
     MAX-ACCESS      read-only
     STATUS          current
@@ -2023,11 +2032,11 @@ ccsUpSpecMgmtFromCenterFreq OBJECT-TYPE
         "Center frequency before hopping occurs.
 
         A value 0 indicates that the interface has no
-        frequency assigned." 
+        frequency assigned."
     ::= { ccsUpSpecMgmtEntry 10 }
 
 ccsUpSpecMgmtToCenterFreq OBJECT-TYPE
-    SYNTAX          Unsigned32 (0 |  5000..65000 )
+    SYNTAX          Unsigned32 (0 | 5000..65000)
     UNITS           "KHz"
     MAX-ACCESS      read-only
     STATUS          current
@@ -2035,7 +2044,7 @@ ccsUpSpecMgmtToCenterFreq OBJECT-TYPE
         "Current center frequency.
 
         A value 0 indicates that the interface has no
-        frequency assigned." 
+        frequency assigned."
     ::= { ccsUpSpecMgmtEntry 11 }
 
 ccsUpSpecMgmtFromBandWidth OBJECT-TYPE
@@ -2043,7 +2052,8 @@ ccsUpSpecMgmtFromBandWidth OBJECT-TYPE
     UNITS           "KHz"
     MAX-ACCESS      read-only
     STATUS          current
-    DESCRIPTION     "Bandwidth before hopping occurs." 
+    DESCRIPTION
+        "Bandwidth before hopping occurs."
     ::= { ccsUpSpecMgmtEntry 12 }
 
 ccsUpSpecMgmtToBandWidth OBJECT-TYPE
@@ -2051,11 +2061,12 @@ ccsUpSpecMgmtToBandWidth OBJECT-TYPE
     UNITS           "KHz"
     MAX-ACCESS      read-only
     STATUS          current
-    DESCRIPTION     "Current bandwidth." 
+    DESCRIPTION
+        "Current bandwidth."
     ::= { ccsUpSpecMgmtEntry 13 }
 
 ccsUpSpecMgmtFromModProfile OBJECT-TYPE
-    SYNTAX          Integer32 (1..2147483647 )
+    SYNTAX          Integer32 (1..2147483647)
     MAX-ACCESS      read-only
     STATUS          current
     DESCRIPTION
@@ -2065,11 +2076,11 @@ ccsUpSpecMgmtFromModProfile OBJECT-TYPE
 
         For the detailed descriptions, see the
         docsIfCmtsModulationTable and docsIfCmtsModIndex
-        DESCRIPTIONS." 
+        DESCRIPTIONS."
     ::= { ccsUpSpecMgmtEntry 14 }
 
 ccsUpSpecMgmtToModProfile OBJECT-TYPE
-    SYNTAX          Integer32 (1..2147483647 )
+    SYNTAX          Integer32 (1..2147483647)
     MAX-ACCESS      read-only
     STATUS          current
     DESCRIPTION
@@ -2079,19 +2090,19 @@ ccsUpSpecMgmtToModProfile OBJECT-TYPE
 
         For the detailed descriptions, see the
         docsIfCmtsModulationTable and docsIfCmtsModIndex
-        DESCRIPTIONS." 
+        DESCRIPTIONS."
     ::= { ccsUpSpecMgmtEntry 15 }
 
 ccsUpSpecMgmtSNR OBJECT-TYPE
-    SYNTAX          Integer32 (-100..100 )
+    SYNTAX          Integer32 (-100..100)
     UNITS           "dB"
     MAX-ACCESS      read-only
     STATUS          current
     DESCRIPTION
         "Current SNR.
-        A value -99 indicates the system detected no 
-        modem on line, and a value of -100 indicates the 
-        system was unable to retrieve the SNR value." 
+        A value -99 indicates the system detected no
+        modem on line, and a value of -100 indicates the
+        system was unable to retrieve the SNR value."
     ::= { ccsUpSpecMgmtEntry 16 }
 
 ccsUpSpecMgmtUpperBoundFreq OBJECT-TYPE
@@ -2099,11 +2110,12 @@ ccsUpSpecMgmtUpperBoundFreq OBJECT-TYPE
     UNITS           "KHz"
     MAX-ACCESS      read-only
     STATUS          current
-    DESCRIPTION     "Upper bound frequency that the upstream supports." 
+    DESCRIPTION
+        "Upper bound frequency that the upstream supports."
     ::= { ccsUpSpecMgmtEntry 17 }
 
 ccsUpSpecMgmtCnrThres1 OBJECT-TYPE
-    SYNTAX          Integer32 (0 |  5..35 )
+    SYNTAX          Integer32 (0 | 5..35)
     UNITS           "dB"
     MAX-ACCESS      read-write
     STATUS          current
@@ -2114,15 +2126,15 @@ ccsUpSpecMgmtCnrThres1 OBJECT-TYPE
 
         When the CMTS detects that the CNR goes lower than
         ccsUpSpecMgmtCnrThres1, it switches to profile 2.
-        Therefore, ccsUpSpecMgmtCnrThres1 should be larger 
+        Therefore, ccsUpSpecMgmtCnrThres1 should be larger
         than ccsUpSpecMgmtCnrThres2.
 
         A value 0 indicates to bypass the threshold check."
-    DEFVAL          { 25 } 
+    DEFVAL          { 25 }
     ::= { ccsUpSpecMgmtEntry 18 }
 
 ccsUpSpecMgmtCnrThres2 OBJECT-TYPE
-    SYNTAX          Integer32 (0 |  5..35 )
+    SYNTAX          Integer32 (0 | 5..35)
     UNITS           "dB"
     MAX-ACCESS      read-write
     STATUS          current
@@ -2130,44 +2142,44 @@ ccsUpSpecMgmtCnrThres2 OBJECT-TYPE
         "The Carrier to Noise (CNR) threshold.  This object
         is applicable for modulation profile 2.
 
-        Refer to ccsUpSpecMgmtCriteria on how 
-        ccsUpSpecMgmtCnrThres2 can trigger a change 
+        Refer to ccsUpSpecMgmtCriteria on how
+        ccsUpSpecMgmtCnrThres2 can trigger a change
         in frequency, modulation or channel width.
 
         A value 0 indicates to bypass the threshold check.
 
-        Note: The SNMP SET is rejected if both 
+        Note: The SNMP SET is rejected if both
         ccsUpSpecMgmtCnrThres1, ccsUpSpecMgmtCnrThres2
         are non-zero and ccsUpSpecMgmtCnrThres2
         is higher than ccsUpSpecMgmtCnrThres1."
-    DEFVAL          { 15 } 
+    DEFVAL          { 15 }
     ::= { ccsUpSpecMgmtEntry 19 }
 
 ccsUpSpecMgmtCNR OBJECT-TYPE
-    SYNTAX          Integer32 (-100..100 )
+    SYNTAX          Integer32 (-100..100)
     UNITS           "dB"
     MAX-ACCESS      read-only
     STATUS          current
     DESCRIPTION
         "Current CNR.
-        A value -99 indicates the system detected no 
-        modem on line, and a value of -100 indicates the 
-        system was unable to retrieve the CNR value." 
+        A value -99 indicates the system detected no
+        modem on line, and a value of -100 indicates the
+        system was unable to retrieve the CNR value."
     ::= { ccsUpSpecMgmtEntry 20 }
 
 ccsUpSpecMgmtMissedMaintMsgThres OBJECT-TYPE
-    SYNTAX          Integer32 (0..100 )
+    SYNTAX          Integer32 (0..100)
     MAX-ACCESS      read-only
     STATUS          current
     DESCRIPTION
         "The missed maintenance message threshold in percentage.
 
-        A value 0 indicates that the interface has no spectrum 
-        group assigned. i.e. ccsUpSpecMgmtSpecGroup equals 0." 
+        A value 0 indicates that the interface has no spectrum
+        group assigned. i.e. ccsUpSpecMgmtSpecGroup equals 0."
     ::= { ccsUpSpecMgmtEntry 21 }
 
 ccsUpSpecMgmtHopPeriod OBJECT-TYPE
-    SYNTAX          Integer32 (0 |  1..3600 )
+    SYNTAX          Integer32 (0 | 1..3600)
     UNITS           "seconds"
     MAX-ACCESS      read-only
     STATUS          current
@@ -2176,7 +2188,7 @@ ccsUpSpecMgmtHopPeriod OBJECT-TYPE
 
         A value 0 indicates that the interface has no
         spectrum group assigned. i.e. ccsUpSpecMgmtSpecGroup
-        equals to 0." 
+        equals to 0."
     ::= { ccsUpSpecMgmtEntry 22 }
 
 ccsUpSpecMgmtCriteria OBJECT-TYPE
@@ -2197,67 +2209,67 @@ ccsUpSpecMgmtCriteria OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "Defines the criteria that trigger a change in
-        frequency hopping, modulation or channel width.  
+        frequency hopping, modulation or channel width.
 
-        Depending on the type of linecards, the criteria 
+        Depending on the type of linecards, the criteria
         are slightly different:
 
-        For the linecards that have no Hardware 
-        Based Spectrum Management capability like 
+        For the linecards that have no Hardware
+        Based Spectrum Management capability like
         the uBR-MC1xC, change in modulation or frequency
         occurs in the following criteria:
 
-        1) Change from modulation profile 1 to 
-           modulation profile 2 would occur when CMTS 
-           detects the SNR that goes below the 
-           threshold and either corr FEC or uncorr FEC 
-           is above the threshold.  In this case, 
-           snrBelowThres and either corrFecAboveThres or 
-           uncorrFecAboveThres bits will get set. 
+        1) Change from modulation profile 1 to
+           modulation profile 2 would occur when CMTS
+           detects the SNR that goes below the
+           threshold and either corr FEC or uncorr FEC
+           is above the threshold.  In this case,
+           snrBelowThres and either corrFecAboveThres or
+           uncorrFecAboveThres bits will get set.
 
-        2) Change from modulation profile 2 to 
-           modulation profile 1 would occur when CMTS 
+        2) Change from modulation profile 2 to
+           modulation profile 1 would occur when CMTS
            detects the SNR goes above the threshold+3
-           and both corr FEC and uncorr FEC are 
-           below the threshold.  In this case, 
+           and both corr FEC and uncorr FEC are
+           below the threshold.  In this case,
            snrAboveThres and corrFecBelowThres
-           and uncorrFecBelowThres bits will get set. 
+           and uncorrFecBelowThres bits will get set.
 
         3) Change in frequency or frequency hopping would
-           occur when CMTS detects no active modem on the link.  
+           occur when CMTS detects no active modem on the link.
            In this case, noActiveModem bit will get
            set accordingly.
 
 
-        For the linecards that have the Hardware Based 
-        Spectrum Management capability, change in 
-        frequency, modulation or channel width occurs 
+        For the linecards that have the Hardware Based
+        Spectrum Management capability, change in
+        frequency, modulation or channel width occurs
         in the following criteria:
 
-        1) when CMTS detects the SNR or CNR goes below the 
-           threshold and either corr FEC or uncorr FEC is 
-           above the threshold.  In this case, 
-           either snrBelowThres or cnrBelowThres and 
-           either corrFecAboveThres or uncorrFecAboveThres 
-           bits will get set. 
+        1) when CMTS detects the SNR or CNR goes below the
+           threshold and either corr FEC or uncorr FEC is
+           above the threshold.  In this case,
+           either snrBelowThres or cnrBelowThres and
+           either corrFecAboveThres or uncorrFecAboveThres
+           bits will get set.
 
-        2) when CMTS detects the SNR or CNR goes above the 
-           threshold + 3 and both corr FEC and uncorr FEC are 
-           below the threshold.  In this case, 
-           either snrAboveThres or cnrAboveThres and both 
-           corrFecBelowThres and uncorrFecBelowThres bits 
-           will get set. 
+        2) when CMTS detects the SNR or CNR goes above the
+           threshold + 3 and both corr FEC and uncorr FEC are
+           below the threshold.  In this case,
+           either snrAboveThres or cnrAboveThres and both
+           corrFecBelowThres and uncorrFecBelowThres bits
+           will get set.
 
-        3) when CMTS detects no active modem on the link or 
-           uncorr FEC is above ccsUpSpecMgmtFecUnCorrectThres2. 
-           In this case noActiveModem or 
-           uncorrFecAboveSecondThres bit will get set 
+        3) when CMTS detects no active modem on the link or
+           uncorr FEC is above ccsUpSpecMgmtFecUnCorrectThres2.
+           In this case noActiveModem or
+           uncorrFecAboveSecondThres bit will get set
            accordingly.
 
-        Note: The order of frequency, modulation or channel 
+        Note: The order of frequency, modulation or channel
         width changes for the advanced spectrum management
-        linecards will be determined based on the selection of 
-        the ccsUpSpecMgmtHopPriority." 
+        linecards will be determined based on the selection of
+        the ccsUpSpecMgmtHopPriority."
     ::= { ccsUpSpecMgmtEntry 23 }
 
 ccsUpSpecMgmtSpecGroup OBJECT-TYPE
@@ -2268,7 +2280,7 @@ ccsUpSpecMgmtSpecGroup OBJECT-TYPE
         "The spectrum group assigned to the upstream. The value of 0 for
         the object indicates that the upstream has no spectrum group
         assigned."
-    DEFVAL          { 0 } 
+    DEFVAL          { 0 }
     ::= { ccsUpSpecMgmtEntry 24 }
 
 ccsUpSpecMgmtSharedSpectrum OBJECT-TYPE
@@ -2282,13 +2294,13 @@ ccsUpSpecMgmtSharedSpectrum OBJECT-TYPE
         frequency assigned. The value of 0 for the object
         indicates that the upstream is not physically combine with
         any others."
-    DEFVAL          { 0 } 
+    DEFVAL          { 0 }
     ::= { ccsUpSpecMgmtEntry 25 }
- 
+
 
 
 ccsSpecGroupFreqTable OBJECT-TYPE
-    SYNTAX          SEQUENCE OF CcsSpecGroupFreqEntry 
+    SYNTAX          SEQUENCE OF CcsSpecGroupFreqEntry
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
@@ -2307,12 +2319,12 @@ ccsSpecGroupFreqEntry OBJECT-TYPE
     INDEX           {
                         ccsSpecGroupNumber,
                         ccsSpecGroupFreqIndex
-                    } 
+                    }
     ::= { ccsSpecGroupFreqTable 1 }
 
 CcsSpecGroupFreqEntry ::= SEQUENCE {
         ccsSpecGroupFreqIndex Unsigned32,
-        ccsSpecGroupFreqType  INTEGER ,
+        ccsSpecGroupFreqType  INTEGER,
         ccsSpecGroupFreqLower Integer32,
         ccsSpecGroupFreqUpper Integer32,
         ccsSpecGroupStorage   StorageType,
@@ -2320,12 +2332,12 @@ CcsSpecGroupFreqEntry ::= SEQUENCE {
 }
 
 ccsSpecGroupFreqIndex OBJECT-TYPE
-    SYNTAX          Unsigned32 (1..4294967295 )
+    SYNTAX          Unsigned32 (1..4294967295)
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
         "An arbitrary index to uniquely identify frequencies or bands
-        configured in spectrum group." 
+        configured in spectrum group."
     ::= { ccsSpecGroupFreqEntry 1 }
 
 ccsSpecGroupFreqType OBJECT-TYPE
@@ -2343,11 +2355,11 @@ ccsSpecGroupFreqType OBJECT-TYPE
         csSpecGroupFreqUpper object must be identical. If the value of
         bandFreq(2) is specified, the values of the corresponding
         instance of ccsSpecGroupFreqLower and csSpecGroupFreqUpper
-        must be unique." 
+        must be unique."
     ::= { ccsSpecGroupFreqEntry 2 }
 
 ccsSpecGroupFreqLower OBJECT-TYPE
-    SYNTAX          Integer32 (0..1000000000 )
+    SYNTAX          Integer32 (0..1000000000)
     UNITS           "Hz"
     MAX-ACCESS      read-create
     STATUS          current
@@ -2359,11 +2371,11 @@ ccsSpecGroupFreqLower OBJECT-TYPE
         instance of ccsSpecGroupFreqUpper. To configure a fixed center
         frequency in the spectrum group, the value of this object must
         be equal to the value of the corresponding instance of
-        ccsSpecGroupFreqUpper." 
+        ccsSpecGroupFreqUpper."
     ::= { ccsSpecGroupFreqEntry 3 }
 
 ccsSpecGroupFreqUpper OBJECT-TYPE
-    SYNTAX          Integer32 (0..1000000000 )
+    SYNTAX          Integer32 (0..1000000000)
     UNITS           "Hz"
     MAX-ACCESS      read-create
     STATUS          current
@@ -2375,14 +2387,15 @@ ccsSpecGroupFreqUpper OBJECT-TYPE
         corresponding instance of ccsSpecGroupFreqLower. To configure a
         fixed center frequency in the spectrum group, the value of this
         object must be equal to the value of the corresponding instance
-        of ccsSpecGroupFreqLower." 
+        of ccsSpecGroupFreqLower."
     ::= { ccsSpecGroupFreqEntry 4 }
 
 ccsSpecGroupStorage OBJECT-TYPE
     SYNTAX          StorageType
     MAX-ACCESS      read-create
     STATUS          current
-    DESCRIPTION     "The storage type for this conceptual row." 
+    DESCRIPTION
+        "The storage type for this conceptual row."
     ::= { ccsSpecGroupFreqEntry 5 }
 
 ccsSpecGroupRowStatus OBJECT-TYPE
@@ -2406,17 +2419,17 @@ ccsSpecGroupRowStatus OBJECT-TYPE
         the frequency represents by the row has been assigned to a
         cable upstream interface, modifying or deleting such row
         would cause the cable upstream interface frequency
-        reassignment." 
+        reassignment."
     ::= { ccsSpecGroupFreqEntry 6 }
- 
+
 
 -- Notification group
+
 ciscoCableSpectrumMIBNotificationPrefix  OBJECT IDENTIFIER
     ::= { ciscoCableSpectrumMIB 2 }
 
 ccsMIBNotifications  OBJECT IDENTIFIER
     ::= { ciscoCableSpectrumMIBNotificationPrefix 0 }
-
 
 
 ccsHoppingNotification NOTIFICATION-TYPE
@@ -2439,7 +2452,6 @@ ccsHoppingNotification NOTIFICATION-TYPE
         SNR or modemOffline that caused the hopping."
    ::= { ccsMIBNotifications 1 }
 
-
 ccsSpecMgmtNotification NOTIFICATION-TYPE
     OBJECTS         {
                         ccsUpSpecMgmtCriteria,
@@ -2454,10 +2466,11 @@ ccsSpecMgmtNotification NOTIFICATION-TYPE
     DESCRIPTION
         "A notification is sent when there's a change in
         frequency hopping, modulation, or profile.
-        ccsUpSpecMgmtCriteria is used to indicate the  
+        ccsUpSpecMgmtCriteria is used to indicate the
         cause(s)."
    ::= { ccsMIBNotifications 2 }
 -- Conformance statement
+
 ciscoCableSpectrumMIBConformance  OBJECT IDENTIFIER
     ::= { ciscoCableSpectrumMIB 3 }
 
@@ -2469,6 +2482,7 @@ ciscoCableSpectrumMIBGroups  OBJECT IDENTIFIER
 
 
 -- compliance statements
+
 ccsCompliance MODULE-COMPLIANCE
     STATUS          obsolete
     DESCRIPTION
@@ -2540,7 +2554,7 @@ ccsCompliance5 MODULE-COMPLIANCE
                     }
 
     OBJECT          ccsFlapListMaxSize
-    WRITE-SYNTAX    Integer32(1..8191 )
+    WRITE-SYNTAX    Integer32(1..8191)
     DESCRIPTION
         "Current implementation limits the upper bound to 8191."
     ::= { ciscoCableSpectrumMIBCompliances 5 }
@@ -2560,7 +2574,7 @@ ccsCompliance6 MODULE-COMPLIANCE
                     }
 
     OBJECT          ccsFlapListMaxSize
-    WRITE-SYNTAX    Integer32(1..8191 )
+    WRITE-SYNTAX    Integer32(1..8191)
     DESCRIPTION
         "Current implementation limits the upper bound to 8191."
     ::= { ciscoCableSpectrumMIBCompliances 6 }
@@ -2583,7 +2597,7 @@ ccsCompliance7 MODULE-COMPLIANCE
                     }
 
     OBJECT          ccsFlapListMaxSize
-    WRITE-SYNTAX    Integer32(1..8191 )
+    WRITE-SYNTAX    Integer32(1..8191)
     DESCRIPTION
         "Current implementation limits the upper bound to 8191."
 
@@ -2636,6 +2650,7 @@ ccsCompliance7 MODULE-COMPLIANCE
     ::= { ciscoCableSpectrumMIBCompliances 7 }
 
 -- units of conformance
+
 ccsFlapGroup OBJECT-GROUP
     OBJECTS         {
                         ccsFlapListMaxSize,
@@ -2945,4 +2960,3 @@ ccsUpInFiberNodeGroup OBJECT-GROUP
     ::= { ciscoCableSpectrumMIBGroups 14 }
 
 END
-
