@@ -1,11 +1,11 @@
 -- *****************************************************************
--- CISCO-METRO-PHY-MIB.my 
+-- CISCO-METRO-PHY-MIB.my
 --
 -- Feb 2001, Sonal Maheshwari, Mickey Spiegel
--- May 2002, Sonal Maheshwari, Mickey Spiegel 
+-- May 2002, Sonal Maheshwari, Mickey Spiegel
 -- Dec 2002, Arvind Prabhudev, Sonal Maheshwari, Mickey Spiegel
 --
--- Copyright (c) 2001, 2002, 2003, 2004 by cisco Systems, Inc.
+-- Copyright (c) 2001-2005 by cisco Systems, Inc.
 -- All rights reserved.
 -- *****************************************************************
 
@@ -23,11 +23,11 @@ IMPORTS
     MODULE-COMPLIANCE,
     OBJECT-GROUP                        FROM SNMPv2-CONF
     ifIndex                             FROM IF-MIB
-    ciscoExperiment                     FROM CISCO-SMI    
+    ciscoExperiment                     FROM CISCO-SMI
 ;
 
 ciscoMetroPhyMIB MODULE-IDENTITY
-    LAST-UPDATED   "200411190000Z" 
+    LAST-UPDATED   "200509020000Z"
     ORGANIZATION   "Cisco Systems, Inc."
     CONTACT-INFO   "Cisco Systems
                     Customer Service
@@ -39,33 +39,46 @@ ciscoMetroPhyMIB MODULE-IDENTITY
 
                     E-mail: cs-dwdm@cisco.com"
     DESCRIPTION
-        "This MIB module defines the managed objects for physical 
+        "This MIB module defines the managed objects for physical
         layer related interface configurations and objects
         for the protocol specific error counters for DWDM
         optical switches.
 
         This MIB contains three groups.
- 
+
         The first group, cmPhyIf group, handles the physical layer
         related interface configurations. The cmPhyIfTable has objects
         for configuring protocol, rate, error monitoring, loopback
         mode and safety features like OFC (Open Fibre Control), laser
-        safety control and forward laser control. 
+        safety control and forward laser control.
 
-        The second group, cmPhyStatistics group, represents the 
-        counters that collect error statistics on the received 
-        data traffic for all protocols except SONET. 
-        The error statistics for SONET are covered 
+        The second group, cmPhyStatistics group, represents the
+        counters that collect error statistics on the received
+        data traffic for all protocols except SONET.
+        The error statistics for SONET are covered
         in the SONET-MIB.
 
         The third group, cmPhySonetSectionTrace group, provides
         objects for section trace monitoring on SONET/SDH
-        interfaces. 
+        interfaces.
+        "
+    REVISION   "200509020000Z"
+    DESCRIPTION
+        "Following objects have been added to cmPhyIfTable:
+        cmPhyIfRate,
+        cmPhyIfNegotiatedRate,
+        cmPhyIfOverSubscription,
+        cmPhyIfClientSubrate,
+        cmPhyIfClientSubrateLock.
+
+        Following Textual conventions have been added:
+        CmRateType,
+        CmNegotiatedRateType.
         "
     REVISION   "200411190000Z"
     DESCRIPTION
         "cmPhyIfTransType object has been added to cmPhyIfTable.
-         'e1', 't1', 'e3', 't3', 'dvb', 'sdi' and 'its' enumeration 
+         'e1', 't1', 'e3', 't3', 'dvb', 'sdi' and 'its' enumeration
          has been added to cmPhyIfProtocol object."
     REVISION   "200308250000Z"
     DESCRIPTION
@@ -76,19 +89,19 @@ ciscoMetroPhyMIB MODULE-IDENTITY
     REVISION   "200205140000Z"
     DESCRIPTION
         "The third revision of this MIB.
- 
-        The following new counters have been added - 
+
+        The following new counters have been added -
         cmPhyRxCRC,
         cmPhyRxCRCOverflow,
         cmPhyHCRxCRC,
         cmPhyTxEncapFarEndPktErrors,
         cmPhyTxEncapFarEndPktErrOverflow,
-        cmPhyHCTxEncapFarEndPktErrors 
+        cmPhyHCTxEncapFarEndPktErrors
 
         The following objects have been deprecated -
         cmPhyIfLaserSafetyControl (moved to CISCO-OPTICAL-IF-EXTN-MIB),
         cmPhyIfForwardLaserControl (moved to CISCO-OPTICAL-IF-EXTN-MIB),
-        cmPhyRxPower (moved to CISCO-OPTICAL-MONITOR-MIB), 
+        cmPhyRxPower (moved to CISCO-OPTICAL-MONITOR-MIB),
         cmPhyRxHEC (moved to CISCO-CDL-MIB),
         cmPhyRxHECOverflow (moved to CISCO-CDL-MIB) and
         cmPhyHCRxHEC (moved to CISCO-CDL-MIB).
@@ -96,7 +109,7 @@ ciscoMetroPhyMIB MODULE-IDENTITY
     REVISION   "200108310000Z"
     DESCRIPTION
         "The second revision of this MIB."
-    REVISION   "200104190000Z" 
+    REVISION   "200104190000Z"
     DESCRIPTION
         "The initial revision of this MIB."
     ::= { ciscoExperiment 69 } -- assigned by CANA
@@ -118,7 +131,7 @@ TransmissionType ::= TEXTUAL-CONVENTION
 
          The value 'optical' indicates the physical layer medium is
          optical."
-      
+
     SYNTAX INTEGER {
          unknown(1),
          copper(2),
@@ -142,13 +155,13 @@ ProtocolType ::= TEXTUAL-CONVENTION
 
          The value 't3' indicates an interface that implements the
          physical layer of T3.
-         
+
          The value 'dvb' indicates an interface that implements the
          physical layer of DVB.
-         
+
          The value 'sdi' indicates an interface that implements the
          physical layer of SDI.
-        
+
          The value 'its' indicates an interface that implements the
          physical layer of ITS. "
 
@@ -185,7 +198,73 @@ TriValue ::= TEXTUAL-CONVENTION
         true(1),
         false(2),
         notApplicable(3)
-    }	
+    }
+
+CmRateType ::= TEXTUAL-CONVENTION
+    STATUS     current
+    DESCRIPTION
+        "An integer value that identifies the rate of the interface.
+
+         The value 'unknown' indicates the rate of the interface is
+         not known.
+
+         The value 'auto' indicates the rate of the interface is
+         auto. The client interface will automatically negotiates
+         its speed with its peer.
+
+         The value 'oneGbps' indicates the rate of the interface is
+         1 Gigabits/sec.
+
+         The value 'twoGbps' indicates the rate of the interface is
+         2 Gigabits/sec.
+
+         The value 'fourGbps' indicates the rate of the interface is
+         4 Gigabits/sec.
+
+         The value 'tenGbps' indicates the rate of the interface is
+         10 Gigabits/sec."
+
+    SYNTAX INTEGER {
+        unknown(1),     -- unknown
+        auto(2),        -- auto-negotiation
+        oneGbps(3),     --  1 Gbps
+        twoGbps(4),     --  2 Gbps
+        fourGbps(5),    --  4 Gbps
+        tenGbps(6)      -- 10 Gbps
+    }
+
+CmNegotiatedRateType ::= TEXTUAL-CONVENTION
+    STATUS     current
+    DESCRIPTION
+        "An integer value that identifies the current rate of the
+        interface after the auto negotiation.
+
+         The value 'notApplicable' indicates this object is not
+         applicable for the interface.
+
+         The value 'negotiating' indicates the interface is in the
+         process of negotiating its speed with its peer.
+
+         The value 'oneGbps' indicates the rate of the interface is
+         1 Gigabits/sec after auto negotiation.
+
+         The value 'twoGbps' indicates the rate of the interface is
+         2 Gigabits/sec after auto negotiation.
+
+         The value 'fourGbps' indicates the rate of the interface is
+         4 Gigabits/sec after auto negotiation.
+
+         The value 'tenGbps' indicates the rate of the interface is
+         10 Gigabits/sec after auto negotiation."
+
+    SYNTAX INTEGER {
+        notApplicable(1),    -- Not Applicable
+        negotiating(2),      -- Negotiating
+        oneGbps(3),          --  1 Gbps
+        twoGbps(4),          --  2 Gbps
+        fourGbps(5),         --  4 Gbps
+        tenGbps(6)           -- 10 Gbps
+    }
 
 -- MIB Object Definitions
 
@@ -193,20 +272,20 @@ ciscoMetroPhyMIBObjects    OBJECT IDENTIFIER ::= { ciscoMetroPhyMIB 1 }
 
 -- groups in this MIB module
 
-cmPhyIf                OBJECT IDENTIFIER 
+cmPhyIf                OBJECT IDENTIFIER
                        ::= { ciscoMetroPhyMIBObjects 1 }
-cmPhyStatistics        OBJECT IDENTIFIER 
+cmPhyStatistics        OBJECT IDENTIFIER
                        ::= { ciscoMetroPhyMIBObjects 2 }
-cmPhySonetSectionTrace OBJECT IDENTIFIER 
+cmPhySonetSectionTrace OBJECT IDENTIFIER
                        ::= { ciscoMetroPhyMIBObjects 3 }
 
 -- cmPhyIf group
 
--- This group handles the physical layer related interface  
--- configurations, like the protocol and rate used across the client 
--- side interface, monitoring of counters, enabling/disabling of OFC, 
--- forward laser control, laser safety control and loopback mode  
--- across client and trunk side interfaces. 
+-- This group handles the physical layer related interface
+-- configurations, like the protocol and rate used across the client
+-- side interface, monitoring of counters, enabling/disabling of OFC,
+-- forward laser control, laser safety control and loopback mode
+-- across client and trunk side interfaces.
 
 -- PHY If Table
 
@@ -240,7 +319,12 @@ CmPhyIfEntry ::= SEQUENCE {
     cmPhyIfForwardLaserControl    TruthValue,
     cmPhyIfTxBufferSize           Unsigned32,
     cmPhyIfAutoNegotiation        TriValue,
-    cmPhyIfTransType              TransmissionType
+    cmPhyIfTransType              TransmissionType,
+    cmPhyIfRate                   CmRateType,
+    cmPhyIfNegotiatedRate         CmNegotiatedRateType,
+    cmPhyIfOverSubscription       TriValue,
+    cmPhyIfClientSubrate          Unsigned32,
+    cmPhyIfClientSubrateLock      TruthValue
 }
 
 cmPhyIfMode OBJECT-TYPE
@@ -260,13 +344,13 @@ cmPhyIfMode OBJECT-TYPE
         can be enabled or disabled and the clock rate and protocol
         should be configured."
     ::= { cmPhyIfEntry 1 }
- 
+
 cmPhyIfProtocol OBJECT-TYPE
     SYNTAX        ProtocolType
     MAX-ACCESS    read-write
     STATUS        current
     DESCRIPTION
-        "This object is used to specify the protocol of the data 
+        "This object is used to specify the protocol of the data
         carried over the client side interface.
 
         This object applies to linecards which support a variety of
@@ -274,14 +358,14 @@ cmPhyIfProtocol OBJECT-TYPE
         protocol to be monitored on the interface. The ifType value
         for such interfaces remains fixed. The agent may use this
         object to identify the protocol to be monitored (see the
-        cmPhyIfMonitor object), to set the clock rate for the 
+        cmPhyIfMonitor object), to set the clock rate for the
         interface (see the cmPhyIfClockRate object), or to enable
-        or disable functionality related to the protocol, for 
+        or disable functionality related to the protocol, for
         example OFC (see the cmPhyIfOFC object).
 
-        The value of this object cannot be modified when the 
+        The value of this object cannot be modified when the
         cmPhyIfMonitor object is set to 'true' for that interface.
-        Also, this object does not apply to the trunk side 
+        Also, this object does not apply to the trunk side
         interfaces."
     ::= { cmPhyIfEntry 2 }
 
@@ -297,22 +381,22 @@ cmPhyIfClockRate OBJECT-TYPE
         Due to hardware limitations, all values may not be supported.
         The default value of this object depends on the value of the
         cmPhyIfProtocol object. When the value of the cmPhyIfProtocol
-        object is reset, the value of this object will be 
+        object is reset, the value of this object will be
         automatically set to the default for that protocol.
         In case of protocols that support multiple rates,
         the default value of this object will be the lowest rate
         possible for that protocol. For example, if the value
         of cmPhyIfProtocol is set to 'sonet', the default value
-        of cmPhyIfClockRate is set to the OC-3 rate of 155520 kHz. 
+        of cmPhyIfClockRate is set to the OC-3 rate of 155520 kHz.
         If a non-default value is desired, then this object must
-        be set after the cmPhyIfProtocol object has been reset. 
+        be set after the cmPhyIfProtocol object has been reset.
         This object must be set to a supported clock rate when
         setting cmPhyIfProtocol to 'unknown'.
         In 2R mode of operation, this object is not applicable
         and will have a default value of 0.
-       
+
         The value of this object cannot be modified when the
-        cmPhyIfMonitor object is set to 'true' for that interface. 
+        cmPhyIfMonitor object is set to 'true' for that interface.
         Also, this object is not applicable to trunk side interfaces."
     ::= { cmPhyIfEntry 3 }
 
@@ -321,13 +405,13 @@ cmPhyIfMonitor OBJECT-TYPE
     MAX-ACCESS    read-write
     STATUS        current
     DESCRIPTION
-        "This object allows the management client to enable 
+        "This object allows the management client to enable
         monitoring of the error counters on an interface,
         by writing a value of 'true' to this object. To bypass
-        the monitoring hardware, a value of 'false' must be 
+        the monitoring hardware, a value of 'false' must be
         written to this object.
 
-        Monitoring does not apply when the value of 
+        Monitoring does not apply when the value of
         cmPhyIfProtocol is 'unknown'."
     ::= { cmPhyIfEntry 4 }
 
@@ -343,7 +427,7 @@ cmPhyIfLoopback OBJECT-TYPE
     DESCRIPTION
         "This object allows the management client to configure
         loopback for the client side or trunk side interfaces.
-        
+
         'noLoop'         - No Loopback present.
         'diagnosticLoop' - This is an internal loopback, where the
                            data stream is looped from the transmit
@@ -362,16 +446,16 @@ cmPhyIfOFC OBJECT-TYPE
     STATUS        current
     DESCRIPTION
         "This object allows the management client to enable
-        OFC(Open Fibre Control) safety protocol for the client 
+        OFC(Open Fibre Control) safety protocol for the client
         side interfaces, by writing a 'true' value to
         this object. A 'false' value would disable OFC.
 
-        The default value of this object varies depending on the value 
-        of cmPhyIfProtocol and cmPhyIfClockRate.  When cmPhyIfProtocol 
+        The default value of this object varies depending on the value
+        of cmPhyIfProtocol and cmPhyIfClockRate.  When cmPhyIfProtocol
         or cmPhyIfClockRate is reset, then the value of this object is
         automatically reset to the default value for that protocol or
         rate. If non-default OFC behavior is desired, then this object
-        should be set after cmPhyIfProtocol or cmPhyIfClockRate has 
+        should be set after cmPhyIfProtocol or cmPhyIfClockRate has
         been reset.
 
         This object is not applicable to trunk side interfaces."
@@ -386,12 +470,12 @@ cmPhyIfLaserSafetyControl OBJECT-TYPE
         laser safety control feature on the trunk side interfaces
         by writing a true value to this object. If laser safety
         control is enabled, the transmit laser on the trunk side is
-        shut when the receive signal is not available on the fiber. 
+        shut when the receive signal is not available on the fiber.
         A 'false' value disables this feature and is the default
         value assigned to this object.
 
         Laser safety control would not apply in case of  splitter
-        protection on the optical switch." 
+        protection on the optical switch."
     ::= { cmPhyIfEntry 7 }
 
 cmPhyIfForwardLaserControl OBJECT-TYPE
@@ -401,9 +485,9 @@ cmPhyIfForwardLaserControl OBJECT-TYPE
     DESCRIPTION
         "This object allows the management client to enable
         forward laser control on the client or trunk side interfaces
-        by writing a true value to this object. If forward laser 
+        by writing a true value to this object. If forward laser
         control is enabled, the transmit laser is shut when the
-        cross-connect receive port on the switch is in alarm 
+        cross-connect receive port on the switch is in alarm
         condition. A 'false' value disables this feature and is
         the default value assigned to this object."
     ::= { cmPhyIfEntry 8 }
@@ -449,14 +533,14 @@ cmPhyIfAutoNegotiation OBJECT-TYPE
         "This object allows the management client to enable
         auto negotiation signaling on the client side interface,
         by writing a 'true' value to this object. A 'false'
-        value would disable auto negotiation. Setting the value 
-        'notApplicable' to this object will not change the 
+        value would disable auto negotiation. Setting the value
+        'notApplicable' to this object will not change the
         existing value in this object.
 
         Auto negotiation is applicable only for a few client
-        protocols such as gigabitEthernet. If the client 
-        interface does not support 'auto negotiation' feature, 
-        then this object has the value of 'notApplicable' and 
+        protocols such as gigabitEthernet. If the client
+        interface does not support 'auto negotiation' feature,
+        then this object has the value of 'notApplicable' and
         the value will not be changed via a set operation."
     ::= { cmPhyIfEntry 10 }
 
@@ -469,11 +553,81 @@ cmPhyIfTransType OBJECT-TYPE
          for carrying data. For non-relevant interfaces, this value is
          'unknown'."
     ::= { cmPhyIfEntry 11 }
- 
+
+cmPhyIfRate OBJECT-TYPE
+    SYNTAX        CmRateType
+    MAX-ACCESS    read-write
+    STATUS        current
+    DESCRIPTION
+        "This object is used to specify the rate of the interface.
+        The value of 'unknown' implies that this object does not
+        apply to this interface."
+    ::= { cmPhyIfEntry 12 }
+
+cmPhyIfNegotiatedRate OBJECT-TYPE
+    SYNTAX        CmNegotiatedRateType
+    MAX-ACCESS    read-only
+    STATUS        current
+    DESCRIPTION
+        "This object is used to identify the current rate of the
+        interface after the auto negotation.  This object is valid
+        only if the object cmPhyIfRate is configured as 'auto'."
+    ::= { cmPhyIfEntry 13 }
+
+cmPhyIfOverSubscription OBJECT-TYPE
+    SYNTAX        TriValue
+    MAX-ACCESS    read-write
+    STATUS        current
+    DESCRIPTION
+        "Oversubscription allows the user to carry multiple clients
+        over the trunk to efficiently utilize the trunk bandwidth.
+
+        This object allows the management client to enable
+        over subscription on an interface by setting a value
+        of 'true' to this object. A 'false' value would disable
+        over subscription. Setting the value 'notApplicable' to
+        this object is not allowed. The value of 'notApplicable'
+        implies that this object does not apply to this interface."
+    DEFVAL { false }
+    ::={cmPhyIfEntry 14 }
+
+cmPhyIfClientSubrate OBJECT-TYPE
+    SYNTAX        Unsigned32 (0..4240)
+    UNITS         "mega-bytes-per-second"
+    MAX-ACCESS    read-write
+    STATUS        current
+    DESCRIPTION
+        "This object allows the management client to specify the
+        subrate bandwidth of the oversubscribed trunk which carries
+        this client.
+
+         A value of 0 implies that this object does not apply to this
+         interface."
+    DEFVAL { 0 }
+    ::= { cmPhyIfEntry 15 }
+
+cmPhyIfClientSubrateLock OBJECT-TYPE
+    SYNTAX        TruthValue
+    MAX-ACCESS    read-write
+    STATUS        current
+    DESCRIPTION
+        "This object allows the management client to lock the
+        subrate bandwidth on an interface, by writing a value of
+        'true' to this object.  A 'false' value would disable the
+        bandwidth lock. If the clients bandwidth is locked then
+        this client will not share its bandwidth with the other
+        clients on the same oversubscribed trunk.
+
+        SubrateLock does not apply when the value of
+        cmPhyIfClientSubrate is zero."
+    DEFVAL { false }
+    ::={cmPhyIfEntry 16 }
+
+
 --  cmPhyStatistics group
 
---  This group contains objects for the error 
---  counters for client data traffic, collected by the 
+--  This group contains objects for the error
+--  counters for client data traffic, collected by the
 --  monitoring hardware.
 
 --  Statistics Table
@@ -482,8 +636,8 @@ cmPhyStatisticsTable OBJECT-TYPE
     SYNTAX        SEQUENCE OF CmPhyStatisticsEntry
     MAX-ACCESS    not-accessible
     STATUS        current
-    DESCRIPTION 
-        "This table contains the cumulative error statistics being 
+    DESCRIPTION
+        "This table contains the cumulative error statistics being
         collected for the different medium types, except SONET,
         on the client side and an object for the optical
         power level on the trunk side.
@@ -497,7 +651,7 @@ cmPhyStatisticsEntry OBJECT-TYPE
     MAX-ACCESS    not-accessible
     STATUS        current
     DESCRIPTION
-        "An entry in the cmPhyStatisticsTable." 
+        "An entry in the cmPhyStatisticsTable."
     INDEX         { ifIndex }
     ::= { cmPhyStatisticsTable 1 }
 
@@ -524,7 +678,7 @@ cmPhyRxPower OBJECT-TYPE
     STATUS        deprecated
     DESCRIPTION
         "This object gives the optical power level received
-        on the trunk side interface. 
+        on the trunk side interface.
 
         The actual value of the power level received on
         the interface is the value of this object divided
@@ -537,11 +691,11 @@ cmPhyRxPower OBJECT-TYPE
 
 cmPhyRxCVRD OBJECT-TYPE
     SYNTAX        Counter32
-    MAX-ACCESS    read-only       
+    MAX-ACCESS    read-only
     STATUS        current
     DESCRIPTION
-        "This object represents the lower word value of the 
-        counter associated with the 
+        "This object represents the lower word value of the
+        counter associated with the
         number of code violations and running disparity errors
         encountered, in the receive direction.
 
@@ -561,11 +715,11 @@ cmPhyRxCVRDOverflow OBJECT-TYPE
         number of code violations and running disparity errors
         encountered, in the receive direction.
 
-        NOTE: The object cmPhyRxCVRD contains the lower 32 
+        NOTE: The object cmPhyRxCVRD contains the lower 32
         bits of this counter value. If the error count is
         greater than 4,294,967,295 the higher word value
-        will be stored in this object. SNMP v2c or v3 
-        managers can use the cmPhyHCRxCVRD object 
+        will be stored in this object. SNMP v2c or v3
+        managers can use the cmPhyHCRxCVRD object
         directly which is a 64 bit counter."
     ::= { cmPhyStatisticsEntry 3 }
 
@@ -578,7 +732,7 @@ cmPhyHCRxCVRD OBJECT-TYPE
         number of code violations and running disparity errors
         encountered, in the receive direction.
 
-        This is a High Capacity (64 bit) version of the 
+        This is a High Capacity (64 bit) version of the
         cmPhyRxCVRD counter."
     ::= { cmPhyStatisticsEntry 4 }
 
@@ -587,11 +741,11 @@ cmPhyRxHEC OBJECT-TYPE
     MAX-ACCESS    read-only
     STATUS        deprecated
     DESCRIPTION
-        "This object represents the lower word value of the 
+        "This object represents the lower word value of the
         counter associated with the
         number of CDL HEC errors encountered, in the receive
         direction.
-    
+
         This object has a valid value only if the protocol
         type is gigabitEthernet/ tenGigabitEthernet. For all other
         protocols, this object is not applicable.
@@ -610,7 +764,7 @@ cmPhyRxHECOverflow OBJECT-TYPE
     MAX-ACCESS    read-only
     STATUS        deprecated
     DESCRIPTION
-        "This object represents the high word value of the 
+        "This object represents the high word value of the
         counter associated with the number of CDL
         HEC errors encountered, in the receive direction.
 
@@ -618,11 +772,11 @@ cmPhyRxHECOverflow OBJECT-TYPE
         type is gigabitEthernet/ tenGigabitEthernet. For all other
         protocols, this object is not applicable.
 
-        NOTE: The object cmPhyRxHEC contains the lower 32 
+        NOTE: The object cmPhyRxHEC contains the lower 32
         bits of this counter value. If the error count is
         greater than 4,294,967,295 the higher word value
-        will be stored in this object. SNMP v2c or v3 
-        managers can use the cmPhyHCRxHEC object 
+        will be stored in this object. SNMP v2c or v3
+        managers can use the cmPhyHCRxHEC object
         directly which is a 64 bit counter.
 
         This object has been deprecated since a similar object
@@ -641,7 +795,7 @@ cmPhyHCRxHEC OBJECT-TYPE
         type is gigabitEthernet/ tenGigabitEthernet. For all other
         media, this object is not applicable.
 
-        This is a High Capacity (64 bit) version of the 
+        This is a High Capacity (64 bit) version of the
         cmPhyRxHEC counter.
 
         This object has been deprecated since a similar object
@@ -687,9 +841,9 @@ cmPhyHCRxCRC OBJECT-TYPE
     MAX-ACCESS    read-only
     STATUS        current
     DESCRIPTION
-        "This object represents the counter associated with 
+        "This object represents the counter associated with
         CRC errors. This object has a valid value only for
-        interfaces that provide CRC error monitoring.  
+        interfaces that provide CRC error monitoring.
 
         This is a High Capacity (64 bit) version of the cmPhyRxCRC
         counter."
@@ -733,10 +887,10 @@ cmPhyTxEncapFarEndPktErrOverflow OBJECT-TYPE
         This object has a valid value only for ESCON interfaces where
         Ethernet encapsulation is performed.
 
-        NOTE: The object cmPhyTxEncapFarEndPktErrors contains the  
-        lower 32 bits of this counter value. SNMP v2c or v3   
-        managers can use the cmPhyHCTxEsconPktInd object  
-        directly which is a 64 bit counter."   
+        NOTE: The object cmPhyTxEncapFarEndPktErrors contains the
+        lower 32 bits of this counter value. SNMP v2c or v3
+        managers can use the cmPhyHCTxEsconPktInd object
+        directly which is a 64 bit counter."
     ::= { cmPhyStatisticsEntry 12 }
 
 cmPhyHCTxEncapFarEndPktErrors OBJECT-TYPE
@@ -744,7 +898,7 @@ cmPhyHCTxEncapFarEndPktErrors OBJECT-TYPE
     MAX-ACCESS    read-only
     STATUS        current
     DESCRIPTION
-        "This object represents the counter associated with ESCON 
+        "This object represents the counter associated with ESCON
         ingress error indications from the far end of
         an Ethernet network, where an ESCON stream is encapsulated in
         Ethernet packets. This counter is incremented whenever
@@ -790,14 +944,14 @@ cmPhySonetSectionTraceEntry OBJECT-TYPE
 CmPhySonetSectionTraceEntry ::= SEQUENCE {
     cmPhySonetSectionTraceReceived    OCTET STRING,
     cmPhySonetSectionTraceExpected    OCTET STRING
-} 
+}
 
 cmPhySonetSectionTraceReceived OBJECT-TYPE
     SYNTAX        OCTET STRING (SIZE (0|16|64))
     MAX-ACCESS    read-only
     STATUS        current
     DESCRIPTION
-        "This object displays the SONET or SDH section trace bytes 
+        "This object displays the SONET or SDH section trace bytes
         received at the interface."
     ::= { cmPhySonetSectionTraceEntry 1 }
 
@@ -806,13 +960,13 @@ cmPhySonetSectionTraceExpected OBJECT-TYPE
     MAX-ACCESS    read-write
     STATUS        current
     DESCRIPTION
-        "This object defines the SONET or SDH section trace bytes 
+        "This object defines the SONET or SDH section trace bytes
         to be expected at the interface.
 
-        The default value of this object will be a zero length  
+        The default value of this object will be a zero length
         string."
     ::= { cmPhySonetSectionTraceEntry 2 }
-   
+
 -- MIB Conformance Statements
 
 ciscoMetroPhyMIBConformance OBJECT IDENTIFIER ::=
@@ -825,9 +979,9 @@ ciscoMetroPhyMIBGroups OBJECT IDENTIFIER ::=
     { ciscoMetroPhyMIBConformance 2 }
 
 cmPhyMIBCompliance MODULE-COMPLIANCE
-    STATUS    deprecated 
+    STATUS    deprecated
     DESCRIPTION
-        "The compliance statement for platforms that monitor the 
+        "The compliance statement for platforms that monitor the
         operating status with respect to error
         counters, for the physical layer."
     MODULE -- this module
@@ -872,7 +1026,7 @@ cmPhyMIBCompliance MODULE-COMPLIANCE
     ::= { ciscoMetroPhyMIBCompliances 1 }
 
 cmPhyMIBCompliance2 MODULE-COMPLIANCE
-    STATUS   deprecated 
+    STATUS   deprecated
     DESCRIPTION
         "The compliance statement for platforms that monitor the
         operating status with respect to error
@@ -889,12 +1043,12 @@ cmPhyMIBCompliance2 MODULE-COMPLIANCE
 
         GROUP cmPhyCRCErrorsGroup
         DESCRIPTION
-            "Required only for entities that support 
+            "Required only for entities that support
             CRC error counters."
 
         GROUP cmPhyEncapFarEndPktErrorsGroup
         DESCRIPTION
-            "Required only for entities that support 
+            "Required only for entities that support
             far end ingress error indication counters for Ethernet-
             encapsulated ESCON streams."
 
@@ -1092,7 +1246,7 @@ cmPhyMIBComplianceRev4 MODULE-COMPLIANCE
 
 
 cmPhyMIBComplianceRev5 MODULE-COMPLIANCE
-    STATUS   current
+    STATUS   deprecated
     DESCRIPTION
         "The compliance statement for platforms that monitor the
         operating status with respect to error
@@ -1135,7 +1289,7 @@ cmPhyMIBComplianceRev5 MODULE-COMPLIANCE
 
         GROUP cmPhyIfGroupSup1
         DESCRIPTION
-            "Required for entities that have different transmission 
+            "Required for entities that have different transmission
              types on the client interface."
 
         OBJECT        cmPhyIfMode
@@ -1179,6 +1333,130 @@ cmPhyMIBComplianceRev5 MODULE-COMPLIANCE
     ::= { ciscoMetroPhyMIBCompliances 5 }
 
 
+cmPhyMIBComplianceRev6 MODULE-COMPLIANCE
+    STATUS   current
+    DESCRIPTION
+        "The compliance statement for platforms that monitor the
+        operating status with respect to error
+        counters, for the physical layer."
+    MODULE -- this module
+        MANDATORY-GROUPS {
+            cmPhyIf2Group
+        }
+
+        GROUP cmPhyCVRDErrorsGroup
+        DESCRIPTION
+            "Required only for entities that support code violation
+            and running disparity error counters."
+
+        GROUP cmPhyCRCErrorsGroup
+        DESCRIPTION
+            "Required only for entities that support
+            CRC error counters."
+
+        GROUP cmPhyEncapFarEndPktErrorsGroup
+        DESCRIPTION
+            "Required only for entities that support
+            far end ingress error indication counters for Ethernet-
+            encapsulated ESCON streams."
+
+        GROUP cmPhySonetSectionTraceGroup
+        DESCRIPTION
+            "Required for entities that support SONET/SDH section
+             trace."
+
+        GROUP cmPhyIfTxBufferSizeGroup
+        DESCRIPTION
+            "Required for entities that support control of transmit
+             buffer size."
+
+        GROUP cmPhyIfAutoNegGroup
+        DESCRIPTION
+            "Required for entities that support auto negotiation
+             on the client interface."
+
+        GROUP cmPhyIfGroupSup1
+        DESCRIPTION
+            "Required for entities that have different transmission
+             types on the client interface."
+
+        GROUP cmPhyIfRateGroup
+        DESCRIPTION
+            "This group is mandatory only for entities that support
+            multiple rate configuration on an interface."
+
+        GROUP cmPhyIfClientOvsGroup
+        DESCRIPTION
+            "This group is mandatory only for entities that support
+            oversubscription."
+
+        GROUP cmPhyIfClientSubrateGroup
+        DESCRIPTION
+            "This group is mandatory only for entities that support
+            subrating."
+
+        OBJECT        cmPhyIfMode
+        MIN-ACCESS    read-only
+        DESCRIPTION
+            "Write access is not required if only one mode is
+            supported."
+
+        OBJECT        cmPhyIfProtocol
+        MIN-ACCESS    read-only
+        DESCRIPTION
+            "Write access is required only when 3R mode is supported
+            and multiple protocols are supported on the interface."
+
+        OBJECT        cmPhyIfClockRate
+        MIN-ACCESS    read-only
+        DESCRIPTION
+            "Write access is required only when 3R mode is supported
+            and multiple clock rates are supported on the interface."
+
+        OBJECT        cmPhyIfMonitor
+        MIN-ACCESS    read-only
+        DESCRIPTION
+            "Write access is not required."
+
+        OBJECT        cmPhyIfOFC
+        MIN-ACCESS    read-only
+        DESCRIPTION
+            "Write access is not required."
+
+        OBJECT        cmPhyIfTxBufferSize
+        MIN-ACCESS    read-only
+        DESCRIPTION
+            "Write access is not required."
+
+        OBJECT        cmPhyIfAutoNegotiation
+        MIN-ACCESS    read-only
+        DESCRIPTION
+            "Write access is not required."
+
+        OBJECT        cmPhyIfRate
+        MIN-ACCESS    read-only
+        DESCRIPTION
+            "Write access is required only for entities that support
+            multiple rate configuration on an interface."
+
+        OBJECT        cmPhyIfOverSubscription
+        MIN-ACCESS    read-only
+        DESCRIPTION
+            "Write access is not required."
+
+        OBJECT        cmPhyIfClientSubrate
+        MIN-ACCESS    read-only
+        DESCRIPTION
+            "Write access is not required."
+
+        OBJECT        cmPhyIfClientSubrateLock
+        MIN-ACCESS    read-only
+        DESCRIPTION
+            "Write access is not required."
+
+    ::= { ciscoMetroPhyMIBCompliances 6 }
+
+
 --
 -- units of conformance
 --
@@ -1194,7 +1472,7 @@ cmPhyIfGroup OBJECT-GROUP
         cmPhyIfLaserSafetyControl,
         cmPhyIfForwardLaserControl
     }
-    STATUS deprecated 
+    STATUS deprecated
     DESCRIPTION
         "The collection of objects to allow configurations and give
         information related to the physical layer characteristics
@@ -1225,7 +1503,7 @@ cmPhySonetSectionTraceGroup OBJECT-GROUP
     }
     STATUS current
     DESCRIPTION
-        "The objects used for monitoring the SONET section 
+        "The objects used for monitoring the SONET section
         trace bytes."
     ::= { ciscoMetroPhyMIBGroups 3 }
 
@@ -1265,7 +1543,7 @@ cmPhyCRCErrorsGroup OBJECT-GROUP
     }
     STATUS  current
     DESCRIPTION
-        "The collection of objects used to monitor CRC 
+        "The collection of objects used to monitor CRC
         error counters."
     ::= { ciscoMetroPhyMIBGroups 6 }
 
@@ -1277,7 +1555,7 @@ cmPhyEncapFarEndPktErrorsGroup OBJECT-GROUP
     }
     STATUS  current
     DESCRIPTION
-        "The collection of objects used to monitor the 
+        "The collection of objects used to monitor the
         far end ingress error indication counters for Ethernet-
         encapsulated ESCON streams."
     ::= { ciscoMetroPhyMIBGroups 7 }
@@ -1308,9 +1586,40 @@ cmPhyIfGroupSup1 OBJECT-GROUP
     }
     STATUS current
     DESCRIPTION
-        "The object that gives information related to transmission 
+        "The object that gives information related to transmission
          types on the client interface."
     ::= { ciscoMetroPhyMIBGroups 10 }
 
+cmPhyIfRateGroup OBJECT-GROUP
+    OBJECTS {
+        cmPhyIfRate,
+        cmPhyIfNegotiatedRate
+    }
+    STATUS current
+    DESCRIPTION
+        "The collection of objects that are used to retrieve and
+        configure the various interface rates."
+    ::= { ciscoMetroPhyMIBGroups 11 }
+
+cmPhyIfClientOvsGroup OBJECT-GROUP
+    OBJECTS {
+        cmPhyIfOverSubscription
+    }
+    STATUS current
+    DESCRIPTION
+        "The collection of objects to allow the oversubscription
+        configurations on an interface."
+    ::= { ciscoMetroPhyMIBGroups 12 }
+
+cmPhyIfClientSubrateGroup OBJECT-GROUP
+    OBJECTS {
+        cmPhyIfClientSubrate,
+        cmPhyIfClientSubrateLock
+    }
+    STATUS current
+    DESCRIPTION
+        "The collection of objects to allow the configurations related
+        to the subrating on an interface."
+    ::= { ciscoMetroPhyMIBGroups 13 }
 
 END
