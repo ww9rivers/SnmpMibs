@@ -130,19 +130,19 @@ ACCESS		not-implemented
 DESCRIPTION	"Unable to read, create or modify"
 
 VARIATION	ospfIfStatus
-ACCESS		not-accessable
+ACCESS		not-accessible
 DESCRIPTION	"Unable to create or modify"
 
 VARIATION	ospfIfMulticastForwarding
-ACCESS		not-accessable
+ACCESS		not-accessible
 DESCRIPTION	"Unable to create or modify"
 
 VARIATION	ospfIfDemand
-ACCESS		not-accessable
+ACCESS		not-accessible
 DESCRIPTION	"Unable to create or modify"
 
 VARIATION	ospfIfAuthType
-ACCESS		not-accessable
+ACCESS		not-accessible
 DESCRIPTION	"Unable to create or modify"
 
 VARIATION	ospfIfMetricValue
