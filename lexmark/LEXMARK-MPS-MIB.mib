@@ -110,7 +110,6 @@ CartridgeTypeTC ::= TEXTUAL-CONVENTION
                     refilledReturnProgram(53),               -- 16 + 32 + 5
                     refilledHighYieldReturnProgram(54),      -- 16 + 32 + 6
                     refilledExtraHighYieldReturnProgram(55)  -- 16 + 32 + 7
-
                 }
 
 SeverityTC ::= TEXTUAL-CONVENTION
