@@ -1,9 +1,9 @@
 -- *******************************************************************
 -- CISCO-LWAPP-DOT11-CLIENT-CCX-TC-MIB.my
 -- Sheeba Kamra  Jan 2007
---   
+--
 -- Copyright (c) 2006-2007 by Cisco Systems, Inc.
---   
+--
 
 -- All rights reserved.
 -- *****************************************************************
@@ -41,8 +41,8 @@ ciscoLwappDot11ClientCCXTextualConventions MODULE-IDENTITY
         throughout the Cisco enterprise MIBs designed for
         implementation on Central Controllers (CC) that
         terminate the Light Weight Access Point Protocol
-        tunnel from Light-weight LWAPP Access Points, 
-        specifically for the functions of the Cisco Client 
+        tunnel from Light-weight LWAPP Access Points,
+        specifically for the functions of the Cisco Client
         Extensions (CCX) program.
 
         This MIB provides textual conventions used in the
@@ -66,27 +66,27 @@ ciscoLwappDot11ClientCCXTextualConventions MODULE-IDENTITY
         interchangeably.
 
         Cisco Client eXtentions (CCX)
-        The Cisco Client Extensions (CCX) Program is a 
-        program of working through silicon providers to 
-        embed Cisco client technology in wireless client 
-        reference designs, and to promote compliant and 
-        interoperable third-party clients with Cisco's 
-        infrastructure, thus further driving wireless adoption 
-        in the market.  
+        The Cisco Client Extensions (CCX) Program is a
+        program of working through silicon providers to
+        embed Cisco client technology in wireless client
+        reference designs, and to promote compliant and
+        interoperable third-party clients with Cisco's
+        infrastructure, thus further driving wireless adoption
+        in the market.
 
-        Extensible Authentication Protocol (EAP) 
+        Extensible Authentication Protocol (EAP)
 
-        The Extensible Authentication Protocol (EAP) is an 
-        Internet Engineering Task Force (IETF) standard that 
-        provides an infrastructure for network access clients and 
+        The Extensible Authentication Protocol (EAP) is an
+        Internet Engineering Task Force (IETF) standard that
+        provides an infrastructure for network access clients and
         authentication servers to host plug-in modules for current
         and future authentication methods and technologies.
 
-        Wired Equivalent Privacy (WEP) 
+        Wired Equivalent Privacy (WEP)
 
-        A security method defined by 802.11. WEP uses a  
+        A security method defined by 802.11. WEP uses a
         symmetric key stream cipher called RC4 to encrypt the data
-        packets. 
+        packets.
 
 
 
@@ -95,8 +95,8 @@ ciscoLwappDot11ClientCCXTextualConventions MODULE-IDENTITY
         [1] Part 11 Wireless LAN Medium Access Control ( MAC )
         and Physical Layer ( PHY ) Specifications.
 
-        [2] Draft-obara-capwap-lwapp-00.txt, IETF Light 
-        Weight Access Point Protocol. 
+        [2] Draft-obara-capwap-lwapp-00.txt, IETF Light
+        Weight Access Point Protocol.
 
         [3] Cisco Compatible Extensions for WLAN Devices
         Version 5.0.11"
@@ -123,16 +123,16 @@ CiscoLwappDot11ClientReqStatus ::= TEXTUAL-CONVENTION
         "This field indicates the status of current request.The values
         used can be one of the following:
 
-            initiate - this will be used to trigger a request to get 
+            initiate - this will be used to trigger a request to get
             some parameters from a CCX client.
 
-            inProgress - this indicates that the request to get the 
+            inProgress - this indicates that the request to get the
             details from the client is still in progress.
 
-            success - indicates that the query was executed 
-            successfully. 
+            success - indicates that the query was executed
+            successfully.
 
-            failed -  this indicates that the request to get some 
+            failed -  this indicates that the request to get some
             parameters from a CCX client failed.
 
             requestNotProcessedByClient - indicates that the CCX client
@@ -163,7 +163,7 @@ CiscoLwappDot11ClientAuthMethod ::= TEXTUAL-CONVENTION
            preSharedKey - this refers to the method of using pre
            shared key for authentication
 
-           eap - this is Extensible Authentication Protocol 
+           eap - this is Extensible Authentication Protocol
 
            unknown - this indicates an authentication protocol other
            than the ones defined above"
@@ -180,10 +180,10 @@ CiscoLwappDot11ClientEAPMethod ::= TEXTUAL-CONVENTION
         "This identifies the Extensible Authentication Protocol(EAP)
         method used. The possible values are:
 
-           leap - this is Lightweight Extensible Authentication 
+           leap - this is Lightweight Extensible Authentication
            Protocol
 
-           eapFast - this is Extensible Authentication 
+           eapFast - this is Extensible Authentication
            Protocol with Flexible Authentication via Secure Tunneling
 
            eapTls - this is Extensible Authentication
@@ -192,18 +192,18 @@ CiscoLwappDot11ClientEAPMethod ::= TEXTUAL-CONVENTION
            eapTtls - this is Extensible Authentication Protocol with
            Tunneled Transport Layer Security
 
-           peap0EapMschap2 - this refers to Protected Extensible 
-           Authentication Protocol Version 0 with Microsoft 
+           peap0EapMschap2 - this refers to Protected Extensible
+           Authentication Protocol Version 0 with Microsoft
            Challenge Handshake Authentication Protocol version 2
 
-           peap1EapGtc - this refers to Protected Extensible 
+           peap1EapGtc - this refers to Protected Extensible
            Authentication Protocol Version 1 with Generic Token Card
 
            eapMd5 - this is Extensible Authentication Protocol with
            Message-Digest algorithm 5
 
-           eapSim - this is Extensible Authentication Protocol using 
-           the Global System for Mobile Communications (GSM) 
+           eapSim - this is Extensible Authentication Protocol using
+           the Global System for Mobile Communications (GSM)
            Subscriber Identity Module (SIM)
 
            preSharedKey - this refers to the method of using pre
@@ -233,20 +233,20 @@ CiscoLwappDot11ClientKeyMgmtMethod ::= TEXTUAL-CONVENTION
            staticWep - this is Wired Equivalent Privacy with a static
            key defined
 
-           dynamicWep - this is Wired Equivalent Privacy with a 
+           dynamicWep - this is Wired Equivalent Privacy with a
            dynamic key
 
            wpa - this indicates wifi protected access
 
-           wpaCckm - this is wifi protected access with 
+           wpaCckm - this is wifi protected access with
            Cisco Centralized Key Management
 
            wpa2 - this indicates version 2 of wifi protected access
 
-           wpa2Cckm - this is wifi protected access  
+           wpa2Cckm - this is wifi protected access
            version 2 with Cisco Centralized Key Management
 
-           cckm - this indicates Cisco Centralized Key 
+           cckm - this indicates Cisco Centralized Key
            Management
 
            unknown - this indicates a key management method other
@@ -271,7 +271,7 @@ CiscoLwappDot11ClientEncryptionMethod ::= TEXTUAL-CONVENTION
 
            none - no encryption is used
 
-           wep40 - this is Wired Equivalent Privacy with a 40 bit 
+           wep40 - this is Wired Equivalent Privacy with a 40 bit
            secret key
 
            wep104 - this is Wired Equivalent Privacy with a 104 bit
@@ -282,8 +282,8 @@ CiscoLwappDot11ClientEncryptionMethod ::= TEXTUAL-CONVENTION
 
            ckip - this is Cisco Key Integrity Protocol
 
-           aesCcmp - this is Advanced Encryption Standard 
-           - Counter Mode Cipher Block Chaining-Message Authentication 
+           aesCcmp - this is Advanced Encryption Standard
+           - Counter Mode Cipher Block Chaining-Message Authentication
            Code Protocol
 
            unknown - this indicates an encryption method other
@@ -333,10 +333,10 @@ CiscoLwappDot11ClientPowerSaveMode ::= TEXTUAL-CONVENTION
 
            maxPower - this indicates maximum power save mode
 
-           uApsd - this indicates Unsolicited Automatic  
+           uApsd - this indicates Unsolicited Automatic
            Power Save Delivery
 
-           sApsd - this indicates Solicited Automatic Power  
+           sApsd - this indicates Solicited Automatic Power
            Save Delivery
 
            unknown - this indicates a power save mode other
@@ -371,7 +371,7 @@ CiscoLwappDot11ClientRadioType ::= TEXTUAL-CONVENTION
     DESCRIPTION
         "This is the radio type of the client. The possible values
         are:
-            unused - this is currently a reserved radio type and is 
+            unused - this is currently a reserved radio type and is
             not used
 
             fhss - this is Frequency-hopping spread spectrum based
@@ -382,10 +382,10 @@ CiscoLwappDot11ClientRadioType ::= TEXTUAL-CONVENTION
 
             infraRedBaseband - this is infrared baseband based radio
 
-            oFdm - this is orthogonal frequency division 
+            oFdm - this is orthogonal frequency division
             multiplexing based radio
 
-            highRateDsss - this is high rate direct sequence spread 
+            highRateDsss - this is high rate direct sequence spread
             spectrum based radio
 
             erp - this indicates effective radiated power based radio
@@ -411,8 +411,8 @@ CiscoLwappDot11ClientDataRates ::= TEXTUAL-CONVENTION
     STATUS          current
     DESCRIPTION
         "This field indicates the data rates supported by a
-        client.  If a data rate is supported by a client, the 
-        corresponding bit is set to 1 else it is 
+        client.  If a data rate is supported by a client, the
+        corresponding bit is set to 1 else it is
         set to 0.  The different data rates (in Mhz) are 1, 2,
         5.5, 6, 9, 11, 12, 18, 24, 36, 48, 54."
     SYNTAX          BITS {
@@ -430,7 +430,26 @@ CiscoLwappDot11ClientDataRates ::= TEXTUAL-CONVENTION
                         mhz54(11)
                     }
 
+CLDot11ClientDiagAssocReason ::= TEXTUAL-CONVENTION
+    STATUS        current
+    DESCRIPTION
+       "This field indicates the reason for which the client
+       has to be associated to a diagnostic WLAN."
+    SYNTAX         INTEGER {
+                       reconnect(0),
+                       unreliableLink(1),
+                       dot11AuthFail(2),
+                       dot11AssocFail(3),
+                       rsnaFail(4),
+                       dhcpFail(5),
+                       dnsFail(6),
+                       ipConnectivityFail(7),
+                       dot1xAuthFail(8),
+                       commonEapNegotiationFail(9),
+                       userInitiatedReasonUnknown(10),
+                       executingTest(11),
+                       reserved(12)
+                  }
+
+
 END
-
-
-
