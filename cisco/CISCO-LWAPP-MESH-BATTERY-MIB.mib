@@ -1,8 +1,8 @@
 -- *******************************************************************
 -- CISCO-LWAPP-MESH-BATTERY-MIB.my
 -- September 2006, Young Il Choi
---   
--- Copyright (c) 2006, 2007 by Cisco Systems, Inc.
+--
+-- Copyright (c) 2006, 2007, 2010 by Cisco Systems Inc.
 -- All rights reserved.
 -- *******************************************************************
 
@@ -35,7 +35,7 @@ IMPORTS
 -- ********************************************************************
 
 ciscoLwappMeshBatteryMIB MODULE-IDENTITY
-    LAST-UPDATED    "200703130000Z"
+    LAST-UPDATED    "201009080000Z"
     ORGANIZATION    "Cisco Systems Inc."
     CONTACT-INFO
             "Cisco Systems,
@@ -57,17 +57,19 @@ ciscoLwappMeshBatteryMIB MODULE-IDENTITY
         supply for an Access Point (AP) in the Wireless Mesh Network.
         The MPS reports status information to the AP periodically.
         The AP inturn reports the battery status information to the
-        controller periodically as a part of the LWAPP information packet.
+        controller periodically as a part of the LWAPP information
+        packet.
 
         General Infomation about Cisco Wireless Mesh network:
 
-        A Mesh AP (MAP) can associate directly with another Root AP (RAP)
-        or with another MAP AP. Each association of AP (MAP-MAP or RAP-MAP)
-        with another AP forms parent-child relationship. 
+        A Mesh AP (MAP) can associate directly with another
+        Root AP (RAP) or with another MAP AP.
+        Each association of AP (MAP-MAP or RAP-MAP)
+        with another AP forms parent-child relationship.
 
-        The arrangement of the controller 
-        (referred to as CC in the diagram) and mesh nodes 
-        (RAP and MAP) LWAPP APs ,client(MN) and NMS appear 
+        The arrangement of the controller
+        (referred to as CC in the diagram) and mesh nodes
+        (RAP and MAP) LWAPP APs ,client(MN) and NMS appear
         as follows.
 
          +.......+                 +.......+
@@ -105,7 +107,7 @@ ciscoLwappMeshBatteryMIB MODULE-IDENTITY
         +  MAP + +  MN  +     +  MAP +      +  MAP +          +  MAP +
         +      + +      +     +      +      +      +          +      +
         +......+ +......+     +......+      +......+          +......+
-        .                    .                          ..    . 
+        .                    .                          ..    .
         . .                  .                     ..        .
         .   .                .                  ..            .
         .     .              .              .                .
@@ -120,9 +122,9 @@ ciscoLwappMeshBatteryMIB MODULE-IDENTITY
         the APs. The MNs communicate with the APs through
         the protocol defined by the 802.11 standard.
         LWAPP APs, upon bootup, discover and join one of the
-        controllers and the controller pushes the 
-        configuration, that includes the WLAN parameters, to 
-        the LWAPP APs through the tunnel. 
+        controllers and the controller pushes the
+        configuration, that includes the WLAN parameters, to
+        the LWAPP APs through the tunnel.
         The APs then encapsulate all the 802.11 frames from
         wireless clients inside LWAPP frames and forward
         the LWAPP frames to the controller.
@@ -134,7 +136,7 @@ ciscoLwappMeshBatteryMIB MODULE-IDENTITY
         An entity that contains an 802.11 medium access
         control (MAC) and physical layer (PHY) interface
         and provides access to the distribution services via
-        the wireless medium for associated clients.  
+        the wireless medium for associated clients.
 
         LWAPP APs encapsulate all the 802.11 frames in
         LWAPP frames and sends them to the controller to which
@@ -149,8 +151,8 @@ ciscoLwappMeshBatteryMIB MODULE-IDENTITY
         Mobile Node (MN)
 
         A roaming 802.11 wireless device in a wireless
-        network associated with an access point. Mobile Node 
-        and client are used interchangeably. 
+        network associated with an access point. Mobile Node
+        and client are used interchangeably.
 
         Network Management System (NMS)
 
@@ -167,24 +169,24 @@ ciscoLwappMeshBatteryMIB MODULE-IDENTITY
         Mesh Node
 
         A mesh node is defined as a physical or logical entity
-        in the mesh network participating in forming the mesh 
-        backhaul. There are two types of mesh nodes supported 
+        in the mesh network participating in forming the mesh
+        backhaul. There are two types of mesh nodes supported
         in Cisco mesh network - RAP and MAP.
 
         Root AP (RAP)
 
         The AP forming the bridge between a wired and a mesh
-        network with an Ethernet interface to the wired 
-        network and a 802.11 radio interface to the mesh 
+        network with an Ethernet interface to the wired
+        network and a 802.11 radio interface to the mesh
         network.
 
         Mesh AP (MAP).
 
-        The AP extending wireless coverage similar to a 
-        repeater in a mesh network and consists of a 802.11 
-        uplink and a 802.11 downlink. On a single-radio 
-        backhaul, both uplink and downlink exist on the same 
-        radio and are logical links only. On a multi-radio 
+        The AP extending wireless coverage similar to a
+        repeater in a mesh network and consists of a 802.11
+        uplink and a 802.11 downlink. On a single-radio
+        backhaul, both uplink and downlink exist on the same
+        radio and are logical links only. On a multi-radio
         backhaul, they may exist on different radios.
 
         REFERENCE
@@ -192,8 +194,20 @@ ciscoLwappMeshBatteryMIB MODULE-IDENTITY
         [1] Wireless LAN Medium Access Control (MAC) and
             Physical Layer (PHY) Specifications.
 
-        [2] Draft-obara-capwap-lwapp-00.txt, IETF Light 
+        [2] Draft-obara-capwap-lwapp-00.txt, IETF Light
             Weight Access Point Protocol."
+    REVISION        "201009080000Z"
+    DESCRIPTION
+        "Added:-
+        clMeshNodeBatteryCurrentValue,
+        ciscoLwappMeshBatteryMIBComplianceRev2,
+        ciscoLwappMeshBatteryInfoGroupRev1,
+        ciscoLwappMeshBatteryInfoGroupRev2
+
+        Deprecated:-
+        clMeshNodeBatteryChargingState,
+        clMeshNodeBatteryRemainingCapacity,
+        clMeshNodeBatteryCurrent."
     REVISION        "200702270000Z"
     DESCRIPTION
         "Initial version of this MIB module."
@@ -220,7 +234,7 @@ ciscoLwappMeshBatteryNotifControlConfig  OBJECT IDENTIFIER
 -- ********************************************************************
 
 clMeshNodeBatteryTable OBJECT-TYPE
-    SYNTAX          SEQUENCE OF ClMeshNodeBatteryEntry 
+    SYNTAX          SEQUENCE OF ClMeshNodeBatteryEntry
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
@@ -239,13 +253,13 @@ clMeshNodeBatteryEntry OBJECT-TYPE
         already installed. The entry gets deleted when the AP loses
         its association with the controller or when it fails to
         report the serial number of the battery."
-    INDEX           { cLApSysMacAddress } 
+    INDEX           { cLApSysMacAddress }
     ::= { clMeshNodeBatteryTable 1 }
 
 ClMeshNodeBatteryEntry ::= SEQUENCE {
         clMeshNodeBatteryModelName         SnmpAdminString,
-        clMeshNodeBatteryStatus            INTEGER ,
-        clMeshNodeBatteryChargingState     INTEGER ,
+        clMeshNodeBatteryStatus            INTEGER,
+        clMeshNodeBatteryChargingState     INTEGER,
         clMeshNodeBatteryChargingLevel     Integer32,
         clMeshNodeBatteryRemainingCapacity Unsigned32,
         clMeshNodeBatterySwVersion         SnmpAdminString,
@@ -255,7 +269,8 @@ ClMeshNodeBatteryEntry ::= SEQUENCE {
         clMeshNodeBatteryOutputPower       Unsigned32,
         clMeshNodeBatteryInternalVoltage   Unsigned32,
         clMeshNodeBatteryTemperature       Integer32,
-        clMeshNodeBatteryCurrent           Unsigned32
+        clMeshNodeBatteryCurrent           Unsigned32,
+        clMeshNodeBatteryCurrentValue      Integer32
 }
 
 clMeshNodeBatteryModelName OBJECT-TYPE
@@ -263,7 +278,7 @@ clMeshNodeBatteryModelName OBJECT-TYPE
     MAX-ACCESS      read-only
     STATUS          current
     DESCRIPTION
-        "This object represents the model name of the battery." 
+        "This object represents the model name of the battery."
     ::= { clMeshNodeBatteryEntry 1 }
 
 clMeshNodeBatteryStatus OBJECT-TYPE
@@ -293,7 +308,7 @@ clMeshNodeBatteryStatus OBJECT-TYPE
                      recharge fully and is at less than 70% capacity.
         missing    - One or more batteries in the battery string
                      is missing. The battery string has normally
-                     4 batteries." 
+                     4 batteries."
     ::= { clMeshNodeBatteryEntry 2 }
 
 clMeshNodeBatteryChargingState OBJECT-TYPE
@@ -305,15 +320,15 @@ clMeshNodeBatteryChargingState OBJECT-TYPE
                         charged(5)
                     }
     MAX-ACCESS      read-only
-    STATUS          current
+    STATUS          deprecated
     DESCRIPTION
         "This object represents the charging status of
         the battery.
                 unknown         - Charging state is unknown,
-                disabled        - Charging is disabled, 
+                disabled        - Charging is disabled,
                 charging        - Battery is charging,
                 discharging     - Battery is discharging,
-                charged         - Battery is charged" 
+                charged         - Battery is charged"
     ::= { clMeshNodeBatteryEntry 3 }
 
 clMeshNodeBatteryChargingLevel OBJECT-TYPE
@@ -323,17 +338,17 @@ clMeshNodeBatteryChargingLevel OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "This object represents the charging level of
-        the battery." 
+        the battery."
     ::= { clMeshNodeBatteryEntry 4 }
 
 clMeshNodeBatteryRemainingCapacity OBJECT-TYPE
     SYNTAX          Unsigned32
     UNITS           "minutes"
     MAX-ACCESS      read-only
-    STATUS          current
+    STATUS          deprecated
     DESCRIPTION
         "This object represents the remaining time of
-        the battery capacity." 
+        the battery capacity."
     ::= { clMeshNodeBatteryEntry 5 }
 
 clMeshNodeBatterySwVersion OBJECT-TYPE
@@ -342,7 +357,7 @@ clMeshNodeBatterySwVersion OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "This object represents the SW version of
-        the battery." 
+        the battery."
     ::= { clMeshNodeBatteryEntry 6 }
 
 clMeshNodeBatterySerialNumber OBJECT-TYPE
@@ -351,7 +366,7 @@ clMeshNodeBatterySerialNumber OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "This object represents the serial number of
-        the battery." 
+        the battery."
     ::= { clMeshNodeBatteryEntry 7 }
 
 clMeshNodeBatteryInputVoltage OBJECT-TYPE
@@ -361,7 +376,7 @@ clMeshNodeBatteryInputVoltage OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "This object represents the AC voltage across the input
-        terminals the battery." 
+        terminals the battery."
     ::= { clMeshNodeBatteryEntry 8 }
 
 clMeshNodeBatteryOutputVoltage OBJECT-TYPE
@@ -371,7 +386,7 @@ clMeshNodeBatteryOutputVoltage OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "This object represents the voltage across the output (load)
-        terminals of the battery." 
+        terminals of the battery."
     ::= { clMeshNodeBatteryEntry 9 }
 
 clMeshNodeBatteryOutputPower OBJECT-TYPE
@@ -381,7 +396,7 @@ clMeshNodeBatteryOutputPower OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "This object represents the output power of
-        the battery." 
+        the battery."
     ::= { clMeshNodeBatteryEntry 10 }
 
 clMeshNodeBatteryInternalVoltage OBJECT-TYPE
@@ -391,7 +406,7 @@ clMeshNodeBatteryInternalVoltage OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "This object represents the internal voltage of
-        the battery." 
+        the battery."
     ::= { clMeshNodeBatteryEntry 11 }
 
 clMeshNodeBatteryTemperature OBJECT-TYPE
@@ -401,19 +416,29 @@ clMeshNodeBatteryTemperature OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "This object represents the temperature of the battery
-        in Celsius." 
+        in Celsius."
     ::= { clMeshNodeBatteryEntry 12 }
 
 clMeshNodeBatteryCurrent OBJECT-TYPE
     SYNTAX          Unsigned32
     UNITS           "milliAmps"
     MAX-ACCESS      read-only
+    STATUS          deprecated
+    DESCRIPTION
+        "This object represents the current of
+        the battery. Superceded by clMeshNodeBatteryCurrentValue."
+    ::= { clMeshNodeBatteryEntry 13 }
+
+clMeshNodeBatteryCurrentValue OBJECT-TYPE
+    SYNTAX          Integer32
+    UNITS           "milliAmps"
+    MAX-ACCESS      read-only
     STATUS          current
     DESCRIPTION
         "This object represents the current of
-        the battery." 
-    ::= { clMeshNodeBatteryEntry 13 }
- 
+        the battery."
+    ::= { clMeshNodeBatteryEntry 14 }
+
 
 
 -- ********************************************************************
@@ -425,11 +450,13 @@ clMeshBatteryAlarmEnabled OBJECT-TYPE
     MAX-ACCESS      read-write
     STATUS          current
     DESCRIPTION
-        "This object controls the generation of 'ciscoLwappMeshBatteryAlarm'
-        notification. A value of 'true' indicates that the notification
-        will be generated for abnormal battery conditions. A value of 'false'
-        indicates that the notification will not be generated."
-    DEFVAL          { true } 
+        "This object controls the generation of
+        'ciscoLwappMeshBatteryAlarm' notification.
+        A value of 'true' indicates that the notification
+        will be generated for abnormal battery conditions.
+        A value of 'false' indicates that the notification
+        will not be generated."
+    DEFVAL          { true }
     ::= { ciscoLwappMeshBatteryNotifControlConfig 1 }
 
 -- ********************************************************************
@@ -460,7 +487,7 @@ ciscoLwappMeshBatteryMIBGroups  OBJECT IDENTIFIER
 
 
 ciscoLwappMeshBatteryMIBCompliance MODULE-COMPLIANCE
-    STATUS          current
+    STATUS          deprecated
     DESCRIPTION
         "The compliance statement for the SNMP entities that
         implement the ciscoLwappMeshBatteryMIB module."
@@ -471,6 +498,32 @@ ciscoLwappMeshBatteryMIBCompliance MODULE-COMPLIANCE
                         ciscoLwappMeshBatteryNotifsGroup
                     }
     ::= { ciscoLwappMeshBatteryMIBCompliances 1 }
+
+ciscoLwappMeshBatteryMIBComplianceRev1 MODULE-COMPLIANCE
+    STATUS          deprecated
+    DESCRIPTION
+        "The compliance statement for the SNMP entities that
+        implement the ciscoLwappMeshBatteryMIB module."
+    MODULE          -- this module
+    MANDATORY-GROUPS {
+                        ciscoLwappMeshBatteryNotifsConfigGroup,
+                        ciscoLwappMeshBatteryNotifsGroup,
+                        ciscoLwappMeshBatteryInfoGroupRev1
+                    }
+    ::= { ciscoLwappMeshBatteryMIBCompliances 2 }
+
+ciscoLwappMeshBatteryMIBComplianceRev2 MODULE-COMPLIANCE
+    STATUS          current
+    DESCRIPTION
+        "The compliance statement for the SNMP entities that
+        implement the ciscoLwappMeshBatteryMIB module."
+    MODULE          -- this module
+    MANDATORY-GROUPS {
+                        ciscoLwappMeshBatteryNotifsConfigGroup,
+                        ciscoLwappMeshBatteryNotifsGroup,
+                        ciscoLwappMeshBatteryInfoGroupRev2
+                    }
+    ::= { ciscoLwappMeshBatteryMIBCompliances 3 }
 
 -- ********************************************************************
 -- *    Units of conformance
@@ -492,7 +545,7 @@ ciscoLwappMeshBatteryInfoGroup OBJECT-GROUP
                         clMeshNodeBatteryTemperature,
                         clMeshNodeBatteryCurrent
                     }
-    STATUS          current
+    STATUS          deprecated
     DESCRIPTION
         "This collection of objects represent the
         battery specific configuration."
@@ -503,8 +556,8 @@ ciscoLwappMeshBatteryNotifsConfigGroup OBJECT-GROUP
     STATUS          current
     DESCRIPTION
         "This collection of objects represent the objects related to
-        enabling/disabling battery related notifications sent by the agent
-        to a network management station."
+        enabling/disabling battery related notifications sent by
+        the agent to a network management station."
     ::= { ciscoLwappMeshBatteryMIBGroups 2 }
 
 ciscoLwappMeshBatteryNotifsGroup NOTIFICATION-GROUP
@@ -516,7 +569,46 @@ ciscoLwappMeshBatteryNotifsGroup NOTIFICATION-GROUP
         management station."
     ::= { ciscoLwappMeshBatteryMIBGroups 3 }
 
+ciscoLwappMeshBatteryInfoGroupRev1 OBJECT-GROUP
+    OBJECTS         {
+                        clMeshNodeBatteryModelName,
+                        clMeshNodeBatteryStatus,
+                        clMeshNodeBatteryChargingState,
+                        clMeshNodeBatteryChargingLevel,
+                        clMeshNodeBatteryRemainingCapacity,
+                        clMeshNodeBatterySwVersion,
+                        clMeshNodeBatterySerialNumber,
+                        clMeshNodeBatteryInputVoltage,
+                        clMeshNodeBatteryOutputVoltage,
+                        clMeshNodeBatteryOutputPower,
+                        clMeshNodeBatteryInternalVoltage,
+                        clMeshNodeBatteryTemperature,
+                        clMeshNodeBatteryCurrentValue
+                    }
+    STATUS          deprecated
+    DESCRIPTION
+        "This collection of objects represent the
+        battery specific configuration."
+    ::= { ciscoLwappMeshBatteryMIBGroups 4 }
+
+ciscoLwappMeshBatteryInfoGroupRev2 OBJECT-GROUP
+    OBJECTS         {
+                        clMeshNodeBatteryModelName,
+                        clMeshNodeBatteryStatus,
+                        clMeshNodeBatteryChargingLevel,
+                        clMeshNodeBatterySwVersion,
+                        clMeshNodeBatterySerialNumber,
+                        clMeshNodeBatteryInputVoltage,
+                        clMeshNodeBatteryOutputVoltage,
+                        clMeshNodeBatteryOutputPower,
+                        clMeshNodeBatteryInternalVoltage,
+                        clMeshNodeBatteryTemperature,
+                        clMeshNodeBatteryCurrentValue
+                    }
+    STATUS          current
+    DESCRIPTION
+        "This collection of objects represent the
+        battery specific configuration."
+    ::= { ciscoLwappMeshBatteryMIBGroups 5 }
+
 END
-
-
-
