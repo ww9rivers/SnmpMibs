@@ -2,7 +2,7 @@
 -- CISCO-ENTITY-EXT-CAPABILITY.my:
 -- CISCO-ENTITY-EXT-MIB AGENT-CAPABILITIES
 --
--- March 2004, Lilian Jiang 
+-- March 2004, Lilian Jiang
 --
 -- Copyright (c) 2004 by Cisco Systems, Inc.
 -- All rights reserved.
@@ -33,7 +33,7 @@ ciscoEntityExtCapability MODULE-IDENTITY
 
                 E-mail: cs-lan-switch-snmp@cisco.com"
         DESCRIPTION
-                "The agent capabilities description of 
+                "The agent capabilities description of
                 CISCO-ENTITY-EXT-MIB."
         REVISION        "200403310000Z"
         DESCRIPTION
@@ -47,10 +47,10 @@ ciscoEntityExtCapCatOSV08R0301 AGENT-CAPABILITIES
     DESCRIPTION         "CISCO-ENTITY-EXT-MIB agent capabilities."
 
     SUPPORTS            CISCO-ENTITY-EXT-MIB
-        INCLUDES        { 
-                          ciscoEntityExtPhysicalProcessorGroup,
+        INCLUDES        {
+                          ceExtPhysicalProcessorGroup,
                           ciscoEntityExtConfigRegGroup,
-                          ciscoEntityExtSysBootImageListGroup
+                          ceExtSysBootImageListGroup
                         }
     ::= { ciscoEntityExtCapability 1 }
 
