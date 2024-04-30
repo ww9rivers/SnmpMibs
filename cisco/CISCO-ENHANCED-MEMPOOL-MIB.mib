@@ -1,10 +1,9 @@
 -- *****************************************************************
 -- CISCO-ENHANCED-MEMPOOL-MIB
---   
+--
 -- April 2001, Ranjana Rao
---   
--- Copyright (c) 2001,-2007 by cisco Systems, Inc.
---  
+--
+-- Copyright (c) 2001, 2003, 2008 by cisco Systems Inc.
 -- All rights reserved.
 -- ****************************************************************
 
@@ -19,6 +18,10 @@ IMPORTS
     Counter32,
     Unsigned32
         FROM SNMPv2-SMI
+    MODULE-COMPLIANCE,
+    OBJECT-GROUP,
+    NOTIFICATION-GROUP
+        FROM SNMPv2-CONF
     TEXTUAL-CONVENTION,
     TruthValue,
     AutonomousType,
@@ -28,16 +31,14 @@ IMPORTS
         FROM SNMP-FRAMEWORK-MIB
     entPhysicalIndex
         FROM ENTITY-MIB
-    MODULE-COMPLIANCE,
-    OBJECT-GROUP,
-    NOTIFICATION-GROUP
-        FROM SNMPv2-CONF
+    CounterBasedGauge64
+        FROM HCNUM-TC
     ciscoMgmt
         FROM CISCO-SMI;
 
 
 ciscoEnhancedMemPoolMIB MODULE-IDENTITY
-    LAST-UPDATED    "200511300000Z"
+    LAST-UPDATED    "200812050000Z"
     ORGANIZATION    "Cisco Systems, Inc."
     CONTACT-INFO
             "Cisco Systems
@@ -53,36 +54,53 @@ ciscoEnhancedMemPoolMIB MODULE-IDENTITY
     DESCRIPTION
         "New MIB module for monitoring the memory pools
         of all physical entities on a managed system."
-    REVISION        "200511300000Z"
+    REVISION        "200812050000Z"
     DESCRIPTION
-        "Added the types nvram(14), mbuf(15), cluster(16) and
-        malloc(17) to CempMemPoolTypes. Changed the group
-        cempMemBufferGroup from mandatory to optional."
+        "Added the following High Capacity and Overflow objects
+        in cempMemPoolTable.
+        cempMemPoolUsedOvrflw, cempMemPoolHCUsed,
+        cempMemPoolFreeOvrflw, cempMemPoolHCFree,
+        cempMemPoolLargestFreeOvrflw, cempMemPoolHCLargestFree,
+        cempMemPoolLowestFreeOvrflw, cempMemPoolHCLowestFree,
+        cempMemPoolUsedLowWaterMarkOvrflw,
+        cempMemPoolHCUsedLowWaterMark,
+        cempMemPoolSharedOvrflw, cempMemPoolHCShared.
+        Added couple of new groups cempMemPoolHCGroup and
+        cempMemPoolOvrflwGroup.
+        Added a new compliance cempMIBComplianceRev3 which deprecates
+        cempMIBComplianceRev2."
+    REVISION        "200805070000Z"
+    DESCRIPTION
+        "Added a new object cempMemPoolShared in cempMemPoolTable.
+        Deprecated cempMemPoolGroup OBJECT-GROUP.
+        Added cempMemPoolGroupRev1 OBJECT-GROUP.
+        Deprecated cempMIBComplianceRev1 MODULE-COMPLIANCE.
+        Added cempMIBComplianceRev2 MODULE-COMPLIANCE."
     REVISION        "200302240000Z"
     DESCRIPTION
         "Revised version of this MIB,added Objects
         to the existing cempMemPoolTable, added buffer pools.
            Different types of memory buffer pools
            may be present in a managed device. For example:
-           1. Public buffers, these are standard pools of packets 
+           1. Public buffers, these are standard pools of packets
               of different sizes (eg: 104B, 600B, 1536B, 4520B,
-              5024B, 18024B ...). 
+              5024B, 18024B ...).
            2. Private [Interface] buffers (eg. ipc, channel ...).
-           3. Header pool. 
-              Pool of dynamic packet headers. Header buffers 
+           3. Header pool.
+              Pool of dynamic packet headers. Header buffers
               have no associated data blocks or particles.
-              (Particles are a mechanism for representing a 
-              data packet as a collection of discontigious 
+              (Particles are a mechanism for representing a
+              data packet as a collection of discontigious
               buffers.).
               The new objects added are
               cempMemPoolUsedLowWaterMark, cempMemPoolAllocHit,
-              cempMemPoolAllocMiss, cempMemPoolFreeHit, 
+              cempMemPoolAllocMiss, cempMemPoolFreeHit,
               cempMemPoolFreeMiss, cempMemBufferPoolTable
               & cempMemBufferCachePoolTable."
     REVISION        "200106050000Z"
     DESCRIPTION
         "Initial version of this MIB."
-          ::= { ciscoMgmt 221 }
+    ::= { ciscoMgmt 221 }
 
 
 cempMIBNotifications  OBJECT IDENTIFIER
@@ -97,94 +115,83 @@ cempMemPool  OBJECT IDENTIFIER
 cempNotificationConfig  OBJECT IDENTIFIER
     ::= { cempMIBObjects 2 }
 
+
 -- Textual Conventions
 
 CempMemPoolIndex ::= TEXTUAL-CONVENTION
     STATUS          current
     DESCRIPTION
         "A unique value, greater than zero, for each memory
-        pool in a particular physical entity. It is recommended 
-        that values are assigned contiguously starting from 1 
-        such that the index will be unique within a particular 
+        pool in a particular physical entity. It is recommended
+        that values are assigned contiguously starting from 1
+        such that the index will be unique within a particular
         physical entity."
-    SYNTAX          Integer32 (1..2147483647 )
+    SYNTAX          Integer32 (1..2147483647)
 
 CempMemPoolIndexOrNone ::= TEXTUAL-CONVENTION
     STATUS          current
     DESCRIPTION
         "This textual convention is an extension of the
-        CempMemPoolIndex. The latter defines a value greater 
-        than zero to identify a memory pool in a particular 
-        physical entity. This extension permits the additional 
-        value of zero. The value zero is object-specific and 
-        must therefore be defined as part of the description 
-        of any object which uses this syntax. Examples of the 
+        CempMemPoolIndex. The latter defines a value greater
+        than zero to identify a memory pool in a particular
+        physical entity. This extension permits the additional
+        value of zero. The value zero is object-specific and
+        must therefore be defined as part of the description
+        of any object which uses this syntax. Examples of the
         usage of zero might include situations where memory
-        pool was unknown, or when none or all memory pools 
+        pool was unknown, or when none or all memory pools
         need to be referenced."
-    SYNTAX          Integer32 (0..2147483647 )
+    SYNTAX          Integer32 (0..2147483647)
 
 CempMemPoolTypes ::= TEXTUAL-CONVENTION
     STATUS          current
     DESCRIPTION
         "Represents the different types of memory pools that
-        may be present in a managed device. 
+        may be present in a managed device.
         Note that only the processor pool is required to be
         supported by all devices.  Support for other pool types
         is dependent on the device being managed.
 
         processorMemory -
                  processor associated heap memory.
-        ioMemory - 
+        ioMemory -
                  shared memory for buffer data and
                  controller descriptor blocks.
-        pciMemory - 
+        pciMemory -
                  Peripheral Component Interconnect bus
-                 memory which is visible to all devices on 
+                 memory which is visible to all devices on
                  the PCI buses in a platform.
-        fastMemory - 
-                 memory defined by the particular platform 
+        fastMemory -
+                 memory defined by the particular platform
                  for speed critical applications.
-        multibusMemory - 
+        multibusMemory -
                  memory present on some platforms that
                  is used as a fallback pool.
-        interruptStackMemory - 
-                 memory for allocating interrupt stacks. 
+        interruptStackMemory -
+                 memory for allocating interrupt stacks.
                  It is usually allocated from heap.
-        processStackMemory - 
-                 memory for allocating process stacks. 
+        processStackMemory -
+                 memory for allocating process stacks.
                  It is usually allocated from heap.
-        localExceptionMemory - 
-                 memory reserved for processing 
+        localExceptionMemory -
+                 memory reserved for processing
                  a system core dump.
-        virtualMemory - 
+        virtualMemory -
                  memory used to increase available RAM.
-        reservedMemory - 
-                 memory used for packet headers, 
-                 particle headers and particles. 
-        imageMemory - 
-                 memory which corresponds to the image 
+        reservedMemory -
+                 memory used for packet headers,
+                 particle headers and particles.
+        imageMemory -
+                 memory which corresponds to the image
                  file system.
-        asicMemory - 
+        asicMemory -
                  Application Specific Integrated Circuit
                  memory.
-        nvram -
-                 Non-Volatile Random Access Memory, a type of
-                 memory that retains its contents when the
-                 power is turned off.
-        mbuf -
-                 Memory buffers management in the kernel IPC
-                 subsystem. The basic buffering mechanism used
-                 in Berkeley-based TCP/IP.
-        cluster -
-                 A cluster is a data structure that holds
-                 heterogeneous data for extending the data
-                 carrying capability of an individual mbuf.
-        malloc -
-                 Allocation of memory storage for dynamic
-                 memory allocation."
+        posixMemory -
+                  Heap memory associated with posix style
+                  processes in ion."
     SYNTAX          INTEGER  {
-                        other(1),
+                        other(1), -- none of the following
                         processorMemory(2),
                         ioMemory(3),
                         pciMemory(4),
@@ -197,26 +204,23 @@ CempMemPoolTypes ::= TEXTUAL-CONVENTION
                         reservedMemory(11),
                         imageMemory(12),
                         asicMemory(13),
-                        nvram(14),
-                        mbuf(15),
-                        cluster(16),
-                        malloc(17)
+                        posixMemory(14)
                     }
 
 CempMemBufferPoolIndex ::= TEXTUAL-CONVENTION
     STATUS          current
     DESCRIPTION
         "A unique value, greater than zero, for each buffer
-        pool in the memory pool on a physical entity. It is 
-        recommended that values are assigned contiguously 
+        pool in the memory pool on a physical entity. It is
+        recommended that values are assigned contiguously
         starting from 1 such that the index will be unique
-        within a physical entity. Note that the index does 
+        within a physical entity. Note that the index does
         not overlap among different memory pools."
-    SYNTAX          Unsigned32 (1..4294967295 )
+    SYNTAX          Unsigned32 (1..4294967295)
 -- MemPool
 
 cempMemPoolTable OBJECT-TYPE
-    SYNTAX          SEQUENCE OF CempMemPoolEntry 
+    SYNTAX          SEQUENCE OF CempMemPoolEntry
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
@@ -228,29 +232,43 @@ cempMemPoolEntry OBJECT-TYPE
     SYNTAX          CempMemPoolEntry
     MAX-ACCESS      not-accessible
     STATUS          current
-    DESCRIPTION     "An entry in the memory pool monitoring table."
+    DESCRIPTION
+        "An entry in the memory pool monitoring table."
     INDEX           {
                         entPhysicalIndex,
                         cempMemPoolIndex
-                    } 
+                    }
     ::= { cempMemPoolTable 1 }
 
 CempMemPoolEntry ::= SEQUENCE {
-        cempMemPoolIndex            CempMemPoolIndex,
-        cempMemPoolType             CempMemPoolTypes,
-        cempMemPoolName             SnmpAdminString,
-        cempMemPoolPlatformMemory   AutonomousType,
-        cempMemPoolAlternate        CempMemPoolIndexOrNone,
-        cempMemPoolValid            TruthValue,
-        cempMemPoolUsed             Gauge32,
-        cempMemPoolFree             Gauge32,
-        cempMemPoolLargestFree      Gauge32,
-        cempMemPoolLowestFree       Gauge32,
-        cempMemPoolUsedLowWaterMark Gauge32,
-        cempMemPoolAllocHit         Counter32,
-        cempMemPoolAllocMiss        Counter32,
-        cempMemPoolFreeHit          Counter32,
-        cempMemPoolFreeMiss         Counter32
+        cempMemPoolIndex                  CempMemPoolIndex,
+        cempMemPoolType                   CempMemPoolTypes,
+        cempMemPoolName                   SnmpAdminString,
+        cempMemPoolPlatformMemory         AutonomousType,
+        cempMemPoolAlternate              CempMemPoolIndexOrNone,
+        cempMemPoolValid                  TruthValue,
+        cempMemPoolUsed                   Gauge32,
+        cempMemPoolFree                   Gauge32,
+        cempMemPoolLargestFree            Gauge32,
+        cempMemPoolLowestFree             Gauge32,
+        cempMemPoolUsedLowWaterMark       Gauge32,
+        cempMemPoolAllocHit               Counter32,
+        cempMemPoolAllocMiss              Counter32,
+        cempMemPoolFreeHit                Counter32,
+        cempMemPoolFreeMiss               Counter32,
+        cempMemPoolShared                 Gauge32,
+        cempMemPoolUsedOvrflw             Gauge32,
+        cempMemPoolHCUsed                 CounterBasedGauge64,
+        cempMemPoolFreeOvrflw             Gauge32,
+        cempMemPoolHCFree                 CounterBasedGauge64,
+        cempMemPoolLargestFreeOvrflw      Gauge32,
+        cempMemPoolHCLargestFree          CounterBasedGauge64,
+        cempMemPoolLowestFreeOvrflw       Gauge32,
+        cempMemPoolHCLowestFree           CounterBasedGauge64,
+        cempMemPoolUsedLowWaterMarkOvrflw Gauge32,
+        cempMemPoolHCUsedLowWaterMark     CounterBasedGauge64,
+        cempMemPoolSharedOvrflw           Gauge32,
+        cempMemPoolHCShared               CounterBasedGauge64
 }
 
 cempMemPoolIndex OBJECT-TYPE
@@ -259,9 +277,9 @@ cempMemPoolIndex OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "Within each physical entity, the unique value
-        greater than zero, used to represent each memory pool.  
+        greater than zero, used to represent each memory pool.
         It is recommended that values are assigned
-        contiguously starting from 1." 
+        contiguously starting from 1."
     ::= { cempMemPoolEntry 1 }
 
 cempMemPoolType OBJECT-TYPE
@@ -270,7 +288,7 @@ cempMemPoolType OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "The type of memory pool for which this entry
-        contains information." 
+        contains information."
     ::= { cempMemPoolEntry 2 }
 
 cempMemPoolName OBJECT-TYPE
@@ -281,7 +299,7 @@ cempMemPoolName OBJECT-TYPE
         "A textual name assigned to the memory pool. This
         object is suitable for output to a human operator,
         and may also be used to distinguish among the various
-        pool types." 
+        pool types."
     ::= { cempMemPoolEntry 3 }
 
 cempMemPoolPlatformMemory OBJECT-TYPE
@@ -296,7 +314,7 @@ cempMemPoolPlatformMemory OBJECT-TYPE
         If no platform specific memory hardware type
         identifier exists for this physical entity, or the
         value is unknown by this agent, then the value { 0 0 }
-        is returned." 
+        is returned."
     ::= { cempMemPoolEntry 4 }
 
 cempMemPoolAlternate OBJECT-TYPE
@@ -312,7 +330,7 @@ cempMemPoolAlternate OBJECT-TYPE
         If an instance of this object has a value of zero,
         then this pool does not have an alternate.  Otherwise
         the value of this object is the same as the value of
-        cempMemPoolType of the alternate pool." 
+        cempMemPoolType of the alternate pool."
     ::= { cempMemPoolEntry 5 }
 
 cempMemPoolValid OBJECT-TYPE
@@ -321,14 +339,14 @@ cempMemPoolValid OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "Indicates whether or not cempMemPoolUsed,
-        cempMemPoolFree, cempMemPoolLargestFree and 
-        cempMemPoolLowestFree in this entry contain accurate 
-        data. If an instance of this object has the value 
-        false (which in and of itself indicates an internal 
+        cempMemPoolFree, cempMemPoolLargestFree and
+        cempMemPoolLowestFree in this entry contain accurate
+        data. If an instance of this object has the value
+        false (which in and of itself indicates an internal
         error condition), the values of these objects
-        in the conceptual row may contain inaccurate 
-        information (specifically, the reported values may be 
-        less than the actual values)." 
+        in the conceptual row may contain inaccurate
+        information (specifically, the reported values may be
+        less than the actual values)."
     ::= { cempMemPoolEntry 6 }
 
 cempMemPoolUsed OBJECT-TYPE
@@ -339,7 +357,7 @@ cempMemPoolUsed OBJECT-TYPE
     DESCRIPTION
         "Indicates the number of bytes from the memory pool
         that are currently in use by applications on the
-        physical entity." 
+        physical entity."
     ::= { cempMemPoolEntry 7 }
 
 cempMemPoolFree OBJECT-TYPE
@@ -351,8 +369,8 @@ cempMemPoolFree OBJECT-TYPE
         "Indicates the number of bytes from the memory pool
         that are currently unused on the physical entity.
 
-        Note that the sum of cempMemPoolUsed and cempMemPoolFree 
-        is the total amount of memory in the pool" 
+        Note that the sum of cempMemPoolUsed and cempMemPoolFree
+        is the total amount of memory in the pool"
     ::= { cempMemPoolEntry 8 }
 
 cempMemPoolLargestFree OBJECT-TYPE
@@ -363,7 +381,7 @@ cempMemPoolLargestFree OBJECT-TYPE
     DESCRIPTION
         "Indicates the largest number of contiguous bytes
         from the memory pool that are currently unused on
-        the physical entity." 
+        the physical entity."
     ::= { cempMemPoolEntry 9 }
 
 cempMemPoolLowestFree OBJECT-TYPE
@@ -373,7 +391,7 @@ cempMemPoolLowestFree OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "The lowest amount of available memory in the memory pool
-        recorded at any time during the operation of the system." 
+        recorded at any time during the operation of the system."
     ::= { cempMemPoolEntry 10 }
 
 cempMemPoolUsedLowWaterMark OBJECT-TYPE
@@ -389,7 +407,7 @@ cempMemPoolUsedLowWaterMark OBJECT-TYPE
         the physical entity since sysUpTime.This can be
         derived as follows:
         Used High Watermark = cempMemPoolUsed +
-        cempMemPoolFree  - cempMemPoolLowestFree." 
+        cempMemPoolFree  - cempMemPoolLowestFree."
     ::= { cempMemPoolEntry 11 }
 
 cempMemPoolAllocHit OBJECT-TYPE
@@ -398,7 +416,7 @@ cempMemPoolAllocHit OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "Indicates the number of successful allocations from
-        the memory pool" 
+        the memory pool"
     ::= { cempMemPoolEntry 12 }
 
 cempMemPoolAllocMiss OBJECT-TYPE
@@ -407,7 +425,7 @@ cempMemPoolAllocMiss OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "Indicates the number of unsuccessful allocations from
-        the memory pool" 
+        the memory pool"
     ::= { cempMemPoolEntry 13 }
 
 cempMemPoolFreeHit OBJECT-TYPE
@@ -416,7 +434,7 @@ cempMemPoolFreeHit OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "Indicates the number of successful frees/
-        deallocations from the memory pool" 
+        deallocations from the memory pool"
     ::= { cempMemPoolEntry 14 }
 
 cempMemPoolFreeMiss OBJECT-TYPE
@@ -426,42 +444,195 @@ cempMemPoolFreeMiss OBJECT-TYPE
     DESCRIPTION
         "Indicates the number of unsuccessful attempts
         to free/deallocate memory from the memory pool.
-        For example, this could be due to ownership errors 
-        where the application that did not assign the 
-        memory is trying to free it. " 
+        For example, this could be due to ownership errors
+        where the application that did not assign the
+        memory is trying to free it."
     ::= { cempMemPoolEntry 15 }
- 
+
+cempMemPoolShared OBJECT-TYPE
+    SYNTAX          Gauge32
+    UNITS           "bytes"
+    MAX-ACCESS      read-only
+    STATUS          current
+    DESCRIPTION
+        "Indicates the number of bytes from the memory pool
+        that are currently shared on the physical entity."
+    ::= { cempMemPoolEntry 16 }
+
+cempMemPoolUsedOvrflw OBJECT-TYPE
+    SYNTAX          Gauge32
+    UNITS           "bytes"
+    MAX-ACCESS      read-only
+    STATUS          current
+    DESCRIPTION
+        "This object represents the upper 32-bits of cempMemPoolUsed.
+        This object needs to be supported only if the used bytes in the
+        memory pool exceeds 32-bits, otherwise this object value would
+        be set to 0."
+    ::= { cempMemPoolEntry 17 }
+
+cempMemPoolHCUsed OBJECT-TYPE
+    SYNTAX          CounterBasedGauge64
+    UNITS           "bytes"
+    MAX-ACCESS      read-only
+    STATUS          current
+    DESCRIPTION
+        "Indicates the number of bytes from the memory pool
+        that are currently in use by applications on the
+        physical entity. This object is a 64-bit version of
+        cempMemPoolUsed."
+    ::= { cempMemPoolEntry 18 }
+
+cempMemPoolFreeOvrflw OBJECT-TYPE
+    SYNTAX          Gauge32
+    UNITS           "bytes"
+    MAX-ACCESS      read-only
+    STATUS          current
+    DESCRIPTION
+        "This object represents the upper 32-bits of cempMemPoolFree.
+        This object needs to be supported only if the unused bytes in
+        the memory pool exceeds 32-bits, otherwise this object value
+        would be set to 0."
+    ::= { cempMemPoolEntry 19 }
+
+cempMemPoolHCFree OBJECT-TYPE
+    SYNTAX          CounterBasedGauge64
+    UNITS           "bytes"
+    MAX-ACCESS      read-only
+    STATUS          current
+    DESCRIPTION
+        "Indicates the number of bytes from the memory pool
+        that are currently unused on the physical entity.
+        This object is a 64-bit version of cempMemPoolFree."
+    ::= { cempMemPoolEntry 20 }
+
+cempMemPoolLargestFreeOvrflw OBJECT-TYPE
+    SYNTAX          Gauge32
+    UNITS           "bytes"
+    MAX-ACCESS      read-only
+    STATUS          current
+    DESCRIPTION
+        "This object represents the upper 32-bits of
+        cempMemPoolLargestFree. This object needs to
+        be supported only if the value of
+        cempMemPoolLargestFree exceeds 32-bits, otherwise
+        this object value would be set to 0."
+    ::= { cempMemPoolEntry 21 }
+
+cempMemPoolHCLargestFree OBJECT-TYPE
+    SYNTAX          CounterBasedGauge64
+    UNITS           "bytes"
+    MAX-ACCESS      read-only
+    STATUS          current
+    DESCRIPTION
+        "Indicates the largest number of contiguous bytes from the
+        memory pool that are currently unused on the physical entity.
+        This object is a 64-bit version of cempMemPoolLargestFree."
+    ::= { cempMemPoolEntry 22 }
+
+cempMemPoolLowestFreeOvrflw OBJECT-TYPE
+    SYNTAX          Gauge32
+    UNITS           "bytes"
+    MAX-ACCESS      read-only
+    STATUS          current
+    DESCRIPTION
+        "This object represents the upper 32-bits of
+        cempMemPoolLowestFree. This object needs to
+        be supported only if the value of
+        cempMemPoolLowestFree exceeds 32-bits, otherwise
+        this object value would be set to 0."
+    ::= { cempMemPoolEntry 23 }
+
+cempMemPoolHCLowestFree OBJECT-TYPE
+    SYNTAX          CounterBasedGauge64
+    UNITS           "bytes"
+    MAX-ACCESS      read-only
+    STATUS          current
+    DESCRIPTION
+        "The lowest amount of available memory in the memory pool
+        recorded at any time during the operation of the system.
+        This object is a 64-bit version of cempMemPoolLowestFree."
+    ::= { cempMemPoolEntry 24 }
+
+cempMemPoolUsedLowWaterMarkOvrflw OBJECT-TYPE
+    SYNTAX          Gauge32
+    UNITS           "bytes"
+    MAX-ACCESS      read-only
+    STATUS          current
+    DESCRIPTION
+        "This object represents the upper 32-bits of
+        cempMemPoolUsedLowWaterMark. This object
+        needs to be supported only if the value of
+        cempMemPoolUsedLowWaterMark exceeds 32-bits,
+        otherwise this object value would be set to 0."
+    ::= { cempMemPoolEntry 25 }
+
+cempMemPoolHCUsedLowWaterMark OBJECT-TYPE
+    SYNTAX          CounterBasedGauge64
+    UNITS           "bytes"
+    MAX-ACCESS      read-only
+    STATUS          current
+    DESCRIPTION
+        "Indicates the lowest number of bytes from the memory
+        pool that have been used by applications on the physical
+        entity since sysUpTime. This object is a 64-bit version
+        of cempMemPoolUsedLowWaterMark."
+    ::= { cempMemPoolEntry 26 }
+
+cempMemPoolSharedOvrflw OBJECT-TYPE
+    SYNTAX          Gauge32
+    UNITS           "bytes"
+    MAX-ACCESS      read-only
+    STATUS          current
+    DESCRIPTION
+        "This object represents the upper 32-bits of cempMemPoolShared.
+        This object needs to be supported only if the value of
+        cempMemPoolShared exceeds 32-bits, otherwise this object value
+        would be set to 0."
+    ::= { cempMemPoolEntry 27 }
+
+cempMemPoolHCShared OBJECT-TYPE
+    SYNTAX          CounterBasedGauge64
+    UNITS           "bytes"
+    MAX-ACCESS      read-only
+    STATUS          current
+    DESCRIPTION
+        "Indicates the number of bytes from the memory pool that are
+        currently shared on the physical entity. This object is a
+        64-bit version of cempMemPoolShared."
+    ::= { cempMemPoolEntry 28 }
+
 
 -- Buffer Pool
 
 cempMemBufferPoolTable OBJECT-TYPE
-    SYNTAX          SEQUENCE OF CempMemBufferPoolEntry 
+    SYNTAX          SEQUENCE OF CempMemBufferPoolEntry
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
         "Entries in this table define entities (buffer pools
-        in this case) which are contained in an entity 
+        in this case) which are contained in an entity
         (memory pool) defined by an entry from
         cempMemPoolTable.
         -- Basic Pool Architecture --
-        1)Pools are classified as being either Static or 
-          Dynamic. Static pools make no attempt to increase 
-          the number of buffers contained within them if the 
+        1)Pools are classified as being either Static or
+          Dynamic. Static pools make no attempt to increase
+          the number of buffers contained within them if the
           number of free buffers (cempMemBufferFree) are less
           than the number of minimum buffers (cempMemBufferMin).
-          With Dynamic pools, the pool attempts to meet the 
+          With Dynamic pools, the pool attempts to meet the
           demands of its users.
-        2)Buffers in a pool are classified as being either 
+        2)Buffers in a pool are classified as being either
           Permanent or Temporary. Permanent buffers, as their
           name suggests, are always in the pool and are never
-          destroyed unless the number of permanent buffers 
+          destroyed unless the number of permanent buffers
           (cempMemBufferPermanent) is changed. Temporary
           buffers are transient buffers that are created in
-          dynamic pools whenever the free count 
-          (cempMemBufferFree) of buffers in the pool drops 
+          dynamic pools whenever the free count
+          (cempMemBufferFree) of buffers in the pool drops
           below the minimum (cempMemBufferMin).
-        3)Buffers pools are classified as either Public or 
-          Private. Public pools are available for all users 
+        3)Buffers pools are classified as either Public or
+          Private. Public pools are available for all users
           to allocate buffers from. Private pools are
           primarily used by interface drivers."
     ::= { cempMemPool 2 }
@@ -472,13 +643,13 @@ cempMemBufferPoolEntry OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "This contains all the memory buffer pool
-        configurations object values. The 
+        configurations object values. The
         entPhysicalIndex identifies the entity on which
         memory buffer pools are present."
     INDEX           {
                         entPhysicalIndex,
                         cempMemBufferPoolIndex
-                    } 
+                    }
     ::= { cempMemBufferPoolTable 1 }
 
 CempMemBufferPoolEntry ::= SEQUENCE {
@@ -512,7 +683,7 @@ cempMemBufferPoolIndex OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "Within a physical entity, a unique value used
-        to represent each buffer pool." 
+        to represent each buffer pool."
     ::= { cempMemBufferPoolEntry 1 }
 
 cempMemBufferMemPoolIndex OBJECT-TYPE
@@ -521,8 +692,8 @@ cempMemBufferMemPoolIndex OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "This index corresponds to the memory pool (with
-        cemMemPoolIndex as index in cempMemPoolTable) 
-        from which buffers are allocated." 
+        cemMemPoolIndex as index in cempMemPoolTable)
+        from which buffers are allocated."
     ::= { cempMemBufferPoolEntry 2 }
 
 cempMemBufferName OBJECT-TYPE
@@ -534,7 +705,7 @@ cempMemBufferName OBJECT-TYPE
         object is suitable for output to a human operator,
         and may also be used to distinguish among the various
         buffer types.
-        For example: 'Small', 'Big', 'Serial0/1' etc. " 
+        For example: 'Small', 'Big', 'Serial0/1' etc."
     ::= { cempMemBufferPoolEntry 3 }
 
 cempMemBufferDynamic OBJECT-TYPE
@@ -543,11 +714,11 @@ cempMemBufferDynamic OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "Boolean poolDynamic; if TRUE, the number of buffers
-        in the pool is adjusted (adding more packet buffers 
-        or deleting excesses) dynamically by the background 
-        process. If FALSE, the number of buffers in the pool 
+        in the pool is adjusted (adding more packet buffers
+        or deleting excesses) dynamically by the background
+        process. If FALSE, the number of buffers in the pool
         is never adjusted, even if it falls below the minimum,
-        or to zero." 
+        or to zero."
     ::= { cempMemBufferPoolEntry 4 }
 
 cempMemBufferSize OBJECT-TYPE
@@ -557,7 +728,7 @@ cempMemBufferSize OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "Indicates the size of buffer element in number of bytes
-        on the physical entity." 
+        on the physical entity."
     ::= { cempMemBufferPoolEntry 5 }
 
 cempMemBufferMin OBJECT-TYPE
@@ -566,11 +737,11 @@ cempMemBufferMin OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "Indicates the minimum number of free buffers
-        allowed in the buffer pool or low-water mark (lwm). 
+        allowed in the buffer pool or low-water mark (lwm).
         For example of its usage :
-        If cempMemBufferFree < cempMemBufferMin & pool is 
+        If cempMemBufferFree < cempMemBufferMin & pool is
         dynamic, then signal for growth of particular buffer
-        pool." 
+        pool."
     ::= { cempMemBufferPoolEntry 6 }
 
 cempMemBufferMax OBJECT-TYPE
@@ -581,9 +752,9 @@ cempMemBufferMax OBJECT-TYPE
         "Indicates the maximum number of free buffers
         allowed in the buffer pool or high-water mark (hwm).
         For example of its usage :
-        If cempMemBufferFree > cempMemBufferMax & pool is 
+        If cempMemBufferFree > cempMemBufferMax & pool is
         dynamic, then signal for trim of particular buffer
-        pool." 
+        pool."
     ::= { cempMemBufferPoolEntry 7 }
 
 cempMemBufferPermanent OBJECT-TYPE
@@ -592,7 +763,7 @@ cempMemBufferPermanent OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "Indicates the total number of permanent buffers in the
-        pool on the physical entity." 
+        pool on the physical entity."
     ::= { cempMemBufferPoolEntry 8 }
 
 cempMemBufferTransient OBJECT-TYPE
@@ -601,11 +772,11 @@ cempMemBufferTransient OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "Indicates the initial number of temporary buffers
-        in the pool on the physical entity. This object 
+        in the pool on the physical entity. This object
         instructs the system to create this many number of
-        temporary extra buffers, just after a system restart. 
+        temporary extra buffers, just after a system restart.
         A change in this object will be effective only after
-        a system restart." 
+        a system restart."
     ::= { cempMemBufferPoolEntry 9 }
 
 cempMemBufferTotal OBJECT-TYPE
@@ -615,7 +786,7 @@ cempMemBufferTotal OBJECT-TYPE
     DESCRIPTION
         "Indicates the total number of buffers
         (include allocated and free buffers) in the
-        buffer pool on the physical entity." 
+        buffer pool on the physical entity."
     ::= { cempMemBufferPoolEntry 10 }
 
 cempMemBufferFree OBJECT-TYPE
@@ -625,8 +796,8 @@ cempMemBufferFree OBJECT-TYPE
     DESCRIPTION
         "Indicates the current number of free buffers in
         the buffer pool on the physical entity.
-        Note that the cempMemBufferFree is less than or equal 
-        to cempMemBufferTotal." 
+        Note that the cempMemBufferFree is less than or equal
+        to cempMemBufferTotal."
     ::= { cempMemBufferPoolEntry 11 }
 
 cempMemBufferHit OBJECT-TYPE
@@ -635,7 +806,7 @@ cempMemBufferHit OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "Indicates the number of buffers successfully
-        allocated from the buffer pool." 
+        allocated from the buffer pool."
     ::= { cempMemBufferPoolEntry 12 }
 
 cempMemBufferMiss OBJECT-TYPE
@@ -645,10 +816,10 @@ cempMemBufferMiss OBJECT-TYPE
     DESCRIPTION
         "Indicates the number of times a buffer has been
         requested, but no buffers were available in the
-        buffer pool, or when there were fewer than min 
+        buffer pool, or when there were fewer than min
         buffers(cempMemBufferMin) in the buffer pool.
-        Note : For interface pools, a miss is actually 
-        a fall back to its corresponding public buffer pool." 
+        Note : For interface pools, a miss is actually
+        a fall back to its corresponding public buffer pool."
     ::= { cempMemBufferPoolEntry 13 }
 
 cempMemBufferFreeHit OBJECT-TYPE
@@ -657,7 +828,7 @@ cempMemBufferFreeHit OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "Indicates the number of successful frees/deallocations
-        from the buffer pool." 
+        from the buffer pool."
     ::= { cempMemBufferPoolEntry 14 }
 
 cempMemBufferFreeMiss OBJECT-TYPE
@@ -666,10 +837,10 @@ cempMemBufferFreeMiss OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "Indicates the number of unsuccessful attempts
-        to free/deallocate a buffer from the buffer pool. 
+        to free/deallocate a buffer from the buffer pool.
         For example, this could be due to ownership errors
-        where the application that did not assign the 
-        buffer is trying to free it. " 
+        where the application that did not assign the
+        buffer is trying to free it."
     ::= { cempMemBufferPoolEntry 15 }
 
 cempMemBufferPermChange OBJECT-TYPE
@@ -678,11 +849,11 @@ cempMemBufferPermChange OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "This value is the difference of the desired number
-        of permanent buffer & total number of permanent 
-        buffers present in the pool. A positive value of 
-        this object tells the number of buffers needed & a 
-        negative value of the object tells the extra number 
-        of buffers in the pool." 
+        of permanent buffer & total number of permanent
+        buffers present in the pool. A positive value of
+        this object tells the number of buffers needed & a
+        negative value of the object tells the extra number
+        of buffers in the pool."
     ::= { cempMemBufferPoolEntry 16 }
 
 cempMemBufferPeak OBJECT-TYPE
@@ -691,7 +862,7 @@ cempMemBufferPeak OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "Indicates the peak number of buffers in pool on the
-        physical entity." 
+        physical entity."
     ::= { cempMemBufferPoolEntry 17 }
 
 cempMemBufferPeakTime OBJECT-TYPE
@@ -700,7 +871,7 @@ cempMemBufferPeakTime OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "Indicates the time of most recent change in the peak
-        number of buffers (cempMemBufferPeak object) in the pool." 
+        number of buffers (cempMemBufferPeak object) in the pool."
     ::= { cempMemBufferPoolEntry 18 }
 
 cempMemBufferTrim OBJECT-TYPE
@@ -709,9 +880,9 @@ cempMemBufferTrim OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "The number of buffers that have been trimmed from the
-        pool when the number of free buffers 
+        pool when the number of free buffers
         (cempMemBufferFree) exceeded the number of max
-        allowed buffers(cempMemBufferMax)." 
+        allowed buffers(cempMemBufferMax)."
     ::= { cempMemBufferPoolEntry 19 }
 
 cempMemBufferGrow OBJECT-TYPE
@@ -721,7 +892,7 @@ cempMemBufferGrow OBJECT-TYPE
     DESCRIPTION
         "The number of buffers that have been created in the
         pool when the number of free buffers(cempMemBufferFree)
-        was less than minimum(cempMemBufferMix)." 
+        was less than minimum(cempMemBufferMix)."
     ::= { cempMemBufferPoolEntry 20 }
 
 cempMemBufferFailures OBJECT-TYPE
@@ -730,12 +901,12 @@ cempMemBufferFailures OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "The number of failures to grant a buffer to a
-        requester due to reasons other than insufficient 
-        memory. For example, in systems where there are 
+        requester due to reasons other than insufficient
+        memory. For example, in systems where there are
         different execution contexts, it may be too
         expensive to create new buffers when running in
-        certain contexts. In those cases it may be 
-        preferable to fail the request." 
+        certain contexts. In those cases it may be
+        preferable to fail the request."
     ::= { cempMemBufferPoolEntry 21 }
 
 cempMemBufferNoStorage OBJECT-TYPE
@@ -744,29 +915,29 @@ cempMemBufferNoStorage OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "The number of times the system tried to create new
-        buffers, but could not due to insufficient free 
-        memory in the system." 
+        buffers, but could not due to insufficient free
+        memory in the system."
     ::= { cempMemBufferPoolEntry 22 }
- 
+
 
 -- Buffer Cache Pool
 
 cempMemBufferCachePoolTable OBJECT-TYPE
-    SYNTAX          SEQUENCE OF CempMemBufferCachePoolEntry 
+    SYNTAX          SEQUENCE OF CempMemBufferCachePoolEntry
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
         "A table that lists the cache buffer pools
-        configured on a managed system. 
-        1)To provide a noticeable performance boost, 
+        configured on a managed system.
+        1)To provide a noticeable performance boost,
           Cache Pool can be used. A Cache Pool is effectively
-          a lookaside list of free buffers that can be 
-          accessed quickly. Cache Pool is tied to Buffer Pool. 
+          a lookaside list of free buffers that can be
+          accessed quickly. Cache Pool is tied to Buffer Pool.
         2)Cache pools can optionally have a threshold value
           on the number of cache buffers used in a pool. This
-          can provide flow control management by having a 
+          can provide flow control management by having a
           implementation specific approach such as invoking a
-          vector when pool cache rises above the optional 
+          vector when pool cache rises above the optional
           threshold set for it on creation."
     ::= { cempMemPool 3 }
 
@@ -785,7 +956,7 @@ cempMemBufferCachePoolEntry OBJECT-TYPE
     INDEX           {
                         entPhysicalIndex,
                         cempMemBufferPoolIndex
-                    } 
+                    }
     ::= { cempMemBufferCachePoolTable 1 }
 
 CempMemBufferCachePoolEntry ::= SEQUENCE {
@@ -804,7 +975,7 @@ cempMemBufferCacheSize OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "Indicates the number of buffers in the cache pool
-        on the physical entity." 
+        on the physical entity."
     ::= { cempMemBufferCachePoolEntry 1 }
 
 cempMemBufferCacheTotal OBJECT-TYPE
@@ -813,7 +984,7 @@ cempMemBufferCacheTotal OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "Indicates the maximum number of free buffers
-        allowed in the cache pool." 
+        allowed in the cache pool."
     ::= { cempMemBufferCachePoolEntry 2 }
 
 cempMemBufferCacheUsed OBJECT-TYPE
@@ -823,8 +994,8 @@ cempMemBufferCacheUsed OBJECT-TYPE
     DESCRIPTION
         "Indicates the number of cache buffers from the
         pool that are currently used on the physical entity.
-        Note that the cempMemBufferCacheUsed is less than or 
-        equal to cempMemBufferCacheTotal." 
+        Note that the cempMemBufferCacheUsed is less than or
+        equal to cempMemBufferCacheTotal."
     ::= { cempMemBufferCachePoolEntry 3 }
 
 cempMemBufferCacheHit OBJECT-TYPE
@@ -833,7 +1004,7 @@ cempMemBufferCacheHit OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "Indicates the number of buffers successfully
-        allocated from the cache pool." 
+        allocated from the cache pool."
     ::= { cempMemBufferCachePoolEntry 4 }
 
 cempMemBufferCacheMiss OBJECT-TYPE
@@ -843,7 +1014,7 @@ cempMemBufferCacheMiss OBJECT-TYPE
     DESCRIPTION
         "Indicates the number of times a buffer has been
         requested, but no buffers were available in the
-        cache pool." 
+        cache pool."
     ::= { cempMemBufferCachePoolEntry 5 }
 
 cempMemBufferCacheThreshold OBJECT-TYPE
@@ -852,7 +1023,7 @@ cempMemBufferCacheThreshold OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "Indicates the threshold limit for number of cache
-        buffers used(cempMemBufferCacheUsed)." 
+        buffers used(cempMemBufferCacheUsed)."
     ::= { cempMemBufferCachePoolEntry 6 }
 
 cempMemBufferCacheThresholdCount OBJECT-TYPE
@@ -862,12 +1033,13 @@ cempMemBufferCacheThresholdCount OBJECT-TYPE
     DESCRIPTION
         "Indicates how many times the number of cache
         buffers used(cempMemBufferCacheUsed) has crossed the
-        threshold value(cempMemBufferCacheThreshold)." 
+        threshold value(cempMemBufferCacheThreshold)."
     ::= { cempMemBufferCachePoolEntry 7 }
- 
+
 
 
 -- Notification Configuration
+
 cempMemBufferNotifyEnabled OBJECT-TYPE
     SYNTAX          TruthValue
     MAX-ACCESS      read-write
@@ -880,10 +1052,10 @@ cempMemBufferNotifyEnabled OBJECT-TYPE
         cempMemBufferNotify is enabled.  When this variable
         is 'false', generation of cempMemBufferNotify
         is disabled."
-    DEFVAL          { false } 
+    DEFVAL          { false }
     ::= { cempNotificationConfig 1 }
--- Notifications
 
+-- Notifications
 
 cempMemBufferNotify NOTIFICATION-TYPE
     OBJECTS         {
@@ -895,7 +1067,7 @@ cempMemBufferNotify NOTIFICATION-TYPE
     DESCRIPTION
         "Whenever cempMemBufferPeak object is updated in the
         buffer pool, a cempMemBufferNotify notification
-        is sent. The sending of these notifications can be 
+        is sent. The sending of these notifications can be
         enabled/disabled via the cempMemBufferNotifyEnabled object."
    ::= { cempMIBNotifications 1 }
 cempMIBConformance  OBJECT IDENTIFIER
@@ -909,6 +1081,7 @@ cempMIBGroups  OBJECT IDENTIFIER
 
 
 -- Conformance
+
 cempMIBCompliance MODULE-COMPLIANCE
     STATUS          deprecated
     DESCRIPTION
@@ -918,7 +1091,8 @@ cempMIBCompliance MODULE-COMPLIANCE
     MANDATORY-GROUPS { cempMemPoolGroup }
 
     GROUP           cempMemPoolExtGroup
-    DESCRIPTION     "This group is optional for all entities."
+    DESCRIPTION
+        "This group is optional for all entities."
     ::= { cempMIBCompliances 1 }
 
 cempMIBComplianceRev1 MODULE-COMPLIANCE
@@ -926,7 +1100,7 @@ cempMIBComplianceRev1 MODULE-COMPLIANCE
     DESCRIPTION
         "The compliance statement for entities which
         implement the Cisco Enhanced MemPool MIB.
-        This compliance module deprecates 
+        This compliance module deprecates
         cempMIBCompliance."
     MODULE          -- this module
     MANDATORY-GROUPS {
@@ -961,14 +1135,17 @@ cempMIBComplianceRev1 MODULE-COMPLIANCE
     ::= { cempMIBCompliances 2 }
 
 cempMIBComplianceRev2 MODULE-COMPLIANCE
-    STATUS          current
+    STATUS          deprecated
     DESCRIPTION
         "The compliance statement for entities which
         implement the Cisco Enhanced MemPool MIB.
-        This compliance module deprecates 
+        This compliance module deprecates
         cempMIBComplianceRev1."
     MODULE          -- this module
-    MANDATORY-GROUPS { cempMemPoolGroup }
+    MANDATORY-GROUPS {
+                        cempMemPoolGroupRev1,
+                        cempMemBufferGroup
+                    }
 
     GROUP           cempMemPoolExtGroupRev1
     DESCRIPTION
@@ -976,12 +1153,6 @@ cempMIBComplianceRev2 MODULE-COMPLIANCE
         Support for these objects is mandatory
         if mempool statistics is required.This group
         is defined after deprecating cempMemPoolExtGroup."
-
-    GROUP           cempMemBufferGroup
-    DESCRIPTION
-        "This group is optional for all entities.
-        Support for these objects is mandatory
-        if bufferpool statistics is required."
 
     GROUP           cempMemBufferExtGroup
     DESCRIPTION
@@ -1002,7 +1173,57 @@ cempMIBComplianceRev2 MODULE-COMPLIANCE
         if bufferpool statistics is required."
     ::= { cempMIBCompliances 3 }
 
+cempMIBComplianceRev3 MODULE-COMPLIANCE
+    STATUS          current
+    DESCRIPTION
+        "The compliance statement for entities which
+        implement the Cisco Enhanced MemPool MIB.
+        This compliance module deprecates
+        cempMIBComplianceRev2."
+    MODULE          -- this module
+    MANDATORY-GROUPS {
+                        cempMemPoolGroupRev1,
+                        cempMemBufferGroup
+                    }
+
+    GROUP           cempMemPoolExtGroupRev1
+    DESCRIPTION
+        "This group is optional for all entities.
+        Support for these objects is mandatory
+        if mempool statistics is required.This group
+        is defined after deprecating cempMemPoolExtGroup."
+
+    GROUP           cempMemBufferExtGroup
+    DESCRIPTION
+        "This group is optional for all entities.
+        Support for these objects is mandatory
+        if bufferpool statistics is required."
+
+    GROUP           cempMemBufferNotifyEnableGroup
+    DESCRIPTION
+        "This group is optional for all entities.
+        Support for these objects is mandatory
+        if bufferpool statistics is required."
+
+    GROUP           cempMemBufferNotifyGroup
+    DESCRIPTION
+        "This group is optional for all entities.
+        Support for these objects is mandatory
+        if bufferpool statistics is required"
+
+    GROUP           cempMemPoolHCGroup
+    DESCRIPTION
+        "This group is optional for the entities which do not
+        support memory pools greater than 32bits in size."
+
+    GROUP           cempMemPoolOvrflwGroup
+    DESCRIPTION
+        "This group is optional for the entities which do not
+        support memory pools greater than 32bits in size."
+    ::= { cempMIBCompliances 4 }
+
 -- Units of Conformance
+
 cempMemPoolGroup OBJECT-GROUP
     OBJECTS         {
                         cempMemPoolType,
@@ -1011,7 +1232,7 @@ cempMemPoolGroup OBJECT-GROUP
                         cempMemPoolUsed,
                         cempMemPoolFree
                     }
-    STATUS          current
+    STATUS          deprecated
     DESCRIPTION
         "A collection of objects providing memory pool
         monitoring."
@@ -1027,9 +1248,9 @@ cempMemPoolExtGroup OBJECT-GROUP
     STATUS          deprecated
     DESCRIPTION
         "A collection of objects providing additional memory
-        pool information. This group is deprecated as new 
+        pool information. This group is deprecated as new
         objects cempMemPoolUsedLowWaterMark,
-        cempMemPoolAllocHit, cempMemPoolAllocMiss, 
+        cempMemPoolAllocHit, cempMemPoolAllocMiss,
         cempMemPoolFreeHit, cempMemPool are being added.
         A new group cempMemPoolExtGroupRev1 is being added in
         it's place."
@@ -1111,8 +1332,54 @@ cempMemPoolExtGroupRev1 OBJECT-GROUP
     STATUS          current
     DESCRIPTION
         "A group of objects providing additional memory
-        pool information.This group deprecates 
+        pool information.This group deprecates
         cempMemPoolExtGroup."
     ::= { cempMIBGroups 7 }
+
+cempMemPoolGroupRev1 OBJECT-GROUP
+    OBJECTS         {
+                        cempMemPoolType,
+                        cempMemPoolName,
+                        cempMemPoolValid,
+                        cempMemPoolUsed,
+                        cempMemPoolFree,
+                        cempMemPoolShared
+                    }
+    STATUS          current
+    DESCRIPTION
+        "A collection of objects providing memory pool
+        monitoring. This group deprecates
+        cempMemPoolGroup."
+    ::= { cempMIBGroups 8 }
+
+cempMemPoolHCGroup OBJECT-GROUP
+    OBJECTS         {
+                        cempMemPoolHCUsed,
+                        cempMemPoolHCFree,
+                        cempMemPoolHCLargestFree,
+                        cempMemPoolHCLowestFree,
+                        cempMemPoolHCUsedLowWaterMark,
+                        cempMemPoolHCShared
+                    }
+    STATUS          current
+    DESCRIPTION
+        "A collection of High Capacity(HC) objects providing memory pool
+        monitoring."
+    ::= { cempMIBGroups 9 }
+
+cempMemPoolOvrflwGroup OBJECT-GROUP
+    OBJECTS         {
+                        cempMemPoolUsedOvrflw,
+                        cempMemPoolFreeOvrflw,
+                        cempMemPoolLargestFreeOvrflw,
+                        cempMemPoolLowestFreeOvrflw,
+                        cempMemPoolUsedLowWaterMarkOvrflw,
+                        cempMemPoolSharedOvrflw
+                    }
+    STATUS          current
+    DESCRIPTION
+        "A collection of Overflow (Ovrflw) objects providing memory pool
+        monitoring."
+    ::= { cempMIBGroups 10 }
 
 END
