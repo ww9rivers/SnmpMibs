@@ -7,7 +7,7 @@
 --
 -- Copyright (c) 2003 by cisco Systems, Inc.
 -- All rights reserved.
--- 
+--
 -- *****************************************************************
 
 CISCO-IETF-FRR-CAPABILITY DEFINITIONS ::= BEGIN
@@ -16,8 +16,11 @@ IMPORTS
    MODULE-IDENTITY
       FROM SNMPv2-SMI
 
-   AGENT-CAPABILITIES 
-      FROM SNMPv2-CONF;
+   AGENT-CAPABILITIES
+      FROM SNMPv2-CONF
+
+	ciscoAgentCapability
+		FROM CISCO-SMI;
 
 
 ciscoIetfFrrCapability MODULE-IDENTITY
@@ -68,4 +71,3 @@ INCLUDES    { cmplsFrrNotif,
     ::= { ciscoIetfFrrCapability 1 }
 
 END
-
