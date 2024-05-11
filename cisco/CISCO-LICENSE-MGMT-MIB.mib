@@ -1,12 +1,12 @@
 -- *********************************************************************
 -- CISCO-LICENSE-MGMT-MIB.my: Cisco MIB to manage licenses on
 -- Cisco devices
---   
+--
 -- July 2006, Sunil Gudurvalmiki
---   
--- Copyright (c) 2006-2007 by Cisco Systems Inc.
+--
+-- Copyright (c) 2006, 2008, 2011-2012 by Cisco Systems Inc.
 -- All rights reserved.
---   
+--
 -- ********************************************************************
 
 CISCO-LICENSE-MGMT-MIB DEFINITIONS ::= BEGIN
@@ -24,7 +24,8 @@ IMPORTS
     TEXTUAL-CONVENTION,
     TruthValue,
     RowStatus,
-    StorageType
+    StorageType,
+    DateAndTime
         FROM SNMPv2-TC
     SnmpAdminString
         FROM SNMP-FRAMEWORK-MIB
@@ -39,15 +40,20 @@ IMPORTS
 
 
 ciscoLicenseMgmtMIB MODULE-IDENTITY
-    LAST-UPDATED    "200610030000Z"
+    LAST-UPDATED    "201204190000Z"
     ORGANIZATION    "Cisco Systems Inc."
     CONTACT-INFO
             "Cisco Systems
             Customer Service
+
             Postal: 170 W Tasman Drive
+
             San Jose, CA  95134
+
             USA
+
             Tel: +1 800 553 -NETS
+
             E-mail: cs-snmp@cisco.com"
     DESCRIPTION
         "The MIB module for managing licenses on the system.
@@ -93,6 +99,15 @@ ciscoLicenseMgmtMIB MODULE-IDENTITY
             Agreement) before using an evaluation license. Even
             though they are not node locked, their usage is
             recorded on the device.
+
+        RIGHT TO USE (RTU) LICENSE:
+            Right to use license is a non-node locked metered
+            license which is in evaluation mode for a limited
+            time after which it is converted to Right To Use (RTU)
+            license and is valid for the lifetime of the product.
+            User will have to accept EULA (End User License Agreement)
+            before using this license. Even though it is not node
+            locked, usage information is recorded on the device.
 
         EXTENSION LICENSE:
             Extension licenses are node locked metered licenses.
@@ -291,6 +306,62 @@ ciscoLicenseMgmtMIB MODULE-IDENTITY
         entPhysicalIndex imported from ENTITY-MIB is used to
         identify the device uniquely. It is specified as the index
         or one of the index for tables in this MIB as needed."
+    REVISION        "201204190000Z"
+    DESCRIPTION
+        "This version of the MIB adds support for Permanent Right to use (RTU)
+        licensing. The revisions are:
+        o Updated clmgmtLicenseType object to support the following new
+          types of license:
+          permanentRightToUse
+
+        The new module compliance is ciscoLicenseMgmtComplianceRev1."
+
+    REVISION        "201104190000Z"
+    DESCRIPTION
+        "This version of the MIB adds support for Right to use (RTU)
+        licensing. The revisions are:
+        o Added RTU license definition to MIB description above.
+        o Updated clmgmtLicenseType object to support the following new
+          types of license:
+          evalRightToUse
+          rightToUse
+        o Added following objects to clmgmtLicenseInfoTable
+          clmgmtLicensePeriodUsed
+        o Added following objects to clmgmtLicensableFeatureTable
+          clmgmtFeaturePeriodUsed
+        o Added the following notifications
+          clmgmtLicenseEvalRTUTransitionWarning
+          clmgmtLicenseEvalRTUTransition
+        o Added the following conformance groups
+          clmgmtLicenseRTUGroup
+          clmgmtLicenseRTUUsageNotifGroup
+
+        The new module compliance is ciscoLicenseMgmtComplianceRev1."
+    REVISION        "200811210000Z"
+    DESCRIPTION
+        "This version of the MIB adds support for subscription
+        licensing. Subscription licenses provide software
+        enforcement for a licensed feature for a fixed calendar
+        period. The revisions are:
+        o Updated clmgmtLicenseType object to support the following three
+          new types of licenses:
+                paidSubscription
+                evaluationSubscription
+                extensionSubscription
+        o Added following objects to clmgmtLicenseInfoTable
+                clmgmtLicenseStartDate
+                clmgmtLicenseEndDate
+        o Added following objects to clmgmtLicensableFeatureTable
+                clmgmtFeatureStartDate
+                clmgmtFeatureEndDate
+        o Added the following notifications
+                clmgmtLicenseSubscriptionExpiryWarning
+                clmgmtLicenseSubscriptionExtExpiryWarning
+                clmgmtLicenseSubscriptionExpired
+        o Added the following conformance groups
+                clmgmtLicenseSubscriptionGroup
+                clmgmtLicenseSubscriptionUsageNotifGroup
+        The new module compliance is ciscoLicenseMgmtComplianceRev1."
     REVISION        "200610030000Z"
     DESCRIPTION
         "Initial version of this MIB module."
@@ -327,7 +398,7 @@ ClmgmtLicenseIndex ::= TEXTUAL-CONVENTION
         The value for each license must remain constant
         at least from one re-initialization of the entity's
         network management system to the next re-initialization"
-    SYNTAX          Unsigned32 (1..4294967295 )
+    SYNTAX          Unsigned32 (1..4294967295)
 
 ClmgmtLicenseIndexOrZero ::= TEXTUAL-CONVENTION
     STATUS          current
@@ -488,7 +559,7 @@ ClmgmtLicenseActionFailCause ::= TEXTUAL-CONVENTION
                     }
 
 clmgmtNextFreeLicenseActionIndex OBJECT-TYPE
-    SYNTAX          Unsigned32 (1..4294967295 )
+    SYNTAX          Unsigned32 (1..4294967295)
     MAX-ACCESS      read-only
     STATUS          current
     DESCRIPTION
@@ -505,12 +576,12 @@ clmgmtNextFreeLicenseActionIndex OBJECT-TYPE
         with this value at the same time. In this case, the
         management application whose request is processed after the first
         request will get an error and the process of reading this object
-        and entry creation needs to be repeated." 
+        and entry creation needs to be repeated."
     ::= { clmgmtLicenseConfiguration 1 }
 -- Table for executing license management actions.
 
 clmgmtLicenseActionTable OBJECT-TYPE
-    SYNTAX          SEQUENCE OF ClmgmtLicenseActionEntry 
+    SYNTAX          SEQUENCE OF ClmgmtLicenseActionEntry
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
@@ -681,7 +752,7 @@ clmgmtLicenseActionEntry OBJECT-TYPE
         Entry can be deleted except when clmgmtLicenseAction is set
         to pending(2). All entries are volatile and are cleared
         on agent reset."
-    INDEX           { clmgmtLicenseActionIndex } 
+    INDEX           { clmgmtLicenseActionIndex }
     ::= { clmgmtLicenseActionTable 1 }
 
 ClmgmtLicenseActionEntry ::= SEQUENCE {
@@ -699,7 +770,7 @@ ClmgmtLicenseActionEntry ::= SEQUENCE {
         clmgmtLicenseRehostTicketFile       SnmpAdminString,
         clmgmtLicenseBackupFile             SnmpAdminString,
         clmgmtLicenseStopOnFailure          TruthValue,
-        clmgmtLicenseAction                 INTEGER ,
+        clmgmtLicenseAction                 INTEGER,
         clmgmtLicenseActionState            ClmgmtLicenseActionState,
         clmgmtLicenseJobQPosition           Unsigned32,
         clmgmtLicenseActionFailCause        ClmgmtLicenseActionFailCause,
@@ -710,7 +781,7 @@ ClmgmtLicenseActionEntry ::= SEQUENCE {
 }
 
 clmgmtLicenseActionIndex OBJECT-TYPE
-    SYNTAX          Unsigned32 (1..4294967295 )
+    SYNTAX          Unsigned32 (1..4294967295)
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
@@ -721,7 +792,7 @@ clmgmtLicenseActionIndex OBJECT-TYPE
         exists with this index, the creation of the entry will not
         continue and error will be returned. The management application
         should read the value of clmgmtNextFreeLicenseActionIndex
-        again and retry with the new value for this object." 
+        again and retry with the new value for this object."
     ::= { clmgmtLicenseActionEntry 1 }
 
 clmgmtLicenseActionEntPhysicalIndex OBJECT-TYPE
@@ -739,7 +810,7 @@ clmgmtLicenseActionEntPhysicalIndex OBJECT-TYPE
         object is not set, the license action will be executed on
         the master device. Note: This object need not be set if
         there is a stand alone device"
-    DEFVAL          { 0 } 
+    DEFVAL          { 0 }
     ::= { clmgmtLicenseActionEntry 2 }
 
 clmgmtLicenseActionTransferProtocol OBJECT-TYPE
@@ -756,7 +827,7 @@ clmgmtLicenseActionTransferProtocol OBJECT-TYPE
 
         Note: This object need not be set if the all the files
         required for the action are in device's local file system."
-    DEFVAL          { none } 
+    DEFVAL          { none }
     ::= { clmgmtLicenseActionEntry 3 }
 
 clmgmtLicenseServerAddressType OBJECT-TYPE
@@ -768,7 +839,7 @@ clmgmtLicenseServerAddressType OBJECT-TYPE
         address contained in clmgmtLicenseServerAddress object.
         This must be set when clmgmtLicenseActionTransferProtocol
         is not none(1) or local(2)."
-    DEFVAL          { unknown } 
+    DEFVAL          { unknown }
     ::= { clmgmtLicenseActionEntry 4 }
 
 clmgmtLicenseServerAddress OBJECT-TYPE
@@ -786,7 +857,7 @@ clmgmtLicenseServerAddress OBJECT-TYPE
 
         The format of this address depends on the value of the
         clmgmtLicenseServerAddressType object"
-    DEFVAL          { "" } 
+    DEFVAL          { "" }
     ::= { clmgmtLicenseActionEntry 5 }
 
 clmgmtLicenseServerUsername OBJECT-TYPE
@@ -801,7 +872,7 @@ clmgmtLicenseServerUsername OBJECT-TYPE
         clmgmtLicenseActionTransferProtocol is rcp(5), the remote
         username is sent as the server username in an rcp command
         request sent by the system to a remote rcp server."
-    DEFVAL          { "" } 
+    DEFVAL          { "" }
     ::= { clmgmtLicenseActionEntry 6 }
 
 clmgmtLicenseServerPassword OBJECT-TYPE
@@ -815,7 +886,7 @@ clmgmtLicenseServerPassword OBJECT-TYPE
         clmgmtLicenseActionTransferProtocol is ftp(4) or scp(7)
         or sftp(8). Reading it returns a zero-length string for
         security reasons."
-    DEFVAL          { "" } 
+    DEFVAL          { "" }
     ::= { clmgmtLicenseActionEntry 7 }
 
 clmgmtLicenseFile OBJECT-TYPE
@@ -829,7 +900,7 @@ clmgmtLicenseFile OBJECT-TYPE
         with setting the value of the clmgmtLicenseAction object to
         install(2). For other operations, the value of this
         object is not considered, it is irrelevant."
-    DEFVAL          { "" } 
+    DEFVAL          { "" }
     ::= { clmgmtLicenseActionEntry 8 }
 
 clmgmtLicenseStore OBJECT-TYPE
@@ -843,7 +914,7 @@ clmgmtLicenseStore OBJECT-TYPE
         one license stores. If this object is not set, the license
         will be stored in the default license store as exposed by
         clmgmtDefaultLicenseStore object."
-    DEFVAL          { 0 } 
+    DEFVAL          { 0 }
     ::= { clmgmtLicenseActionEntry 9 }
 
 clmgmtLicenseActionLicenseIndex OBJECT-TYPE
@@ -859,7 +930,7 @@ clmgmtLicenseActionLicenseIndex OBJECT-TYPE
         object is same as the clmgmtLicenseIndex object in
         clmgmtLicenseInfoEntry for license that is subject of this
         action."
-    DEFVAL          { 0 } 
+    DEFVAL          { 0 }
     ::= { clmgmtLicenseActionEntry 10 }
 
 clmgmtLicensePermissionTicketFile OBJECT-TYPE
@@ -874,7 +945,7 @@ clmgmtLicensePermissionTicketFile OBJECT-TYPE
         ticket is obtained from Cisco licensing portal to revoke
         a license. The management application must set this object
         to valid value before invoking the action."
-    DEFVAL          { "" } 
+    DEFVAL          { "" }
     ::= { clmgmtLicenseActionEntry 11 }
 
 clmgmtLicenseRehostTicketFile OBJECT-TYPE
@@ -890,7 +961,7 @@ clmgmtLicenseRehostTicketFile OBJECT-TYPE
         contents to this file. This object need to be set only
         if clmgmtLicenseAction is set to processPermissionTicket(4)
         or regenerateLastRehostTicket(5) actions."
-    DEFVAL          { "" } 
+    DEFVAL          { "" }
     ::= { clmgmtLicenseActionEntry 12 }
 
 clmgmtLicenseBackupFile OBJECT-TYPE
@@ -903,7 +974,7 @@ clmgmtLicenseBackupFile OBJECT-TYPE
         only if clmgmtLicenseAction is set to backup(6) and the
         management application must set the value of this  object
         to valid value before invoking action."
-    DEFVAL          { "" } 
+    DEFVAL          { "" }
     ::= { clmgmtLicenseActionEntry 13 }
 
 clmgmtLicenseStopOnFailure OBJECT-TYPE
@@ -915,7 +986,7 @@ clmgmtLicenseStopOnFailure OBJECT-TYPE
         stop if the action on a license fails. This object is
         applicable only if there are more than one licenses
         involved in an action."
-    DEFVAL          { false } 
+    DEFVAL          { false }
     ::= { clmgmtLicenseActionEntry 14 }
 
 clmgmtLicenseAction OBJECT-TYPE
@@ -958,7 +1029,7 @@ clmgmtLicenseAction OBJECT-TYPE
                                        in the license file need EULA
                                        acceptance and uploads the
                                        needed EULA contents to a file."
-    DEFVAL          { noOp } 
+    DEFVAL          { noOp }
     ::= { clmgmtLicenseActionEntry 15 }
 
 clmgmtLicenseActionState OBJECT-TYPE
@@ -966,7 +1037,7 @@ clmgmtLicenseActionState OBJECT-TYPE
     MAX-ACCESS      read-only
     STATUS          current
     DESCRIPTION
-        "This object indicates the state of this license action." 
+        "This object indicates the state of this license action."
     ::= { clmgmtLicenseActionEntry 16 }
 
 clmgmtLicenseJobQPosition OBJECT-TYPE
@@ -985,7 +1056,7 @@ clmgmtLicenseJobQPosition OBJECT-TYPE
         pending(2) state, management application can choose to
         defer its license back up action to a later time. This
         object will return a value of 0 if the action is not in
-        pending(2) state." 
+        pending(2) state."
     ::= { clmgmtLicenseActionEntry 17 }
 
 clmgmtLicenseActionFailCause OBJECT-TYPE
@@ -995,7 +1066,7 @@ clmgmtLicenseActionFailCause OBJECT-TYPE
     DESCRIPTION
         "This object indicates the reason for this license action
         failure. The value of this object is valid only when
-        clmgmtLicenseActionState is failed(6)." 
+        clmgmtLicenseActionState is failed(6)."
     ::= { clmgmtLicenseActionEntry 18 }
 
 clmgmtLicenseActionStorageType OBJECT-TYPE
@@ -1006,7 +1077,7 @@ clmgmtLicenseActionStorageType OBJECT-TYPE
         "This object indicates the storage type for this conceptual
         row. Conceptual rows having the value 'permanent' need not
         allow write-access to any columnar objects in the row."
-    DEFVAL          { volatile } 
+    DEFVAL          { volatile }
     ::= { clmgmtLicenseActionEntry 19 }
 
 clmgmtLicenseActionRowStatus OBJECT-TYPE
@@ -1025,7 +1096,7 @@ clmgmtLicenseActionRowStatus OBJECT-TYPE
         the result. In order to prevent old entries from
         clogging the table, entries will be aged out, but an
         entry will never be deleted within 5 minutes of
-        completion" 
+        completion"
     ::= { clmgmtLicenseActionEntry 20 }
 
 clmgmtLicenseAcceptEULA OBJECT-TYPE
@@ -1041,7 +1112,7 @@ clmgmtLicenseAcceptEULA OBJECT-TYPE
 
         Management application should set this object to true(1) when
         installing licenses that need EULA acceptance."
-    DEFVAL          { false } 
+    DEFVAL          { false }
     ::= { clmgmtLicenseActionEntry 21 }
 
 clmgmtLicenseEULAFile OBJECT-TYPE
@@ -1054,14 +1125,14 @@ clmgmtLicenseEULAFile OBJECT-TYPE
         be set only if clmgmtLicenseAction is set to generateEULA(7) and
         the management application must set the value of this object to
         valid value before invoking action."
-    DEFVAL          { "" } 
+    DEFVAL          { "" }
     ::= { clmgmtLicenseActionEntry 22 }
- 
+
 
 -- License action results table.
 
 clmgmtLicenseActionResultTable OBJECT-TYPE
-    SYNTAX          SEQUENCE OF ClmgmtLicenseActionResultEntry 
+    SYNTAX          SEQUENCE OF ClmgmtLicenseActionResultEntry
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
@@ -1089,7 +1160,7 @@ clmgmtLicenseActionResultEntry OBJECT-TYPE
     INDEX           {
                         clmgmtLicenseActionIndex,
                         clmgmtLicenseNumber
-                    } 
+                    }
     ::= { clmgmtLicenseActionResultTable 1 }
 
 ClmgmtLicenseActionResultEntry ::= SEQUENCE {
@@ -1099,7 +1170,7 @@ ClmgmtLicenseActionResultEntry ::= SEQUENCE {
 }
 
 clmgmtLicenseNumber OBJECT-TYPE
-    SYNTAX          Unsigned32 (1..4294967295 )
+    SYNTAX          Unsigned32 (1..4294967295)
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
@@ -1108,7 +1179,7 @@ clmgmtLicenseNumber OBJECT-TYPE
         For example, if there are 3 licenses in a license file
         when executing license install action, this object will
         have values 1, 2 and 3 respectively as ordered in the
-        license file." 
+        license file."
     ::= { clmgmtLicenseActionResultEntry 1 }
 
 clmgmtLicenseIndivActionState OBJECT-TYPE
@@ -1117,7 +1188,7 @@ clmgmtLicenseIndivActionState OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "This object indicates the state of action on this
-        individual license." 
+        individual license."
     ::= { clmgmtLicenseActionResultEntry 2 }
 
 clmgmtLicenseIndivActionFailCause OBJECT-TYPE
@@ -1126,14 +1197,14 @@ clmgmtLicenseIndivActionFailCause OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "This object indicates the reason for action failure on this
-        individual license" 
+        individual license"
     ::= { clmgmtLicenseActionResultEntry 3 }
- 
+
 
 -- License Store Info Table
 
 clmgmtLicenseStoreInfoTable OBJECT-TYPE
-    SYNTAX          SEQUENCE OF ClmgmtLicenseStoreInfoEntry 
+    SYNTAX          SEQUENCE OF ClmgmtLicenseStoreInfoEntry
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
@@ -1152,7 +1223,7 @@ clmgmtLicenseStoreInfoEntry OBJECT-TYPE
     INDEX           {
                         entPhysicalIndex,
                         clmgmtLicenseStoreIndex
-                    } 
+                    }
     ::= { clmgmtLicenseStoreInfoTable 1 }
 
 ClmgmtLicenseStoreInfoEntry ::= SEQUENCE {
@@ -1163,12 +1234,12 @@ ClmgmtLicenseStoreInfoEntry ::= SEQUENCE {
 }
 
 clmgmtLicenseStoreIndex OBJECT-TYPE
-    SYNTAX          Unsigned32 (1..4294967295 )
+    SYNTAX          Unsigned32 (1..4294967295)
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
         "This object uniquely identifies a license store within
-        the device." 
+        the device."
     ::= { clmgmtLicenseStoreInfoEntry 1 }
 
 clmgmtLicenseStoreName OBJECT-TYPE
@@ -1181,7 +1252,7 @@ clmgmtLicenseStoreName OBJECT-TYPE
         system i.e., either on a local disk or flash or some
         other storage media. For example, the value of this
         object can be 'disk1:lic_store_1.txt' or
-        'flash:lic_store_2.txt" 
+        'flash:lic_store_2.txt"
     ::= { clmgmtLicenseStoreInfoEntry 2 }
 
 clmgmtLicenseStoreTotalSize OBJECT-TYPE
@@ -1191,7 +1262,7 @@ clmgmtLicenseStoreTotalSize OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "This object indicates the total number of bytes that are
-        allocated to the license store." 
+        allocated to the license store."
     ::= { clmgmtLicenseStoreInfoEntry 3 }
 
 clmgmtLicenseStoreSizeRemaining OBJECT-TYPE
@@ -1202,14 +1273,14 @@ clmgmtLicenseStoreSizeRemaining OBJECT-TYPE
     DESCRIPTION
         "This object indicates the number of bytes still remaining
         to be used for new license installations in the license
-        store." 
+        store."
     ::= { clmgmtLicenseStoreInfoEntry 4 }
- 
+
 
 -- License Device Info Table
 
 clmgmtLicenseDeviceInfoTable OBJECT-TYPE
-    SYNTAX          SEQUENCE OF ClmgmtLicenseDeviceInfoEntry 
+    SYNTAX          SEQUENCE OF ClmgmtLicenseDeviceInfoEntry
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
@@ -1229,7 +1300,7 @@ clmgmtLicenseDeviceInfoEntry OBJECT-TYPE
     DESCRIPTION
         "An entry in clmgmtLicenseDeviceInfoTable. Each entry
         contains device level licensing information for a device."
-    INDEX           { entPhysicalIndex } 
+    INDEX           { entPhysicalIndex }
     ::= { clmgmtLicenseDeviceInfoTable 1 }
 
 ClmgmtLicenseDeviceInfoEntry ::= SEQUENCE {
@@ -1237,7 +1308,7 @@ ClmgmtLicenseDeviceInfoEntry ::= SEQUENCE {
 }
 
 clmgmtDefaultLicenseStore OBJECT-TYPE
-    SYNTAX          Unsigned32 (1..4294967295 )
+    SYNTAX          Unsigned32 (1..4294967295)
     MAX-ACCESS      read-only
     STATUS          current
     DESCRIPTION
@@ -1245,14 +1316,14 @@ clmgmtDefaultLicenseStore OBJECT-TYPE
         default store in the device. There will be only one
         default license store per device. If no license store
         is specified during license install, this default license
-        store will be used." 
+        store will be used."
     ::= { clmgmtLicenseDeviceInfoEntry 1 }
- 
+
 
 -- License Info Table
 
 clmgmtLicenseInfoTable OBJECT-TYPE
-    SYNTAX          SEQUENCE OF ClmgmtLicenseInfoEntry 
+    SYNTAX          SEQUENCE OF ClmgmtLicenseInfoEntry
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
@@ -1277,7 +1348,7 @@ clmgmtLicenseInfoEntry OBJECT-TYPE
                         entPhysicalIndex,
                         clmgmtLicenseStoreUsed,
                         clmgmtLicenseIndex
-                    } 
+                    }
     ::= { clmgmtLicenseInfoTable 1 }
 
 ClmgmtLicenseInfoEntry ::= SEQUENCE {
@@ -1285,7 +1356,7 @@ ClmgmtLicenseInfoEntry ::= SEQUENCE {
         clmgmtLicenseIndex                   ClmgmtLicenseIndex,
         clmgmtLicenseFeatureName             SnmpAdminString,
         clmgmtLicenseFeatureVersion          SnmpAdminString,
-        clmgmtLicenseType                    INTEGER ,
+        clmgmtLicenseType                    INTEGER,
         clmgmtLicenseCounted                 TruthValue,
         clmgmtLicenseValidityPeriod          Unsigned32,
         clmgmtLicenseValidityPeriodRemaining Unsigned32,
@@ -1294,18 +1365,21 @@ ClmgmtLicenseInfoEntry ::= SEQUENCE {
         clmgmtLicenseUsageCountRemaining     Unsigned32,
         clmgmtLicenseEULAStatus              TruthValue,
         clmgmtLicenseComments                SnmpAdminString,
-        clmgmtLicenseStatus                  INTEGER 
+        clmgmtLicenseStatus                  INTEGER,
+        clmgmtLicenseStartDate               DateAndTime,
+        clmgmtLicenseEndDate                 DateAndTime,
+        clmgmtLicensePeriodUsed              Unsigned32
 }
 
 clmgmtLicenseStoreUsed OBJECT-TYPE
-    SYNTAX          Unsigned32 (1..4294967295 )
+    SYNTAX          Unsigned32 (1..4294967295)
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
         "This object represents the license store that is used for
         storing this license. This object will have the same value
         as clmgmtLicenseStoreIndex in clmgmtLicenseStoreInfoEntry
-        of the license store used." 
+        of the license store used."
     ::= { clmgmtLicenseInfoEntry 1 }
 
 clmgmtLicenseIndex OBJECT-TYPE
@@ -1314,7 +1388,7 @@ clmgmtLicenseIndex OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "This object uniquely identifies a license within
-        the device." 
+        the device."
     ::= { clmgmtLicenseInfoEntry 2 }
 
 clmgmtLicenseFeatureName OBJECT-TYPE
@@ -1325,7 +1399,7 @@ clmgmtLicenseFeatureName OBJECT-TYPE
         "This object indicates the name of the feature that is
         using or can use this license. A license can be used by
         only one feature. Examples of feature name are: 'IPBASE',
-        'ADVIPSERVICE'." 
+        'ADVIPSERVICE'."
     ::= { clmgmtLicenseInfoEntry 3 }
 
 clmgmtLicenseFeatureVersion OBJECT-TYPE
@@ -1335,7 +1409,7 @@ clmgmtLicenseFeatureVersion OBJECT-TYPE
     DESCRIPTION
         "This object indicates the version of the feature that is
         using or can use this license. Examples of feature version
-        are: '1.0', '2.0'" 
+        are: '1.0', '2.0'"
     ::= { clmgmtLicenseInfoEntry 4 }
 
 clmgmtLicenseType OBJECT-TYPE
@@ -1343,18 +1417,55 @@ clmgmtLicenseType OBJECT-TYPE
                         demo(1),
                         extension(2),
                         gracePeriod(3),
-                        permanent(4)
+                        permanent(4),
+                        paidSubscription(5),
+                        evaluationSubscription(6),
+                        extensionSubscription(7),
+                        evalRightToUse(8),
+                        rightToUse(9),
+                        permanentRightToUse(10)
                     }
     MAX-ACCESS      read-only
     STATUS          current
     DESCRIPTION
-        "This object identifies type of license.
+        "This object identifies type of license. Licenses may have
+        validity period defined in terms of time duration that the
+        license is valid for or it may be defined in terms of actual
+        calendar dates. Subscription licenses are licenses that have
+        validity period defined in terms of calendar dates.
 
-        demo(1)        - demo(evaluation license) license.
-        extension(2)   - Extension(expiring) license.
-        gracePeriod(3) - Grace period license.
-        permanent(4)   - permanent license, the license has no
-                         expiry date." 
+        demo(1)               - demo(evaluation license) license.
+        extension(2)          - Extension(expiring) license.
+        gracePeriod(3)        - Grace period license.
+        permanent(4)          - permanent license, the license has no
+                                expiry date.
+        paidSubscription(5)   - Paid subscription licenses are the
+        licenses
+                                which are purchased by customers. These
+                                licenses have a start date  and end date
+                                associated with them.
+        evaluationSubscription(6)-Evaluation subscription licenses are
+                                  the trial licenses. These licenses
+                                  are node locked and it can be obtained
+                                  only once for an UDI. They are valid
+                                  based on calendar days. These licenses
+                                  have a start date and an end date
+                                  associated with them and are issued
+                                  once per UDI.
+        extensionSubscription(7)- Extension subscription licenses are
+                                  similar to evaluation subscription
+                                  licenses but these licenses are issued
+                                  based on customer request. There are
+                                  no restrictions on the number of
+                                  licenses available for a UDI.
+        evalRightToUse(8)       - Evaluation Right to use (RTU)
+        license.
+        rightToUse(9)           - Right to use (RTU) license.
+        permanentRightToUse(10) ? Right To Use license right after it is configured
+                                  and is valid for the lifetime of the product.
+                                  This is a Right To Use license which is not in
+                                  evaluation mode for a limited time."
+
     ::= { clmgmtLicenseInfoEntry 5 }
 
 clmgmtLicenseCounted OBJECT-TYPE
@@ -1365,7 +1476,7 @@ clmgmtLicenseCounted OBJECT-TYPE
         "This object indicates whether the license is counted
         license.
         true(1)  - counted license
-        false(2) - uncounted license" 
+        false(2) - uncounted license"
     ::= { clmgmtLicenseInfoEntry 6 }
 
 clmgmtLicenseValidityPeriod OBJECT-TYPE
@@ -1376,8 +1487,8 @@ clmgmtLicenseValidityPeriod OBJECT-TYPE
     DESCRIPTION
         "This object indicates the time period the license is valid for.
         This object is applicable only if clmgmtLicenseType is demo(1),
-        or extension(2) or gracePeriod(3). The object will return 0 for
-        other license types." 
+        or extension(2) or gracePeriod(3) or evalRightToUse(8). The
+        object will return 0 for other license types."
     ::= { clmgmtLicenseInfoEntry 7 }
 
 clmgmtLicenseValidityPeriodRemaining OBJECT-TYPE
@@ -1386,11 +1497,11 @@ clmgmtLicenseValidityPeriodRemaining OBJECT-TYPE
     MAX-ACCESS      read-only
     STATUS          current
     DESCRIPTION
-        "This object indicates the time period remaining before
-        the license expires. This object is applicable only if
-        clmgmtLicenseType is demo(1), or extension(2) or
-        gracePeriod(3). The object will contain 0 for other license
-        types." 
+        "This object indicates the time period remaining before the
+        license expires or transitions to rightToUse(9) license. This
+        object is applicable only if clmgmtLicenseType is demo(1), or
+        extension(2) or gracePeriod(3) or evalRightToUse(8). The object
+        will contain 0 for other license types."
     ::= { clmgmtLicenseInfoEntry 8 }
 
 clmgmtLicenseExpiredPeriod OBJECT-TYPE
@@ -1404,7 +1515,7 @@ clmgmtLicenseExpiredPeriod OBJECT-TYPE
         is demo(1), or extension(2) or gracePeriod(3). Also, this
         value of this object will be valid only after the license
         expires. The object will return 0 for other license types
-        or before the license expiry." 
+        or before the license expiry."
     ::= { clmgmtLicenseInfoEntry 9 }
 
 clmgmtLicenseMaxUsageCount OBJECT-TYPE
@@ -1416,7 +1527,7 @@ clmgmtLicenseMaxUsageCount OBJECT-TYPE
         can use this license. This object is applicable only if
         clmgmtLicenseCounted is true(1). The entity that is being
         counted can be anything and it depends on the licensable
-        feature." 
+        feature."
     ::= { clmgmtLicenseInfoEntry 10 }
 
 clmgmtLicenseUsageCountRemaining OBJECT-TYPE
@@ -1426,7 +1537,7 @@ clmgmtLicenseUsageCountRemaining OBJECT-TYPE
     DESCRIPTION
         "This object indicates the number of entities that can
         still use this license. This object is applicable only
-        if clmgmtLicenseCounted is true(1)." 
+        if clmgmtLicenseCounted is true(1)."
     ::= { clmgmtLicenseInfoEntry 11 }
 
 clmgmtLicenseEULAStatus OBJECT-TYPE
@@ -1438,7 +1549,7 @@ clmgmtLicenseEULAStatus OBJECT-TYPE
         End User License Agreement for this license.
 
         true(1)  - EULA accpeted
-        false(2) - EULA not accepted" 
+        false(2) - EULA not accepted"
     ::= { clmgmtLicenseInfoEntry 12 }
 
 clmgmtLicenseComments OBJECT-TYPE
@@ -1448,7 +1559,7 @@ clmgmtLicenseComments OBJECT-TYPE
     DESCRIPTION
         "This object represents the user modifiable comments
         about the license. This object is initially populated
-        with comments from the license file." 
+        with comments from the license file."
     ::= { clmgmtLicenseInfoEntry 13 }
 
 clmgmtLicenseStatus OBJECT-TYPE
@@ -1478,14 +1589,52 @@ clmgmtLicenseStatus OBJECT-TYPE
         usageCountConsumed(6) - number of entities using this
                                 licenses has reached the allowed
                                 limit, no new entities are allowed
-                                to use this license." 
+                                to use this license."
     ::= { clmgmtLicenseInfoEntry 14 }
- 
+
+clmgmtLicenseStartDate OBJECT-TYPE
+    SYNTAX          DateAndTime
+    MAX-ACCESS      read-only
+    STATUS          current
+    DESCRIPTION
+        "This object indicates the start date for a subscription
+        license. It is optional for subscription linceses to have a
+        start date associated with them, they may only have an end
+        date associated with them. This object may be applicable only
+        when clmgmtLicenseType is paidSubscription(5),
+        evaluationSubscription(6) or extensionSubscription (7).
+        The object will contain an octet string of length 0 when it is
+        not applicable."
+    ::= { clmgmtLicenseInfoEntry 15 }
+
+clmgmtLicenseEndDate OBJECT-TYPE
+    SYNTAX          DateAndTime
+    MAX-ACCESS      read-only
+    STATUS          current
+    DESCRIPTION
+        "This object indicates the end date for a subscription license.
+        This object is applicable only when clmgmtLicenseType is
+        paidSubscription(5), evaluationSubscription(6) or
+        extensionSubscription (7). The object will contain an octet
+        string of length 0 when it is not applicable."
+    ::= { clmgmtLicenseInfoEntry 16 }
+
+clmgmtLicensePeriodUsed OBJECT-TYPE
+    SYNTAX          Unsigned32
+    UNITS           "seconds"
+    MAX-ACCESS      read-only
+    STATUS          current
+    DESCRIPTION
+        "This object indicates the time period used for the
+        Right to use (RTU) licenses. This object is applicable for all
+        RTU licenses."
+    ::= { clmgmtLicenseInfoEntry 17 }
+
 
 -- Licensable features information table.
 
 clmgmtLicensableFeatureTable OBJECT-TYPE
-    SYNTAX          SEQUENCE OF ClmgmtLicensableFeatureEntry 
+    SYNTAX          SEQUENCE OF ClmgmtLicensableFeatureEntry
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
@@ -1509,7 +1658,7 @@ clmgmtLicensableFeatureEntry OBJECT-TYPE
     INDEX           {
                         entPhysicalIndex,
                         clmgmtFeatureIndex
-                    } 
+                    }
     ::= { clmgmtLicensableFeatureTable 1 }
 
 ClmgmtLicensableFeatureEntry ::= SEQUENCE {
@@ -1517,16 +1666,19 @@ ClmgmtLicensableFeatureEntry ::= SEQUENCE {
         clmgmtFeatureName                    SnmpAdminString,
         clmgmtFeatureVersion                 SnmpAdminString,
         clmgmtFeatureValidityPeriodRemaining Unsigned32,
-        clmgmtFeatureWhatIsCounted           SnmpAdminString
+        clmgmtFeatureWhatIsCounted           SnmpAdminString,
+        clmgmtFeatureStartDate               DateAndTime,
+        clmgmtFeatureEndDate                 DateAndTime,
+        clmgmtFeaturePeriodUsed              Unsigned32
 }
 
 clmgmtFeatureIndex OBJECT-TYPE
-    SYNTAX          Unsigned32 (1..4294967295 )
+    SYNTAX          Unsigned32 (1..4294967295)
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
         "This object uniquely identifies a licensable feature in
-        the device." 
+        the device."
     ::= { clmgmtLicensableFeatureEntry 1 }
 
 clmgmtFeatureName OBJECT-TYPE
@@ -1536,7 +1688,7 @@ clmgmtFeatureName OBJECT-TYPE
     DESCRIPTION
         "This object indicates the name of the licensable feature
         in the device. Examples of feature names are: 'IPBASE',
-        'ADVIPSERVICE'" 
+        'ADVIPSERVICE'"
     ::= { clmgmtLicensableFeatureEntry 2 }
 
 clmgmtFeatureVersion OBJECT-TYPE
@@ -1546,7 +1698,7 @@ clmgmtFeatureVersion OBJECT-TYPE
     DESCRIPTION
         "This object indicates the version of the licensable
         feature in the device. Examples of feature versions
-        are: '1.0' or '2.0'" 
+        are: '1.0' or '2.0'"
     ::= { clmgmtLicensableFeatureEntry 3 }
 
 clmgmtFeatureValidityPeriodRemaining OBJECT-TYPE
@@ -1556,15 +1708,16 @@ clmgmtFeatureValidityPeriodRemaining OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "This object indicates the time period remaining before
-        the feature's license expires. This object is applicable
-        only if clmgmtLicenseType of the license used by this
-        feature is demo(1), or extension(2) or gracePeriod(3).
+        the feature's license expires or transitions. This object is
+        applicable only if clmgmtLicenseType of the license used by
+        this feature is demo(1), or extension(2) or gracePeriod(3) or
+        evalRightToUse(8).
 
         The object will contain 0 if other types of license is used
         or if the feature does not use any license. If the
         feature is using multiple licenses, this period will
         represent the cumulative period remaining from all the
-        licenses used by this feature." 
+        licenses used by this feature."
     ::= { clmgmtLicensableFeatureEntry 4 }
 
 clmgmtFeatureWhatIsCounted OBJECT-TYPE
@@ -1576,9 +1729,46 @@ clmgmtFeatureWhatIsCounted OBJECT-TYPE
         by this feature. Examples of entities are IP Phones, number
         of sessions etc. This object is only applicable for
         features that use counting licenses. For other features,
-        this object will return empty string." 
+        this object will return empty string."
     ::= { clmgmtLicensableFeatureEntry 5 }
- 
+
+clmgmtFeatureStartDate OBJECT-TYPE
+    SYNTAX          DateAndTime
+    MAX-ACCESS      read-only
+    STATUS          current
+    DESCRIPTION
+        "This object indicates the license start date of the feature.
+        This object is applicable if at least one of the licenses used
+        for this feature has a valid start date. The start date will
+        be the earliest of the valid start dates of all the licenses
+        used for this feature. If none of the licenses used for this
+        feature have a valid start date then this object will contain an
+        octet string of length 0."
+    ::= { clmgmtLicensableFeatureEntry 6 }
+
+clmgmtFeatureEndDate OBJECT-TYPE
+    SYNTAX          DateAndTime
+    MAX-ACCESS      read-only
+    STATUS          current
+    DESCRIPTION
+        "This object indicates the license end date of the feature.
+        This object is applicable if at least one of the licenses used
+        for this feature has a valid end date. The end date will
+        be the latest of the valid end dates of all the licenses
+        used for this feature. If none of the licenses used for this
+        feature have a valid end date then this object will contain an
+        octet string of length 0."
+    ::= { clmgmtLicensableFeatureEntry 7 }
+
+clmgmtFeaturePeriodUsed OBJECT-TYPE
+    SYNTAX          Unsigned32
+    UNITS           "seconds"
+    MAX-ACCESS      read-only
+    STATUS          current
+    DESCRIPTION
+        "This object indicates the license period used for the feature."
+    ::= { clmgmtLicensableFeatureEntry 8 }
+
 
 
 -- MIB objects for exporting device credentials
@@ -1602,12 +1792,12 @@ clmgmtNextFreeDevCredExportActionIndex OBJECT-TYPE
         In this case, the management application whose request is
         processed after the first request will get an error and the
         process of reading this object and entry creation needs to be
-        repeated." 
+        repeated."
     ::= { clmgmtLicenseDeviceInformation 1 }
 -- Table for triggering action to export device credentials.
 
 clmgmtDevCredExportActionTable OBJECT-TYPE
-    SYNTAX          SEQUENCE OF ClmgmtDevCredExportActionEntry 
+    SYNTAX          SEQUENCE OF ClmgmtDevCredExportActionEntry
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
@@ -1664,7 +1854,7 @@ clmgmtDevCredExportActionEntry OBJECT-TYPE
         Entry can be deleted except when clmgmtLicenseAction is set
         to inProgress(3). All entries in this table are volatile
         and are cleared on agent reset."
-    INDEX           { clmgmtDevCredExportActionIndex } 
+    INDEX           { clmgmtDevCredExportActionIndex }
     ::= { clmgmtDevCredExportActionTable 1 }
 
 ClmgmtDevCredExportActionEntry ::= SEQUENCE {
@@ -1676,15 +1866,15 @@ ClmgmtDevCredExportActionEntry ::= SEQUENCE {
         clmgmtDevCredServerUsername    SnmpAdminString,
         clmgmtDevCredServerPassword    SnmpAdminString,
         clmgmtDevCredExportFile        SnmpAdminString,
-        clmgmtDevCredCommand           INTEGER ,
+        clmgmtDevCredCommand           INTEGER,
         clmgmtDevCredCommandState      ClmgmtLicenseActionState,
-        clmgmtDevCredCommandFailCause  INTEGER ,
+        clmgmtDevCredCommandFailCause  INTEGER,
         clmgmtDevCredStorageType       StorageType,
         clmgmtDevCredRowStatus         RowStatus
 }
 
 clmgmtDevCredExportActionIndex OBJECT-TYPE
-    SYNTAX          Unsigned32 (1..4294967295 )
+    SYNTAX          Unsigned32 (1..4294967295)
     MAX-ACCESS      not-accessible
     STATUS          current
     DESCRIPTION
@@ -1696,7 +1886,7 @@ clmgmtDevCredExportActionIndex OBJECT-TYPE
         index, the creation of the entry will not continue and
         error will be returned. The management application should
         read the value of clmgmtNextFreeDevCredExportActionIndex
-        again and retry with the new value for this object." 
+        again and retry with the new value for this object."
     ::= { clmgmtDevCredExportActionEntry 1 }
 
 clmgmtDevCredEntPhysicalIndex OBJECT-TYPE
@@ -1714,7 +1904,7 @@ clmgmtDevCredEntPhysicalIndex OBJECT-TYPE
 
         Note: This object need not be set if it is a stand alone
         device"
-    DEFVAL          { 0 } 
+    DEFVAL          { 0 }
     ::= { clmgmtDevCredExportActionEntry 2 }
 
 clmgmtDevCredTransferProtocol OBJECT-TYPE
@@ -1726,7 +1916,7 @@ clmgmtDevCredTransferProtocol OBJECT-TYPE
         copying files as specified in the following objects.
         1. clmgmtDevCredExportFile
         ."
-    DEFVAL          { none } 
+    DEFVAL          { none }
     ::= { clmgmtDevCredExportActionEntry 3 }
 
 clmgmtDevCredServerAddressType OBJECT-TYPE
@@ -1738,7 +1928,7 @@ clmgmtDevCredServerAddressType OBJECT-TYPE
         address contained in clmgmtDevCredServerAddress object.
         This must be set when clmgmtDevCredTransferProtocol
         is not none(1) or local(2)."
-    DEFVAL          { unknown } 
+    DEFVAL          { unknown }
     ::= { clmgmtDevCredExportActionEntry 4 }
 
 clmgmtDevCredServerAddress OBJECT-TYPE
@@ -1747,7 +1937,7 @@ clmgmtDevCredServerAddress OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "This object indicates the the ip address of the server
-        from which the files must be read or written to if 
+        from which the files must be read or written to if
         clmgmtDevCredTransferProtocol is not none(1) or local(2).
 
         All bits as 0s or 1s for clmgmtDevCredServerAddress are not
@@ -1755,7 +1945,7 @@ clmgmtDevCredServerAddress OBJECT-TYPE
 
         The format of this address depends on the value of the
         clmgmtDevCredServerAddressType object"
-    DEFVAL          { "" } 
+    DEFVAL          { "" }
     ::= { clmgmtDevCredExportActionEntry 5 }
 
 clmgmtDevCredServerUsername OBJECT-TYPE
@@ -1770,7 +1960,7 @@ clmgmtDevCredServerUsername OBJECT-TYPE
         clmgmtDevCredTransferProtocol is rcp(5), the remote
         username is sent as the server username in an rcp command
         request sent by the system to a remote rcp server."
-    DEFVAL          { "" } 
+    DEFVAL          { "" }
     ::= { clmgmtDevCredExportActionEntry 6 }
 
 clmgmtDevCredServerPassword OBJECT-TYPE
@@ -1779,12 +1969,12 @@ clmgmtDevCredServerPassword OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "This object indicates the password used by ftp, sftp or
-        scp for copying a file to/from an ftp/sftp/scp server. 
+        scp for copying a file to/from an ftp/sftp/scp server.
         This object must be set when the
         clmgmtDevCredTransferProtocol is ftp(4) or scp(7) or
-        sftp(8). Reading it returns a zero-length string for 
+        sftp(8). Reading it returns a zero-length string for
         security reasons."
-    DEFVAL          { "" } 
+    DEFVAL          { "" }
     ::= { clmgmtDevCredExportActionEntry 7 }
 
 clmgmtDevCredExportFile OBJECT-TYPE
@@ -1793,7 +1983,7 @@ clmgmtDevCredExportFile OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "This object represents file where device credentials needs
-        to be exported to." 
+        to be exported to."
     ::= { clmgmtDevCredExportActionEntry 8 }
 
 clmgmtDevCredCommand OBJECT-TYPE
@@ -1812,7 +2002,7 @@ clmgmtDevCredCommand OBJECT-TYPE
                                         performed.
 
         getDeviceCredentials(2)         Exports device credentials"
-    DEFVAL          { noOp } 
+    DEFVAL          { noOp }
     ::= { clmgmtDevCredExportActionEntry 9 }
 
 clmgmtDevCredCommandState OBJECT-TYPE
@@ -1822,7 +2012,7 @@ clmgmtDevCredCommandState OBJECT-TYPE
     DESCRIPTION
         "This object indicates the state of the action that is
         executed as a result of setting clmgmtDevCredRowStatus
-        to active(1)." 
+        to active(1)."
     ::= { clmgmtDevCredExportActionEntry 10 }
 
 clmgmtDevCredCommandFailCause OBJECT-TYPE
@@ -1844,7 +2034,7 @@ clmgmtDevCredCommandFailCause OBJECT-TYPE
         clmgmtDevCredCommandState is failed(6).
 
         none(1)         - action execution has not started yet.
-                          If the action is completed and the 
+                          If the action is completed and the
                           action is successful, then also
                           none(1) is returned to indicate that
                           there are no errors.
@@ -1856,7 +2046,7 @@ clmgmtDevCredCommandFailCause OBJECT-TYPE
         fileServerNotReachable(4)       - file server is not reachable.
         unrecognizedEntPhysicalIndex(5) - entPhysicalIndex is not
                                           valid
-        invalidFile(6)  - The target file specified is not valid." 
+        invalidFile(6)  - The target file specified is not valid."
     ::= { clmgmtDevCredExportActionEntry 11 }
 
 clmgmtDevCredStorageType OBJECT-TYPE
@@ -1867,7 +2057,7 @@ clmgmtDevCredStorageType OBJECT-TYPE
         "This object indicates the storage type for this conceptual
         row. Conceptual rows having the value 'permanent' need not
         allow write-access to any columnar objects in the row."
-    DEFVAL          { volatile } 
+    DEFVAL          { volatile }
     ::= { clmgmtDevCredExportActionEntry 12 }
 
 clmgmtDevCredRowStatus OBJECT-TYPE
@@ -1884,9 +2074,9 @@ clmgmtDevCredRowStatus OBJECT-TYPE
         the row.
 
         clmgmtDevCredExportFile is a mandatory object to be
-        set when creating this entry." 
+        set when creating this entry."
     ::= { clmgmtDevCredExportActionEntry 13 }
- 
+
 
 
 -- Objects for enabling/disabling notifications
@@ -1897,8 +2087,18 @@ clmgmtLicenseUsageNotifEnable OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "This object indicates whether the device should generate
-        notifications related to usage of licenses."
-    DEFVAL          { true } 
+        the notifications related to usage of licenses. This object
+        enables/disables sending following notifications:
+            clmgmtLicenseExpired
+            clmgmtLicenseExpiryWarning
+            clmgmtLicenseUsageCountExceeded
+            clmgmtLicenseUsageCountAboutToExceed
+            clmgmtLicenseSubscriptionExpiryWarning
+            clmgmtLicenseSubscriptionExtExpiryWarning
+            clmgmtLicenseSubscriptionExpired
+            clmgmtLicenseEvalRTUTransitionWarning
+            clmgmtLicenseEvalRTUTransition"
+    DEFVAL          { true }
     ::= { clmgmtLicenseNotifObjects 1 }
 
 clmgmtLicenseDeploymentNotifEnable OBJECT-TYPE
@@ -1907,8 +2107,13 @@ clmgmtLicenseDeploymentNotifEnable OBJECT-TYPE
     STATUS          current
     DESCRIPTION
         "This object indicates whether the device should generate
-        notifications related to license deployment."
-    DEFVAL          { true } 
+        notifications related to license deployment. This object
+        enables/disables sending following notifications:
+            clmgmtLicenseInstalled
+            clmgmtLicenseCleared
+            clmgmtLicenseRevoked
+            clmgmtLicenseEULAAccepted"
+    DEFVAL          { true }
     ::= { clmgmtLicenseNotifObjects 2 }
 
 clmgmtLicenseErrorNotifEnable OBJECT-TYPE
@@ -1918,8 +2123,10 @@ clmgmtLicenseErrorNotifEnable OBJECT-TYPE
     DESCRIPTION
         "This object indicates whether the device should generate
         notifications related to error conditions in enforcing
-        licensing."
-    DEFVAL          { true } 
+        licensing. This object enables/disables sending following
+        notifications:
+            clmgmtLicenseNotEnforced"
+    DEFVAL          { true }
     ::= { clmgmtLicenseNotifObjects 3 }
 
 -- Notifications
@@ -2051,6 +2258,74 @@ clmgmtLicenseNotEnforced NOTIFICATION-TYPE
         license installed for this feature and it needs to
         be done as soon as possible."
    ::= { ciscoLicenseMgmtMIBNotifs 9 }
+
+clmgmtLicenseSubscriptionExpiryWarning NOTIFICATION-TYPE
+    OBJECTS         {
+                        clmgmtFeatureName,
+                        clmgmtFeatureVersion,
+                        clmgmtFeatureEndDate
+                    }
+    STATUS          current
+    DESCRIPTION
+        "This notification is sent when a subscription license of a
+        feature is about to expire. This notification will be sent as
+        per the following schedule:
+        Once a week for the last eight weeks
+        Once a day for the last week
+        Once a hour for the last day"
+   ::= { ciscoLicenseMgmtMIBNotifs 10 }
+
+clmgmtLicenseSubscriptionExtExpiryWarning NOTIFICATION-TYPE
+    OBJECTS         {
+                        clmgmtFeatureName,
+                        clmgmtFeatureVersion,
+                        clmgmtFeatureEndDate
+                    }
+    STATUS          current
+    DESCRIPTION
+        "This notification is sent when the subscription license end
+        date of a feature is reached but extension period is left. This
+        notification will be sent once a day after the license end date
+        is reached."
+   ::= { ciscoLicenseMgmtMIBNotifs 11 }
+
+clmgmtLicenseSubscriptionExpired NOTIFICATION-TYPE
+    OBJECTS         {
+                        clmgmtFeatureName,
+                        clmgmtFeatureVersion,
+                        clmgmtFeatureEndDate
+                    }
+    STATUS          current
+    DESCRIPTION
+        "This notification will be sent after a subscription license
+        of a feature completely expires. It will be sent once a day
+        after the license has completely expired"
+   ::= { ciscoLicenseMgmtMIBNotifs 12 }
+
+clmgmtLicenseEvalRTUTransitionWarning NOTIFICATION-TYPE
+    OBJECTS         {
+                        clmgmtFeatureName,
+                        clmgmtFeatureVersion,
+                        clmgmtFeatureValidityPeriodRemaining
+                    }
+    STATUS          current
+    DESCRIPTION
+        "This notification is sent when Evaluation to Right to use (RTU)
+        license transition is about to happen. The first notification
+        will be sent 10 days before the transition and second
+        notification will be sent 5 days before the transition."
+   ::= { ciscoLicenseMgmtMIBNotifs 13 }
+
+clmgmtLicenseEvalRTUTransition NOTIFICATION-TYPE
+    OBJECTS         {
+                        clmgmtFeatureName,
+                        clmgmtFeatureVersion
+                    }
+    STATUS          current
+    DESCRIPTION
+        "This notification is sent, when a feature license transitions
+        from a evaluation to a Right to use (RTU) license."
+   ::= { ciscoLicenseMgmtMIBNotifs 14 }
 -- Conformance
 
 ciscoLicenseMgmtCompliances  OBJECT IDENTIFIER
@@ -2061,7 +2336,7 @@ ciscoLicenseMgmtGroups  OBJECT IDENTIFIER
 
 
 ciscoLicenseMgmtCompliance MODULE-COMPLIANCE
-    STATUS          current
+    STATUS          deprecated
     DESCRIPTION
         "Compliance statement for Cisco license mgmt MIB."
     MODULE          -- this module
@@ -2082,6 +2357,49 @@ ciscoLicenseMgmtCompliance MODULE-COMPLIANCE
         "This group is mandatory for all devices where
         multiple license stores are supported."
     ::= { ciscoLicenseMgmtCompliances 1 }
+
+ciscoLicenseMgmtComplianceRev1 MODULE-COMPLIANCE
+    STATUS          current
+    DESCRIPTION
+        "Compliance statement for Cisco license mgmt MIB."
+    MODULE          -- this module
+    MANDATORY-GROUPS {
+                        clmgmtLicenseDeploymentGroup,
+                        clmgmtLicenseDeviceInformationGroup,
+                        clmgmtLicenseInformationGroup,
+                        clmgmtLicensableFeatureInformationGroup,
+                        clmgmtLicenseDevCredGroup,
+                        clmgmtLicenseNotificationEnableGroup,
+                        clmgmtLicenseUsageNotifGroup,
+                        clmgmtLicenseDeploymentNotifGroup,
+                        clmgmtLicenseErrorNotifGroup
+                    }
+
+    GROUP           clmgmtLicenseStoreInformationGroup
+    DESCRIPTION
+        "This group is mandatory for all devices where
+        multiple license stores are supported."
+
+    GROUP           clmgmtLicenseSubscriptionGroup
+    DESCRIPTION
+        "This object group is mandatory for all devices that
+        support subscription licensing."
+
+    GROUP           clmgmtLicenseSubscriptionUsageNotifGroup
+    DESCRIPTION
+        "This notification group is mandatory for all devices that
+        support subscription licensing."
+
+    GROUP           clmgmtLicenseRTUGroup
+    DESCRIPTION
+        "This object group is mandatory for all devices that
+        support Right to Use (RTU) licensing."
+
+    GROUP           clmgmtLicenseRTUUsageNotifGroup
+    DESCRIPTION
+        "This notification group is mandatory for all devices that
+        support Right to use (RTU) licensing."
+    ::= { ciscoLicenseMgmtCompliances 2 }
 
 -- Units of Conformance
 
@@ -2238,5 +2556,51 @@ clmgmtLicenseErrorNotifGroup NOTIFICATION-GROUP
         "A collection of notifications related to license errors."
     ::= { ciscoLicenseMgmtGroups 10 }
 
-END
+clmgmtLicenseSubscriptionGroup OBJECT-GROUP
+    OBJECTS         {
+                        clmgmtLicenseStartDate,
+                        clmgmtLicenseEndDate,
+                        clmgmtFeatureStartDate,
+                        clmgmtFeatureEndDate
+                    }
+    STATUS          current
+    DESCRIPTION
+        "A collection of objects that provide information specific to
+        subscription licenses."
+    ::= { ciscoLicenseMgmtGroups 11 }
 
+clmgmtLicenseSubscriptionUsageNotifGroup NOTIFICATION-GROUP
+   NOTIFICATIONS    {
+                        clmgmtLicenseSubscriptionExpiryWarning,
+                        clmgmtLicenseSubscriptionExtExpiryWarning,
+                        clmgmtLicenseSubscriptionExpired
+                    }
+    STATUS          current
+    DESCRIPTION
+        "A collection of notifications related to usage of subscription
+        licenses."
+    ::= { ciscoLicenseMgmtGroups 12 }
+
+clmgmtLicenseRTUGroup OBJECT-GROUP
+    OBJECTS         {
+                        clmgmtLicensePeriodUsed,
+                        clmgmtFeaturePeriodUsed
+                    }
+    STATUS          current
+    DESCRIPTION
+        "A collection of objects that provide information specific to
+        Right to use (RTU) licenses."
+    ::= { ciscoLicenseMgmtGroups 13 }
+
+clmgmtLicenseRTUUsageNotifGroup NOTIFICATION-GROUP
+   NOTIFICATIONS    {
+                        clmgmtLicenseEvalRTUTransitionWarning,
+                        clmgmtLicenseEvalRTUTransition
+                    }
+    STATUS          current
+    DESCRIPTION
+        "A collection of notifications related to Right to use (RTU)
+        licenses."
+    ::= { ciscoLicenseMgmtGroups 14 }
+
+END
