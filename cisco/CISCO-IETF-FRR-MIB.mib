@@ -3,13 +3,13 @@
 --
 -- February 2003, Adrien Grise
 --
--- Copyright (c) 2003-2006 by cisco Systems, Inc.
+-- Copyright (c) 2003-2006, 2008 by cisco Systems, Inc.
 -- All rights reserved.
--- 
+--
 -- *****************************************************************
 
 CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
-   
+
    IMPORTS
       MODULE-IDENTITY, OBJECT-TYPE,
       Integer32, Unsigned32, Counter32, Gauge32, TimeTicks,
@@ -17,7 +17,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
          FROM SNMPv2-SMI
       MODULE-COMPLIANCE, OBJECT-GROUP, NOTIFICATION-GROUP
          FROM SNMPv2-CONF
-      TEXTUAL-CONVENTION, TruthValue, RowStatus, 
+      TEXTUAL-CONVENTION, TruthValue, RowStatus,
       TimeStamp
          FROM SNMPv2-TC
       InterfaceIndex, InterfaceIndexOrZero
@@ -28,10 +28,10 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
       ciscoExperiment
          FROM CISCO-SMI
       ;
-   
+
    cmplsFrrMIB MODULE-IDENTITY
       LAST-UPDATED
-         "200211051200Z" -- 05 November 2002 12:00:00 GMT
+         "200804291200Z" -- 29 April 2008 12:00:00 GMT
       ORGANIZATION
          "Cisco Systems, Inc."
       CONTACT-INFO
@@ -56,7 +56,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
                     Chelmsford, MA 01924
             Tel:    +1-978-497-3989
             Email:  ch-mpls-mib-dev@cisco.com
-   
+
            "
       DESCRIPTION
         "This MIB module contains managed object definitions for MPLS
@@ -64,8 +64,16 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
          Vasseur, J.Ph., Cooper, D., Atlas, A., Jork, M., Fast Reroute
          Techniques in RSVP-TE, draft-ietf-mpls-rsvp-lsp-fastreroute-
          00.txt, January 2002."
-   
+
    -- Revision history.
+      REVISION
+           "200804291200Z" -- 29 April 2008 12:00:00 GMT
+      DESCRIPTION
+        "Added support for cmplsFrrUnProtected notification.  It is
+        defined in version 2 of the ietf draft.  The notification's
+        variable bindings have been modified from the draft form to
+        match the previous approved Cisco-ized draft form as defined
+        for the cmplsFrrProtected notification."
       REVISION
            "200211051200Z" -- 05 November 2002 12:00:00 GMT
       DESCRIPTION
@@ -80,16 +88,16 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
               other MPLS MIBs.
 
             Assigned experimental.120."
-   
+
       REVISION
            "200203221200Z" -- 18 April 2002 12:00:00 GMT
       DESCRIPTION
            "Initial draft version."
-   
-      ::= { ciscoExperiment 98 } 
-   
+
+      ::= { ciscoExperiment 98 }
+
    -- MPLS Fast Reroute textual-conventions.
-   
+
    MplsFrrDetourIndex ::= TEXTUAL-CONVENTION
       STATUS        current
       DESCRIPTION
@@ -97,31 +105,31 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
       SYNTAX  Integer32 (1..65535)
 
    -- End of MPLS Fast Reroute textual-conventions.
-   
+
    -- Top level components of this MIB.
    cmplsFrrNotif         OBJECT IDENTIFIER ::= { cmplsFrrMIB 0 }
    cmplsFrrScalars       OBJECT IDENTIFIER ::= { cmplsFrrMIB 1 }
    cmplsFrrObjects       OBJECT IDENTIFIER ::= { cmplsFrrMIB 2 }
-   
+
    -- objects that work for either method of FRR
    cmplsFrrGeneralObjects OBJECT IDENTIFIER ::= { cmplsFrrObjects 1 }
-   
+
    -- objects defined for 1-to-1 style FRR
    cmplsFrr1to1Objects   OBJECT IDENTIFIER ::= { cmplsFrrObjects 2 }
-   
+
    -- objects defined for Facility Backup style FRR
    cmplsFrrFacObjects    OBJECT IDENTIFIER ::= { cmplsFrrObjects 3 }
-   
+
    --
    -- Ed Note: need to define two conformance statements: one for
    -- one for 1-2-1 and for Facility.  Might need separate ones for
    -- read-only vs. read-write too.  There is currently just a single
-   -- conformance statement due to time constraints. 
+   -- conformance statement due to time constraints.
    --
    cmplsFrrConformance   OBJECT IDENTIFIER ::= { cmplsFrrMIB 3 }
-   
+
    -- MPLS Fast Reroute scalars.
-   
+
    cmplsFrrDetourIncoming OBJECT-TYPE
       SYNTAX        Unsigned32
       MAX-ACCESS    read-only
@@ -133,7 +141,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
         facilityBackup(1)."
       DEFVAL { 0 }
       ::= { cmplsFrrScalars 1 }
-   
+
    cmplsFrrDetourOutgoing OBJECT-TYPE
       SYNTAX        Unsigned32
       MAX-ACCESS    read-only
@@ -141,11 +149,11 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
       DESCRIPTION
         "The number of detour LSPs leaving the device if
         mplsFrrConstProtectionMethod is set to oneToOneBackup(0),
-        or 0 if mplsFrrConstProtectionMethod is set to 
+        or 0 if mplsFrrConstProtectionMethod is set to
         to facilityBackup(1)."
       DEFVAL { 0 }
       ::= { cmplsFrrScalars 2 }
-   
+
    cmplsFrrDetourOriginating OBJECT-TYPE
       SYNTAX        Unsigned32
       MAX-ACCESS    read-only
@@ -153,11 +161,11 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
       DESCRIPTION
         "The number of detour LSPs originating at this PLR if
         mplsFrrConstProtectionMethod is set to oneToOneBackup(0).
-        This object MUST return 0 if the mplsFrrConstProtectionMethod 
+        This object MUST return 0 if the mplsFrrConstProtectionMethod
         is set to facilityBackup(1)."
       DEFVAL { 0 }
       ::= { cmplsFrrScalars 3 }
-   
+
    cmplsFrrSwitchover OBJECT-TYPE
       SYNTAX        Unsigned32
       MAX-ACCESS    read-only
@@ -169,15 +177,15 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
         mplsFrrConstProtectionMethod is set to facilityBackup(1)."
       DEFVAL { 0 }
       ::= { cmplsFrrScalars 4 }
-   
+
    cmplsFrrNumOfConfIfs OBJECT-TYPE
       SYNTAX        Unsigned32
       MAX-ACCESS    read-only
       STATUS        current
       DESCRIPTION
-        "Indicates the number of MPLS interfaces configured for 
+        "Indicates the number of MPLS interfaces configured for
          protection by the FRR feature, otherwise this value
-         MUST return 0 to indicate that LSPs traversing any 
+         MUST return 0 to indicate that LSPs traversing any
          interface may be protected."
       DEFVAL { 0 }
       ::= { cmplsFrrScalars 5 }
@@ -187,23 +195,23 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
       MAX-ACCESS    read-only
       STATUS        current
       DESCRIPTION
-        "Indicates the number of interfaces currently being protected 
+        "Indicates the number of interfaces currently being protected
          by the FRR feature if mplsFrrConstProtectionMethod is set to
          facilityBackup(1), otherwise this value should return 0 to
          indicate that LSPs traversing any interface may be protected.
          This value MUST be less than or equal to mplsFrrConfIfs."
       DEFVAL { 0 }
       ::= { cmplsFrrScalars 6 }
-   
+
    cmplsFrrConfProtectingTuns OBJECT-TYPE
       SYNTAX        Unsigned32
       MAX-ACCESS    read-only
       STATUS        current
       DESCRIPTION
-         "Indicates the number of bypass tunnels configured to 
-         protect facilities on this LSR using the FRR feature 
-         if mplsFrrConstProtectionMethod is set to 
-         facilityBackup(1), otherwise this value MUST return 
+         "Indicates the number of bypass tunnels configured to
+         protect facilities on this LSR using the FRR feature
+         if mplsFrrConstProtectionMethod is set to
+         facilityBackup(1), otherwise this value MUST return
          0."
       DEFVAL { 0 }
       ::= { cmplsFrrScalars 7 }
@@ -217,22 +225,22 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
          mplsFrrConfProtectingTuns whose operStatus
          is up(1) indicating that they are currently protecting
          facilities on this LSR using the FRR feature. This
-         object MUST return 0 if mplsFrrConstProtectionMethod 
+         object MUST return 0 if mplsFrrConstProtectionMethod
          is set to facilityBackup(1)."
       DEFVAL { 0 }
       ::= { cmplsFrrScalars 8 }
-   
+
    cmplsFrrActProtectedLSPs OBJECT-TYPE
       SYNTAX        Unsigned32
       MAX-ACCESS    read-only
       STATUS        current
       DESCRIPTION
-         "Indicates the number of LSPs currently protected by 
-         the FRR feature. If mplsFrrConstProtectionMethod is set 
+         "Indicates the number of LSPs currently protected by
+         the FRR feature. If mplsFrrConstProtectionMethod is set
          to facilityBackup(1)this object MUST return 0."
       DEFVAL { 0 }
       ::= { cmplsFrrScalars 9 }
-   
+
    cmplsFrrConstProtectionMethod OBJECT-TYPE
       SYNTAX        INTEGER { oneToOneBackup(0),
                               facilityBackup(1)
@@ -243,12 +251,12 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
         "Indicates which protection method is to be used for fast
          reroute. Some devices may require a reboot of their routing
          processors if this variable is changed. An agent which
-         does not wish to reboot or modify its FRR mode 
-         MUST return an inconsistentValue error. Please 
-         consult the device's agent capability statement 
+         does not wish to reboot or modify its FRR mode
+         MUST return an inconsistentValue error. Please
+         consult the device's agent capability statement
          for more details."
       ::= { cmplsFrrScalars 10 }
-   
+
    cmplsFrrNotifsEnabled OBJECT-TYPE
        SYNTAX            TruthValue
        MAX-ACCESS        read-write
@@ -258,7 +266,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
            module. Notifications are disabled by default."
        DEFVAL { false }
    ::= { cmplsFrrScalars 11 }
-      
+
    cmplsFrrLogTableMaxEntries OBJECT-TYPE
        SYNTAX            Unsigned32
        MAX-ACCESS        read-write
@@ -268,24 +276,24 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
             Log table. Agents receiving SETs for values that cannot be
             used must return an inconsistent value error. If a manager
             sets this value to 0, this indicates that no logging should
-            take place by the agent.  
+            take place by the agent.
 
             If this value is returned as 0, this indicates
             that no additional log entries will be added to the current
             table either because the table has been completely
             filled or logging has been disabled. However, agents
             may wish to not delete existing entries in the log table
-            so that managers may review them in the future. 
+            so that managers may review them in the future.
 
-            It is implied that when mplsFrrLogTableCurrEntries 
-            has reached the value of this variable, that logging 
-            entries may not continue to be added to the table, 
+            It is implied that when mplsFrrLogTableCurrEntries
+            has reached the value of this variable, that logging
+            entries may not continue to be added to the table,
             although existing ones may remain.  Furthermore, an
             agent may begin to delete existing (perhaps the
             oldest entries) entries to make room for new ones."
        DEFVAL { 0 }
    ::= { cmplsFrrScalars 12 }
-   
+
    cmplsFrrLogTableCurrEntries OBJECT-TYPE
        SYNTAX            Counter32
        MAX-ACCESS        read-only
@@ -294,7 +302,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
            "Indicates the current number of entries in the FRR log
            table."
    ::= { cmplsFrrScalars 13 }
-   
+
    cmplsFrrNotifMaxRate OBJECT-TYPE
       SYNTAX       Unsigned32
       MAX-ACCESS   read-write
@@ -305,7 +313,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
            events occur more rapidly, the implementation may
            simply fail to emit these notifications during that
            period, or may queue them until an appropriate
-           time in the future. A value of 0 means no minimum 
+           time in the future. A value of 0 means no minimum
            elapsed period is specified."
       DEFVAL       { 0 }
    ::= { cmplsFrrScalars 14 }
@@ -317,7 +325,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
    --  and should be implemented by all LSRs supporting
    --  FRR.
    --
-   
+
    -- MPLS Fast Reroute Constraints table
 
    cmplsFrrConstTable OBJECT-TYPE
@@ -327,15 +335,15 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
       DESCRIPTION
         "This table shows detour setup constraints."
       ::= {  cmplsFrrGeneralObjects 1 }
-   
+
    cmplsFrrConstEntry OBJECT-TYPE
       SYNTAX        CMplsFrrConstEntry
       MAX-ACCESS    not-accessible
       STATUS        current
       DESCRIPTION
-        "An entry in this table represents detour LSP or bypass tunnel 
-         setup constraints for a tunnel instance to be protected by 
-         detour LSPs or a tunnel. Agents must allow entries in this table 
+        "An entry in this table represents detour LSP or bypass tunnel
+         setup constraints for a tunnel instance to be protected by
+         detour LSPs or a tunnel. Agents must allow entries in this table
          to be created only for tunnel instances that require fast-reroute.
          Entries indexed with mplsFrrConstIfIndex set to 0 apply to all
          interfaces on this device for which the FRR feature can operate
@@ -345,7 +353,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
               cmplsFrrConstTunnelInstance
             }
       ::= { cmplsFrrConstTable 1 }
-   
+
    CMplsFrrConstEntry ::= SEQUENCE {
          cmplsFrrConstIfIndex           InterfaceIndexOrZero,
          cmplsFrrConstTunnelIndex       MplsTunnelIndex,
@@ -381,7 +389,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
         "Uniquely identifies a tunnel for which fast reroute is
         requested."
       ::= { cmplsFrrConstEntry 2 }
-   
+
    cmplsFrrConstTunnelInstance OBJECT-TYPE
       SYNTAX        MplsTunnelInstanceIndex
       MAX-ACCESS    not-accessible
@@ -402,7 +410,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
         RFC 3209, December 2001"
       DEFVAL { 7 }
       ::= { cmplsFrrConstEntry 4 }
-   
+
    cmplsFrrConstHoldingPrio OBJECT-TYPE
       SYNTAX        Unsigned32 (0..7)
       MAX-ACCESS    read-create
@@ -414,7 +422,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
         RFC 3209, December 2001"
       DEFVAL { 0 }
       ::= { cmplsFrrConstEntry 5 }
-   
+
    cmplsFrrConstInclAnyAffinity OBJECT-TYPE
       SYNTAX        MplsTunnelAffinity
       MAX-ACCESS    read-create
@@ -428,7 +436,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
         RFC 3209, December 2001."
       DEFVAL { 0 }
       ::= { cmplsFrrConstEntry 6 }
-   
+
    cmplsFrrConstInclAllAffinity OBJECT-TYPE
       SYNTAX        MplsTunnelAffinity
       MAX-ACCESS    read-create
@@ -442,7 +450,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
         RFC 3209, December 2001."
       DEFVAL { 0 }
       ::= { cmplsFrrConstEntry 7 }
-   
+
    cmplsFrrConstExclAllAffinity OBJECT-TYPE
       SYNTAX        MplsTunnelAffinity
       MAX-ACCESS    read-create
@@ -456,7 +464,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
         RFC 3209, December 2001."
       DEFVAL { 0 }
       ::= { cmplsFrrConstEntry 8 }
-   
+
    cmplsFrrConstHopLimit OBJECT-TYPE
       SYNTAX        Unsigned32 (1..65535)
       MAX-ACCESS    read-create
@@ -470,7 +478,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
         progress."
       DEFVAL { 32 }
    ::= { cmplsFrrConstEntry 9 }
-   
+
    cmplsFrrConstBandwidth OBJECT-TYPE
       SYNTAX        MplsBitRate
       MAX-ACCESS    read-create
@@ -480,7 +488,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
         tunnel, in units of thousands of bits per second (Kbps)."
       DEFVAL { 1 }
       ::= { cmplsFrrConstEntry 10 }
-   
+
    cmplsFrrConstRowStatus OBJECT-TYPE
       SYNTAX        RowStatus
       MAX-ACCESS    read-create
@@ -498,7 +506,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
            "The number of backup tunnels protecting the specified
            interface."
       ::= { cmplsFrrConstEntry 12 }
-   
+
    cmplsFrrConstNumProtectedTunOnIf OBJECT-TYPE
        SYNTAX            Gauge32
        MAX-ACCESS        read-only
@@ -506,9 +514,9 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
        DESCRIPTION
            "The number of tunnels protected on this interface."
    ::= { cmplsFrrConstEntry 13 }
-   
+
    -- Fast Reroute Log Table
-   
+
    cmplsFrrLogTable OBJECT-TYPE
        SYNTAX            SEQUENCE OF CMplsFrrLogEntry
        MAX-ACCESS        not-accessible
@@ -518,7 +526,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
             as protected links going up or down or the FRR feature
             kicking in."
    ::= { cmplsFrrGeneralObjects 2 }
-   
+
    cmplsFrrLogEntry OBJECT-TYPE
        SYNTAX            CMplsFrrLogEntry
        MAX-ACCESS        not-accessible
@@ -526,11 +534,11 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
        DESCRIPTION
            "An entry in this table is created to describe one fast
             reroute event.  Entries in this table are only created and
-            destroyed by the agent implementation. The maximum number 
+            destroyed by the agent implementation. The maximum number
             of entries in this log is governed by the scalar."
        INDEX { cmplsFrrLogIndex }
    ::= { cmplsFrrLogTable 1 }
-   
+
    CMplsFrrLogEntry ::= SEQUENCE {
        cmplsFrrLogIndex                Unsigned32,
        cmplsFrrLogEventTime            TimeStamp,
@@ -539,7 +547,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
        cmplsFrrLogEventDuration        TimeTicks,
        cmplsFrrLogEventReasonString    OCTET STRING
    }
-   
+
    cmplsFrrLogIndex OBJECT-TYPE
        SYNTAX            Unsigned32
        MAX-ACCESS        not-accessible
@@ -547,7 +555,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
        DESCRIPTION
            "Uniquely identifies a fast reroute event entry."
    ::= { cmplsFrrLogEntry 1 }
-   
+
    cmplsFrrLogEventTime OBJECT-TYPE
        SYNTAX            TimeStamp
        MAX-ACCESS        read-only
@@ -556,7 +564,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
            "This object provides the amount of time ticks since this
            event occured."
    ::= { cmplsFrrLogEntry 2 }
-   
+
    cmplsFrrLogInterface OBJECT-TYPE
        SYNTAX            InterfaceIndexOrZero
        MAX-ACCESS        read-only
@@ -566,7 +574,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
            FRR event. This value may be set to 0 if
            mplsFrrConstProtectionMethod is set to oneToOneBackup(0)."
    ::= { cmplsFrrLogEntry 3 }
-   
+
    cmplsFrrLogEventType OBJECT-TYPE
        SYNTAX            INTEGER {
                              other(1),
@@ -578,7 +586,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
            "This object describes what type of fast reroute event
            occured."
    ::= { cmplsFrrLogEntry 4 }
-   
+
    cmplsFrrLogEventDuration OBJECT-TYPE
        SYNTAX            TimeTicks
        MAX-ACCESS        read-only
@@ -586,7 +594,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
        DESCRIPTION
            "This object describes the duration of this event."
    ::= { cmplsFrrLogEntry 5 }
-   
+
    cmplsFrrLogEventReasonString OBJECT-TYPE
        SYNTAX            OCTET STRING (SIZE(128))
        MAX-ACCESS        read-only
@@ -595,17 +603,17 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
            "This object contains an implementation-specific explanation
            of the event."
    ::= { cmplsFrrLogEntry 6 }
-   
-   
+
+
    --
    -- One-to-One Specific Tables
    --
    -- Tables in this section pertain only to the 1-1
    -- style of FRR.
    --
-        
+
    -- MPLS Fast Reroute Point of Local Repair table
---   
+--
 --   mplsFrrOne2OnePlrTable  OBJECT-TYPE
 --      SYNTAX        SEQUENCE OF MplsFrrOne2OnePlrEntry
 --      MAX-ACCESS    not-accessible
@@ -614,7 +622,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
 --        "This table shows the lists of PLRs that initiated detour LSPs
 --        which affect this node."
 --      ::= { mplsFrr1to1Objects 1 }
---   
+--
 --   mplsFrrOne2OnePlrEntry  OBJECT-TYPE
 --      SYNTAX        MplsFrrOne2OnePlrEntry
 --      MAX-ACCESS    not-accessible
@@ -623,14 +631,14 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
 --        "An entry in this table represents a PLR together with its
 --        detour instance. An entry in this table is only created by an
 --        SNMP agent as instructed by an MPLS signaling protocol."
---      INDEX { mplsFrrOne2OnePlrTunIdIdx,     
---              mplsFrrOne2OnePlrTunInst,      
---              mplsFrrOne2OnePlrTunIngrLSRId, 
---              mplsFrrOne2OnePlrTunEgrLSRId,  
+--      INDEX { mplsFrrOne2OnePlrTunIdIdx,
+--              mplsFrrOne2OnePlrTunInst,
+--              mplsFrrOne2OnePlrTunIngrLSRId,
+--              mplsFrrOne2OnePlrTunEgrLSRId,
 --              mplsFrrOne2OnePlrId,
 --              mplsFrrOne2OnePlrDetourInstance }
 --      ::= { mplsFrrOne2OnePlrTable 1 }
---  
+--
 --   MplsFrrOne2OnePlrEntry ::= SEQUENCE {
 --         mplsFrrOne2OnePlrTunIdIdx       MplsTunnelIndex,
 --         mplsFrrOne2OnePlrTunInst        MplsTunnelInstanceIndex,
@@ -688,7 +696,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
 --      DESCRIPTION
 --        "Specifies the egress LSR ID."
 --      ::= { mplsFrrOne2OnePlrEntry 4 }
---   
+--
 --   mplsFrrOne2OnePlrId OBJECT-TYPE
 --      SYNTAX        MplsLsrIdentifier
 --      MAX-ACCESS    not-accessible
@@ -706,7 +714,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
 --      "This value represents an instance of a detour initiated by this
 --        PLR."
 --      ::= { mplsFrrOne2OnePlrEntry 6 }
---   
+--
 --   mplsFrrOne2OnePlrSenderAddrType OBJECT-TYPE
 --      SYNTAX        InetAddressType
 --      MAX-ACCESS    read-create
@@ -716,7 +724,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
 --        address."
 --      DEFVAL        { ipv4 }
 --      ::= { mplsFrrOne2OnePlrEntry 7 }
---   
+--
 --   mplsFrrOne2OnePlrSenderAddr OBJECT-TYPE
 --      SYNTAX        InetAddress
 --      MAX-ACCESS    read-create
@@ -727,7 +735,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
 --        This object is otherwise insignificant and should contain a
 --        value of 0."
 --      ::= { mplsFrrOne2OnePlrEntry 8 }
---   
+--
 --   mplsFrrOne2OnePlrAvoidNAddrType OBJECT-TYPE
 --      SYNTAX        InetAddressType
 --      MAX-ACCESS    read-only
@@ -737,7 +745,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
 --        avoid."
 --      DEFVAL        { ipv4 }
 --      ::= { mplsFrrOne2OnePlrEntry 9 }
---   
+--
 --   mplsFrrOne2OnePlrAvoidNAddr OBJECT-TYPE
 --      SYNTAX        InetAddress
 --      MAX-ACCESS    read-only
@@ -748,7 +756,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
 --      object is otherwise insignificant and should contain a value of
 --      0."
 --      ::= { mplsFrrOne2OnePlrEntry 10 }
---   
+--
 --   mplsFrrOne2OnePlrDetourIndex OBJECT-TYPE
 --      SYNTAX        MplsFrrDetourIndex
 --      MAX-ACCESS    read-only
@@ -757,10 +765,10 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
 --        "The index of the corresponding detour LSP in the
 --        mplsFrrDetourTable."
 --   ::= { mplsFrrOne2OnePlrEntry 11 }
---   
+--
 --
 --    MPLS One-To-One Fast Reroute Detour table.
---   
+--
 --   mplsFrrDetourTable OBJECT-TYPE
 --      SYNTAX        SEQUENCE OF MplsFrrDetourEntry
 --      MAX-ACCESS    not-accessible
@@ -769,7 +777,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
 --        "This table shows all detour LSPs together with their
 --        characteristics."
 --      ::= { mplsFrr1to1Objects 2 }
---   
+--
 --   mplsFrrDetourEntry OBJECT-TYPE
 --      SYNTAX        MplsFrrDetourEntry
 --      MAX-ACCESS    not-accessible
@@ -779,14 +787,14 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
 --      table is only created by an SNMP agent as instructed by an MPLS
 --      signaling protocol. "
 --      INDEX {
---              mplsFrrOne2OnePlrTunIdIdx,     
---              mplsFrrOne2OnePlrTunInst,      
---              mplsFrrOne2OnePlrTunIngrLSRId, 
---              mplsFrrOne2OnePlrTunEgrLSRId,  
+--              mplsFrrOne2OnePlrTunIdIdx,
+--              mplsFrrOne2OnePlrTunInst,
+--              mplsFrrOne2OnePlrTunIngrLSRId,
+--              mplsFrrOne2OnePlrTunEgrLSRId,
 --              mplsFrrDetourIndexIndex
 --         }
 --      ::= { mplsFrrDetourTable 1 }
---   
+--
 --   MplsFrrDetourEntry ::= SEQUENCE {
 --         mplsFrrDetourIndexIndex         MplsFrrDetourIndex,
 --         mplsFrrDetourActive             TruthValue,
@@ -812,7 +820,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
 --      detour LSP. This is only relevant when the mplsFrrDetourRole is
 --        head(1)."
 --      ::= { mplsFrrDetourEntry 2 }
---   
+--
 --   mplsFrrDetourMerging OBJECT-TYPE
 --      SYNTAX        INTEGER { none(0),
 --                              protectedTunnel(1),
@@ -828,7 +836,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
 --        detour(2) if this detour is merged with another detour
 --        protecting the same tunnel."
 --      ::= { mplsFrrDetourEntry 3 }
---   
+--
 --   mplsFrrDetourMergedDetourIndex OBJECT-TYPE
 --      SYNTAX        MplsFrrDetourIndex
 --      MAX-ACCESS    read-only
@@ -847,41 +855,41 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
 --        "Specifies the value of SysUpTime when the detour came into
 --        existence."
 --      ::= { mplsFrrDetourEntry 5 }
-   
+
    --
    -- Facility-based FRR-specific Tables
    --
-   
+
    cmplsFrrFacRouteDBTable OBJECT-TYPE
        SYNTAX            SEQUENCE OF CMplsFrrFacRouteDBEntry
        MAX-ACCESS        not-accessible
        STATUS            current
        DESCRIPTION
-           "The mplsFrrFacRouteDBTable provides information about the 
+           "The mplsFrrFacRouteDBTable provides information about the
 	   fast reroute database.  Each entry belongs to an interface,
-           protecting backup tunnel and protected tunnel. MPLS 
+           protecting backup tunnel and protected tunnel. MPLS
            interfaces defined on this node are protected by backup
            tunnels and are indexed by mplsFrrFacRouteProtectedIndex.
 	   Backup tunnels defined to protect the tunnels traversing an
-           interface, and are indexed by 
-	   mplsFrrFacRouteProtectingTunIndex.  Note that the tunnel 
-	   instance index is not required, since it is implied to be 0, 
-	   which indicates the tunnel head interface for the protecting 
-	   tunnel. The protecting tunnel is defined to exist on the PLR 
-	   in the FRR specification.  Protected tunnels are the LSPs that 
-	   traverse the protected link.  These LSPs are uniquely 
+           interface, and are indexed by
+	   mplsFrrFacRouteProtectingTunIndex.  Note that the tunnel
+	   instance index is not required, since it is implied to be 0,
+	   which indicates the tunnel head interface for the protecting
+	   tunnel. The protecting tunnel is defined to exist on the PLR
+	   in the FRR specification.  Protected tunnels are the LSPs that
+	   traverse the protected link.  These LSPs are uniquely
 	   identified by mplsFrrFacRouteProtectedTunIndex,
- 	   mplsFrrFacRouteProtectedTunInstance, 
-	   mplsFrrFacRouteProtectedTunIngressLSRId, and 
+ 	   mplsFrrFacRouteProtectedTunInstance,
+	   mplsFrrFacRouteProtectedTunIngressLSRId, and
 	   mplsFrrFacRouteProtectedTunEgressLSRId."
        REFERENCE
            "Srinivansan, C., and A. Viswanathan, T. Nadeau, MPLS Traffic
            Engineering Management Information Base Using SMIv2,
             draft-ietf-mpls-te-mib-06.txt "
-   
+
    ::= { cmplsFrrFacObjects 1 }
-   
-   
+
+
    cmplsFrrFacRouteDBEntry OBJECT-TYPE
        SYNTAX            CMplsFrrFacRouteDBEntry
        MAX-ACCESS        not-accessible
@@ -901,7 +909,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
             Viswanathan, T. Nadeau, MPLS Traffic Engineering Management
             Information Base Using SMIv2, draft-ietf-mpls-te-mib-
             06.txt."
-       INDEX { 
+       INDEX {
                cmplsFrrFacRouteProtectedIfIndex,         -- from MPLS-TE MIB
                cmplsFrrFacRouteProtectingTunIndex,       -- from MPLS-TE MIB
                cmplsFrrFacRouteProtectedTunIndex,        -- from MPLS-TE MIB
@@ -909,7 +917,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
                cmplsFrrFacRouteProtectedTunIngressLSRId, -- Tunnels must exist
                cmplsFrrFacRouteProtectedTunEgressLSRId } -- a priori
    ::= { cmplsFrrFacRouteDBTable 1 }
-   
+
    CMplsFrrFacRouteDBEntry ::= SEQUENCE {
        cmplsFrrFacRouteProtectedIfIndex            InterfaceIndex,
        cmplsFrrFacRouteProtectingTunIndex          MplsTunnelIndex,
@@ -936,7 +944,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
       STATUS        current
       DESCRIPTION
         "Uniquely identifies the mplsTunnelEntry primary index for
-         the tunnel head interface designated to protect the 
+         the tunnel head interface designated to protect the
          interface as specified in the mplsFrrFacRouteIfProtectedIndex
          (and all of the tunnels using this interface)."
       ::= { cmplsFrrFacRouteDBEntry 2 }
@@ -981,7 +989,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
         "Uniquely identifies an mplsTunnelEntry that is
          being protected by FRR."
       ::= { cmplsFrrFacRouteDBEntry 6 }
-   
+
    cmplsFrrFacRouteProtectedTunStatus OBJECT-TYPE
        SYNTAX            INTEGER {
                              active(1),
@@ -992,18 +1000,18 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
        STATUS            current
        DESCRIPTION
            "Specifies the state of the protected tunnel.
-            
+
             active  This tunnel's label has been placed in the
                      LFIB and is ready to be applied to incoming
                      packets.
-                     
+
             ready -  This tunnel's label entry has been created but is
                      not yet in the LFIB.
-                     
+
             partial - This tunnel's label entry as not been fully
                       created."
    ::= { cmplsFrrFacRouteDBEntry 7 }
-   
+
    cmplsFrrFacRouteProtectingTunResvBw  OBJECT-TYPE
        SYNTAX            MplsBitRate
        MAX-ACCESS        read-only
@@ -1033,10 +1041,10 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
 
    -- Notifications
 
-   -- Ed Note: Currently these notifications only apply to 
-   --          Facility-based FRR. Do we need to define 
+   -- Ed Note: Currently these notifications only apply to
+   --          Facility-based FRR. Do we need to define
    --          additional notifications for One2One?
-   
+
    cmplsFrrProtected NOTIFICATION-TYPE
        OBJECTS { cmplsFrrConstNumProtectingTunOnIf,
                  cmplsFrrConstNumProtectedTunOnIf,
@@ -1047,25 +1055,42 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
        "This notification is generated when a tunnel running over an
         interface as specified in the mplsFrrConstTable is initially
         protected by the backup tunnel also specified in the
-        mplsFrrConstTable. This notification should not be generated
+        cmplsFrrConstTable. This notification should not be generated
         for each subsequent tunnel that is backed up by the FRR feature
         on this LSR, as this may result in potential scaling issues
         with regard to LSR performance and network loading. Note also
         that notifications MUST be generated in accordance with the
-        mplsFrrNotifMaxRate."
+        cmplsFrrNotifMaxRate."
        ::= { cmplsFrrNotif 1 }
-   
+
+   cmplsFrrUnProtected NOTIFICATION-TYPE
+       OBJECTS { cmplsFrrConstNumProtectingTunOnIf,
+                 cmplsFrrConstNumProtectedTunOnIf,
+                 cmplsFrrConstBandwidth
+               }
+   STATUS      current
+   DESCRIPTION
+       "This notification is generated when the final tunnel that is
+        being protected by a backup tunnel as specified in the
+        cmplsFrrConstTable is restored to normal operation. This
+        notification should not be generated for each restored tunnel,
+        as this may result in potential scaling issues with regard to
+        LSR performance and network loading. Note also that
+        notifications MUST be generated in accordance with the
+        cmplsFrrNotifMaxRate."
+       ::= { cmplsFrrNotif 2 }
+
 
    -- Module Conformance Statement
-   
+
    cmplsFrrGroups
       OBJECT IDENTIFIER ::= {cmplsFrrConformance 1 }
-   
+
    cmplsFrrCompliances
       OBJECT IDENTIFIER ::= {cmplsFrrConformance 2 }
-   
+
    cmplsFrrModuleCompliance MODULE-COMPLIANCE
-      STATUS current
+      STATUS deprecated
       DESCRIPTION
         "Compliance statements for agents that support the MPLS FRR
         MIB."
@@ -1075,7 +1100,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
                             cmplsFrrConstGroup,
                             cmplsFrrLogGroup
                            }
-   
+
 --      GROUP mplsFrrOne2OnePLRDetourGroup
 --      DESCRIPTION
 --          "This group is mandatory for devices which support
@@ -1091,13 +1116,13 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
       GROUP cmplsFrrFacRouteDBGroup
       DESCRIPTION
           "This group is mandatory for devices which support
-           the Facility Backup FRR mechanism, and is optional 
+           the Facility Backup FRR mechanism, and is optional
            for those which do not."
 
-      GROUP cmplsFrrNotifGroup     
+      GROUP cmplsFrrNotifGroup
       DESCRIPTION
           "This group is mandatory for devices which support
-           the Facility Backup FRR mechanism, and is optional 
+           the Facility Backup FRR mechanism, and is optional
            for those which do not."
 
       -- cmplsFrrConstTable
@@ -1111,32 +1136,32 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
       MIN-ACCESS    read-only
       DESCRIPTION
         "Write access is not required."
-   
+
       OBJECT        cmplsFrrConstInclAnyAffinity
       MIN-ACCESS    read-only
       DESCRIPTION
         "Write access is not required."
-   
+
       OBJECT        cmplsFrrConstInclAllAffinity
       MIN-ACCESS    read-only
       DESCRIPTION
         "Write access is not required."
-   
+
       OBJECT        cmplsFrrConstExclAllAffinity
       MIN-ACCESS    read-only
       DESCRIPTION
         "Write access is not required."
-   
+
       OBJECT        cmplsFrrConstHopLimit
       MIN-ACCESS    read-only
       DESCRIPTION
         "Write access is not required."
-   
+
       OBJECT        cmplsFrrConstBandwidth
       MIN-ACCESS    read-only
       DESCRIPTION
         "Write access is not required."
-   
+
       OBJECT        cmplsFrrConstRowStatus
       MIN-ACCESS    read-only
       DESCRIPTION
@@ -1151,11 +1176,101 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
       MIN-ACCESS    read-only
       DESCRIPTION
         "Write access is not required."
-     
+
       ::= { cmplsFrrCompliances 1 }
 
+   cmplsFrrModuleComplianceRev1 MODULE-COMPLIANCE
+      STATUS current
+      DESCRIPTION
+        "Compliance statements for agents that support the MPLS FRR
+        MIB."
+      MODULE
+          MANDATORY-GROUPS {
+                            cmplsFrrScalarGroup,
+                            cmplsFrrConstGroup,
+                            cmplsFrrLogGroup
+                           }
+
+--      GROUP mplsFrrOne2OnePLRDetourGroup
+--      DESCRIPTION
+--          "This group is mandatory for devices which support
+--           the one-to-one FRR mechanism, and is optional for
+--           those which do not."
+--
+--      GROUP mplsFrrOne2OnePlrGroup
+--      DESCRIPTION
+--          "This group is mandatory for devices which support
+--           the one-to-one FRR mechanism, and is optional for
+--           those which do not."
+
+      GROUP cmplsFrrFacRouteDBGroup
+      DESCRIPTION
+          "This group is mandatory for devices which support
+           the Facility Backup FRR mechanism, and is optional
+           for those which do not."
+
+      GROUP cmplsFrrNotifGroupRev1
+      DESCRIPTION
+          "This group is mandatory for devices which support
+           the Facility Backup FRR mechanism, and is optional
+           for those which do not."
+
+      -- cmplsFrrConstTable
+
+      OBJECT        cmplsFrrConstSetupPrio
+      MIN-ACCESS    read-only
+      DESCRIPTION
+        "Write access is not required."
+
+      OBJECT        cmplsFrrConstHoldingPrio
+      MIN-ACCESS    read-only
+      DESCRIPTION
+        "Write access is not required."
+
+      OBJECT        cmplsFrrConstInclAnyAffinity
+      MIN-ACCESS    read-only
+      DESCRIPTION
+        "Write access is not required."
+
+      OBJECT        cmplsFrrConstInclAllAffinity
+      MIN-ACCESS    read-only
+      DESCRIPTION
+        "Write access is not required."
+
+      OBJECT        cmplsFrrConstExclAllAffinity
+      MIN-ACCESS    read-only
+      DESCRIPTION
+        "Write access is not required."
+
+      OBJECT        cmplsFrrConstHopLimit
+      MIN-ACCESS    read-only
+      DESCRIPTION
+        "Write access is not required."
+
+      OBJECT        cmplsFrrConstBandwidth
+      MIN-ACCESS    read-only
+      DESCRIPTION
+        "Write access is not required."
+
+      OBJECT        cmplsFrrConstRowStatus
+      MIN-ACCESS    read-only
+      DESCRIPTION
+        "Write access is not required."
+
+      OBJECT        cmplsFrrConstNumProtectingTunOnIf
+      MIN-ACCESS    read-only
+      DESCRIPTION
+        "Write access is not required."
+
+      OBJECT        cmplsFrrConstNumProtectedTunOnIf
+      MIN-ACCESS    read-only
+      DESCRIPTION
+        "Write access is not required."
+
+      ::= { cmplsFrrCompliances 2 }
+
    -- Units of conformance
-   
+
    cmplsFrrScalarGroup OBJECT-GROUP
       OBJECTS {
                cmplsFrrDetourIncoming,
@@ -1177,7 +1292,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
       DESCRIPTION
         "Objects that are required to gather fast reroute statistics."
       ::= { cmplsFrrGroups 1 }
-   
+
    cmplsFrrConstGroup OBJECT-GROUP
       OBJECTS {
          cmplsFrrConstProtectionMethod,
@@ -1211,7 +1326,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
 --    "Objects that are required to present the detour LSP information
 --        at the detour ingress, transit and egress LSRs."
 --    ::= { mplsFrrGroups 3 }
-   
+
    cmplsFrrLogGroup OBJECT-GROUP
    OBJECTS { cmplsFrrLogEventTime,
              cmplsFrrLogInterface,
@@ -1226,16 +1341,16 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
    ::= { cmplsFrrGroups 4 }
 
 --   mplsFrrOne2OnePlrGroup OBJECT-GROUP
---     OBJECTS { 
---         mplsFrrOne2OnePlrSenderAddrType, 
---         mplsFrrOne2OnePlrSenderAddr,     
---         mplsFrrOne2OnePlrAvoidNAddrType, 
---         mplsFrrOne2OnePlrAvoidNAddr,     
---         mplsFrrOne2OnePlrDetourIndex    
+--     OBJECTS {
+--         mplsFrrOne2OnePlrSenderAddrType,
+--         mplsFrrOne2OnePlrSenderAddr,
+--         mplsFrrOne2OnePlrAvoidNAddrType,
+--         mplsFrrOne2OnePlrAvoidNAddr,
+--         mplsFrrOne2OnePlrDetourIndex
 --        }
 --   STATUS        current
 --   DESCRIPTION
---      "Objects that are required to represent the FRR 
+--      "Objects that are required to represent the FRR
 --       One-2-One PLR information."
 --   ::= { mplsFrrGroups 5 }
 
@@ -1246,7 +1361,7 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
        }
    STATUS        current
    DESCRIPTION
-      "Objects that are required to represent the FRR 
+      "Objects that are required to represent the FRR
        Facility Route Database information."
    ::= { cmplsFrrGroups 6 }
 
@@ -1254,9 +1369,19 @@ CISCO-IETF-FRR-MIB DEFINITIONS ::= BEGIN
    NOTIFICATIONS {
                    cmplsFrrProtected
                  }
-   STATUS        current
+   STATUS        deprecated
    DESCRIPTION
         "Objects that are required to represent FRR notifications."
    ::= { cmplsFrrGroups 7 }
 
-   END
+   cmplsFrrNotifGroupRev1 NOTIFICATION-GROUP
+   NOTIFICATIONS {
+                   cmplsFrrProtected,
+                   cmplsFrrUnProtected
+                 }
+   STATUS        current
+   DESCRIPTION
+        "Objects that are required to represent FRR notifications."
+   ::= { cmplsFrrGroups 8 }
+
+END
