@@ -3,9 +3,9 @@
 --
 -- This MIB defines the attributes of a Media Gateway.
 --
---  March 2003  Yizhong Shen
+-- March 2003  Yizhong Shen
 --
--- Copyright (c) 2003 by cisco Systems, Inc.
+-- Copyright (c) 2003, 2004, 2005 by cisco Systems, Inc.
 -- All rights reserved.
 --
 -- *********************************************************************
@@ -22,17 +22,18 @@ IMPORTS
     InterfaceIndexOrZero
         FROM IF-MIB
     InetAddress, InetAddressType,
-    InetAddressPrefixLength
-        FROM INET-ADDRESS-MIB    
+    InetAddressPrefixLength,
+    InetPortNumber
+        FROM INET-ADDRESS-MIB
     MODULE-COMPLIANCE, OBJECT-GROUP
-        FROM SNMPv2-CONF  
+        FROM SNMPv2-CONF
     CiscoPort, EntPhysicalIndexOrZero
         FROM CISCO-TC
     ciscoMgmt
         FROM CISCO-SMI;
 
 ciscoMediaGatewayMIB  MODULE-IDENTITY
-    LAST-UPDATED "200304070000Z"
+    LAST-UPDATED "200902250000Z"
     ORGANIZATION "Cisco Systems, Inc."
     CONTACT-INFO
         "        Cisco Systems
@@ -44,36 +45,71 @@ ciscoMediaGatewayMIB  MODULE-IDENTITY
         E-mail: cs-voice-gateway@cisco.com"
 
     DESCRIPTION
-        "The MIB module for managing Trunk Media Gateway.  
+        "The MIB module for managing Trunk Media Gateway.
 
-         A Media Gateway is a network element that provides conversion 
-         between the audio signals carried on telephone circuits and 
-         data packets carried over the Internet or over other packet 
-         data networks. 
+         A Media Gateway is a network element that provides conversion
+         between the audio signals carried on telephone circuits and
+         data packets carried over the Internet or over other packet
+         data networks.
 
-         Trunk Media Gateway interface is between the telephone network 
-         and a Voice over IP/ATM network. 
-         The interface on a Trunk Gateway terminates a trunk connected 
+         Trunk Media Gateway interface is between the telephone network
+         and a Voice over IP/ATM network.
+         The interface on a Trunk Gateway terminates a trunk connected
          to PSTN switch (e.g., Class 5, Class 4, etc.).
-         
+
          Media Gateways use a call control architecture where the call
          control 'intelligence' is outside the gateways and handled by
-         external call control elements, called Media Gateway 
-         Controllers (MGCs). 
-         The MGCs or Call Agents, synchronize with each other to 
+         external call control elements, called Media Gateway
+         Controllers (MGCs).
+         The MGCs or Call Agents, synchronize with each other to
          send coherent commands to the gateways under their control.
 
-         MGCs use master/slave protocols to command the gateways under 
+         MGCs use master/slave protocols to command the gateways under
          their control.  Examples of these protocols are:
            *  Simple Gateway Control Protocol
            *  Media Gateway Control Protocol
            *  Megaco (H.248)
            *  Simple Resource Control Protocol
 
-         To connect MG to MGCs using these control protocols through 
-         an IP/UDP Ports which must be configured. To resolve IP 
+         To connect MG to MGCs using these control protocols through
+         an IP/UDP Ports which must be configured. To resolve IP
          Addresses, DNS name services may be used.
         "
+    REVISION        "200902250000Z"
+    DESCRIPTION
+        "Added object cmgwV23Enabled to
+        cMediaGwTable."
+
+    REVISION "200606150000Z"
+    DESCRIPTION
+        "Added object cmgwLawInterceptEnabled to
+         cMediaGwTable.
+         Added object cMediaGwCcCfgDefRtpNamePrefix to
+         cMediaGwCallControlConfigTable.
+        "
+    REVISION "200509010000Z"
+    DESCRIPTION
+        "Added object cmgwSrcFilterEnabled to
+         cMediaGwTable.
+         Added object cmgwSignalProtocolConfigVer
+         to cmgwSignalProtocolTable.
+         Added cMediaGwRscStatsTable."
+
+    REVISION "200411190000Z"
+    DESCRIPTION
+        "Added object cmgwSignalProtocolPreference to
+         cmgwSignalProtocolTable."
+
+    REVISION "200407300000Z"
+    DESCRIPTION
+        "(1) Added the following objects:
+              cmgwVtMappingMode,
+              cMediaGwCcCfgDefBearerTraffic,
+              cmgwSignalMgcProtocolPort
+
+         (2) Added new enum 'tgcp' to cmgwSignalProtocol
+        "
+
     REVISION "200304070000Z"
     DESCRIPTION
         "Initial version of this MIB module"
@@ -86,131 +122,134 @@ ciscoMediaGatewayMIB  MODULE-IDENTITY
 ciscoMediaGatewayMIBNotifs         OBJECT IDENTIFIER
                                 ::= {ciscoMediaGatewayMIB 0}
 
-ciscoMediaGatewayMIBObjects        OBJECT IDENTIFIER 
+ciscoMediaGatewayMIBObjects        OBJECT IDENTIFIER
                                 ::= { ciscoMediaGatewayMIB 1 }
 
-cMediaGwConfig                     OBJECT IDENTIFIER 
+cMediaGwConfig                     OBJECT IDENTIFIER
                                 ::= { ciscoMediaGatewayMIBObjects 1 }
+
+cMediaGwStats                      OBJECT IDENTIFIER
+                                ::= { ciscoMediaGatewayMIBObjects 2 }
 
 -- *********************************************************************
 -- TEXTUAL CONVENTIONS USED IN THIS MIB
 -- *********************************************************************
- 
+
 CGwServiceState ::= TEXTUAL-CONVENTION
-    STATUS	current
+    STATUS        current
     DESCRIPTION
-       "This textual convention defines the service state of media 
+       "This textual convention defines the service state of media
         gateway.
         The possible service states are:
 
           inService:
-	    Gateway is ready to provide service. 
+            Gateway is ready to provide service.
             In this state, Gateway will respond to connection control
             requests, send autonomous messages to the call agent
             as applicable, etc.
 
           forcedOutOfService:
             Gateway is in Out-Of-Service State.
-            All calls destroyed on the GW. 
+            All calls destroyed on the GW.
             A Service Change message with FORCED method is sent to CA.
             No new connections are allowed.
 
           gracefulOutOfService:
             Gateway is in Out-Of-Service State.
-            All existing calls will not be affected. 
+            All existing calls will not be affected.
             A Service Change message with GRACEFUL method is sent to CA.
             No new connections are allowed."
     SYNTAX  INTEGER {
-		     inService            (1),
- 		     forcedOutOfService   (2),
-		     gracefulOutOfService (3)
-		    }
+                     inService            (1),
+                     forcedOutOfService   (2),
+                     gracefulOutOfService (3)
+                    }
 
 CGwAdminState ::= TEXTUAL-CONVENTION
-    STATUS	current
+    STATUS      current
     DESCRIPTION
-       "This textual convention defines the administrative state of  
+       "This textual convention defines the administrative state of
         media gateway.
 
         The possible administrative states are as follows:
-          inService: 
-              Gateway would be restored to in-service status 
-              and a ServiceChange with method RESTART message will be 
+          inService:
+              Gateway would be restored to in-service status
+              and a ServiceChange with method RESTART message will be
               sent to Call Agent
-             
-          forcefulOutOfService: 
-              Gateway would be in Out-Of-Service State 
+
+          forcefulOutOfService:
+              Gateway would be in Out-Of-Service State
               Any existing connections on the GW will be deleted.
-              A ServiceChange with method FORCED message will be 
+              A ServiceChange with method FORCED message will be
               sent to call agent.
-              New connections would be blocked.       
+              New connections would be blocked.
 
-          gracefulOutOfService: 
-
-              Gateway would be in in Out-Of-Service State 
+          gracefulOutOfService:
+              Gateway would be in in Out-Of-Service State
               Any existing connections on the GW will not be affected.
-              A ServiceChange with method GRACEFUL message will be 
+              A ServiceChange with method GRACEFUL message will be
               sent to call agent.
               New connections would be blocked."
+
     SYNTAX  INTEGER {
-		     inService            (1),
- 		     forcedOutOfService   (2),
-		     gracefulOutOfService (3)
-		    }
+                    inService            (1),
+                    forcedOutOfService   (2),
+                    gracefulOutOfService (3)
+                    }
 
 GatewayLifNumber ::= TEXTUAL-CONVENTION
-    STATUS	current
+    STATUS         current
     DESCRIPTION
        "An index that uniquely identifies a LIF (Logical Interface)
-        in the media gateway. 
+        in the media gateway.
         LIF is a logical interface which groups TDM(DS1) interfaces
-        into packet resource partitions (PVCs) in the media gateway.  
+        into packet resource partitions (PVCs) in the media gateway.
         LIF is used for:
-           AAL5 (VoIP) switching 
+           AAL5 (VoIP) switching
            AAL2 (VoATM) switching, only if support virtual gateway "
     SYNTAX  Unsigned32 (1..255)
 
 CVoiceTonePlanIndex ::= TEXTUAL-CONVENTION
     STATUS          current
-    DESCRIPTION       
-       "This textual convention defines the type of index for 
+    DESCRIPTION
+       "This textual convention defines the type of index for
         identifying a voice tone plane in a Media gateway."
-    SYNTAX   Unsigned32 (1..65535) 
+    SYNTAX   Unsigned32 (1..65535)
 
 CVoiceTonePlanIndexOrZero ::= TEXTUAL-CONVENTION
     STATUS          current
-    DESCRIPTION       
-       "This textual convention uniquely identifies the voice tone plan 
+    DESCRIPTION
+       "This textual convention uniquely identifies the voice tone plan
         to be used in a voice DS0 group.
 
         The value of 0 means the default tone plan specified in
         the media gateway (the value of cMediaGwCcCfgDefaultTonePlanId)
         to be used.
 
-        A value greater than 0 means the tone plan specified by the 
-        index of the cvtcTonePlanTable to be used (same as 
+        A value greater than 0 means the tone plan specified by the
+        index of the cvtcTonePlanTable to be used (same as
         cvtcTonePlanId)."
-    SYNTAX   Unsigned32 (0..65535) 
+    SYNTAX   Unsigned32 (0..65535)
 
 CCallControlProfileIndex ::= TEXTUAL-CONVENTION
     STATUS          current
-    DESCRIPTION       
-       "This textual convention defines the type of index that is 
-        used for identifying a call control profile of XGCP and 
+    DESCRIPTION
+       "This textual convention defines the type of index that is
+        used for identifying a call control profile of XGCP and
         H.248 protocol."
-    SYNTAX   Unsigned32 (1..65535) 
+    SYNTAX   Unsigned32 (1..65535)
 
 CCallControlProfileIndexOrZero ::= TEXTUAL-CONVENTION
     STATUS          current
-    DESCRIPTION       
-       "This textual convention is an extension of the 
-        CCallControlProfileIndex convention. 
-        The latter defines a greater than zero value used to identify 
-        a call control profile in a media gateway.  
+    DESCRIPTION
+       "This textual convention is an extension of the
+        CCallControlProfileIndex convention.
+        The latter defines a greater than zero value used to identify
+        a call control profile in a media gateway.
         This extension permits the additional value of zero.
-        The value of '0' means the default call control profile of the 
+        The value of '0' means the default call control profile of the
         media gateway."
-    SYNTAX   Unsigned32 (0..65535) 
+    SYNTAX   Unsigned32 (0..65535)
 
 CCallControlJitterDelayMode ::= TEXTUAL-CONVENTION
     STATUS        current
@@ -218,7 +257,7 @@ CCallControlJitterDelayMode ::= TEXTUAL-CONVENTION
        "This textual convention defines the jitter buffer mode in
         a call connection.
 
-        adaptive(1) - means to use jitter nominal delay as the 
+        adaptive(1) - means to use jitter nominal delay as the
                       initial jitter buffers size and let the DSP
                       pick the optimal value of the jitter buffer
                       size between the range of jitter maximum delay
@@ -233,7 +272,7 @@ CCallControlJitterDelayMode ::= TEXTUAL-CONVENTION
                   }
 
 -- *********************************************************************
---  cMediaGwTable 
+--  cMediaGwTable
 -- *********************************************************************
 
 cMediaGwTable  OBJECT-TYPE
@@ -243,8 +282,8 @@ cMediaGwTable  OBJECT-TYPE
     DESCRIPTION
         "This table contains the global media gateway parameters
          information.
-         It supports the modification of the global media gateway 
-         parameters." 
+         It supports the modification of the global media gateway
+         parameters."
     ::= { cMediaGwConfig 1 }
 
 cMediaGwEntry  OBJECT-TYPE
@@ -252,9 +291,9 @@ cMediaGwEntry  OBJECT-TYPE
     MAX-ACCESS     not-accessible
     STATUS         current
     DESCRIPTION
-        "A Media Gateway Entry.  
-         At system power-up, an entry is created by the agent 
-         if the system detects a media gateway module has been added 
+        "A Media Gateway Entry.
+         At system power-up, an entry is created by the agent
+         if the system detects a media gateway module has been added
          to the system, and an entry is deleted if the entry associated
          media gateway module has been removed from the system."
     INDEX       { cmgwIndex }
@@ -266,7 +305,11 @@ CMediaGwEntry::= SEQUENCE {
                    cmgwPhysicalIndex      EntPhysicalIndexOrZero,
                    cmgwServiceState       CGwServiceState,
                    cmgwAdminState         CGwAdminState,
-                   cmgwGraceTime          Integer32
+                   cmgwGraceTime          Integer32,
+                   cmgwVtMappingMode      INTEGER,
+                   cmgwSrcFilterEnabled   TruthValue,
+                   cmgwLawInterceptEnabled  TruthValue,
+                   cmgwV23Enabled           TruthValue
                   }
 
 cmgwIndex  OBJECT-TYPE
@@ -274,37 +317,37 @@ cmgwIndex  OBJECT-TYPE
     MAX-ACCESS     not-accessible
     STATUS         current
     DESCRIPTION
-        "An index that uniquely identifies an entry in the 
+        "An index that uniquely identifies an entry in the
          cMediaGwTable."
     ::= { cMediaGwEntry 1 }
 
 cmgwDomainName  OBJECT-TYPE
-    SYNTAX         SnmpAdminString (SIZE (0..64)) 
+    SYNTAX         SnmpAdminString (SIZE (0..64))
     MAX-ACCESS     read-only
     STATUS         current
     DESCRIPTION
-        "This object is used to represent a domain name under which   
+        "This object is used to represent a domain name under which
          the Media Gateway could also be registered in a DNS name
-         server. 
+         server.
 
-         The value of this object reflects the value of 
-         cmgwConfigDomainName from the entry with a value of 
-         'gateway(1)' for object cmgwConfigDomainNameEntity of 
+         The value of this object reflects the value of
+         cmgwConfigDomainName from the entry with a value of
+         'gateway(1)' for object cmgwConfigDomainNameEntity of
          cMediaGwDomainNameConfigTable.
- 
+
          If there is no entry in cMediaGwDomainNameConfigTable with
          'gateway(1)' of cmgwConfigDomainNameEntity, then
          the value of this object will be empty string."
     ::= { cMediaGwEntry 2 }
 
 cmgwPhysicalIndex  OBJECT-TYPE
-    SYNTAX         EntPhysicalIndexOrZero 
+    SYNTAX         EntPhysicalIndexOrZero
     MAX-ACCESS     read-only
     STATUS         current
     DESCRIPTION
         "This object represents the entPhysicalIndex of the
          card in which media gateway is running. It will contain
-         value 0 if the entPhysicalIndex value is not available or 
+         value 0 if the entPhysicalIndex value is not available or
          not applicable"
     ::= { cMediaGwEntry 3 }
 
@@ -314,9 +357,9 @@ cmgwServiceState  OBJECT-TYPE
     MAX-ACCESS     read-only
     STATUS         current
     DESCRIPTION
-        "This object indicates the current service state of the Media 
+        "This object indicates the current service state of the Media
          Gateway.
-         This object is controlled by 'cmgwAdminState' 
+         This object is controlled by 'cmgwAdminState'
          object."
     ::= { cMediaGwEntry 4 }
 
@@ -325,27 +368,87 @@ cmgwAdminState  OBJECT-TYPE
     MAX-ACCESS     read-write
     STATUS         current
     DESCRIPTION
-        "This object is used to change the service state of 
-         the Media Gateway from inService to outOfService or from 
-         outOfService to inService. 
-         The resulting service state of the gateway is represented  
+        "This object is used to change the service state of
+         the Media Gateway from inService to outOfService or from
+         outOfService to inService.
+         The resulting service state of the gateway is represented
          by 'cmgwServiceState'."
     ::= { cMediaGwEntry 5 }
 
 cmgwGraceTime  OBJECT-TYPE
-    SYNTAX         Integer32(-1..65535) 
+    SYNTAX         Integer32(-1..65535)
     UNITS          "seconds"
     MAX-ACCESS     read-write
     STATUS         current
     DESCRIPTION
         "This object is used to represent grace period.
-         The grace period (restart delay in RSIP message) is  
-         expressed in a number of seconds. 
+         The grace period (restart delay in RSIP message) is
+         expressed in a number of seconds.
          It means how soon the gateway will be taken out of service.
          The value -1 indicates that the grace period time is
          disabled."
     DEFVAL { -1 }
     ::= { cMediaGwEntry 6 }
+
+cmgwVtMappingMode  OBJECT-TYPE
+    SYNTAX    INTEGER {
+                  standard     (1),
+                  titan        (2)
+              }
+    MAX-ACCESS     read-write
+    STATUS         current
+    DESCRIPTION
+        "This object is used to represent the VT (sonet Virtual
+         Tributary) counting.
+
+         standard - standard counting (based on Bellcore TR253)
+         titan    - TITAN5500 counting (based on Tellabs TITAN 5500)
+
+         Note: 'titan' is valid only if sonet line medium type
+               (sonetMediumType of SONET-MIB) is 'sonet' and
+               sonet path payload type (cspSonetPathPayload of
+               CISCO-SONET-MIB) is 'vt15vc11'.
+        "
+     ::= { cMediaGwEntry 7 }
+
+cmgwSrcFilterEnabled  OBJECT-TYPE
+    SYNTAX          TruthValue
+    MAX-ACCESS      read-write
+    STATUS          current
+    DESCRIPTION
+        "This object is used to enable or disable the source IP
+         and port filtering with MGC for security consideration
+         as follows:
+           'true'  - source IP and port filter is enabled
+           'false' - source IP and port filter is disable
+        "
+    DEFVAL { false }
+    ::= { cMediaGwEntry 8 }
+
+cmgwLawInterceptEnabled  OBJECT-TYPE
+    SYNTAX          TruthValue
+    MAX-ACCESS      read-write
+    STATUS          current
+    DESCRIPTION
+        "This object is used to enable or disable the lawful
+         intercept for government.
+         as follows:
+           'true'  - enable lawful intercept
+           'false' - disable lawful intercept
+        "
+    DEFVAL { false }
+    ::= { cMediaGwEntry 9 }
+cmgwV23Enabled OBJECT-TYPE
+    SYNTAX          TruthValue
+    MAX-ACCESS      read-write
+    STATUS          current
+    DESCRIPTION
+        "This object is to enable or disable V23 tone.
+         Setting the object value to 'true', will cause VXSM (Voice Switching
+         Service Module) to detect V23 tone.
+         "
+          DEFVAL          { false }
+    ::= { cMediaGwEntry 10 }
 
 
 -- *********************************************************************
@@ -376,17 +479,20 @@ CmgwSignalProtocolEntry::= SEQUENCE {
                    cmgwSignalProtocolIndex        Integer32,
                    cmgwSignalProtocol             INTEGER,
                    cmgwSignalProtocolVersion      SnmpAdminString,
-                   cmgwSignalProtocolPort         CiscoPort
+                   cmgwSignalProtocolPort         CiscoPort,
+                   cmgwSignalMgcProtocolPort      InetPortNumber,
+                   cmgwSignalProtocolPreference   Integer32,
+                   cmgwSignalProtocolConfigVer    SnmpAdminString
                   }
 
 
 cmgwSignalProtocolIndex  OBJECT-TYPE
-    SYNTAX         Integer32(1..65535) 
+    SYNTAX         Integer32(1..65535)
     MAX-ACCESS     not-accessible
     STATUS         current
     DESCRIPTION
         "An index that uniquely identifies an entry in
-         cmgwSignalProtocolTable." 
+         cmgwSignalProtocolTable."
     ::= { cmgwSignalProtocolEntry 1 }
 
 
@@ -394,15 +500,17 @@ cmgwSignalProtocol  OBJECT-TYPE
     SYNTAX    INTEGER {
                   other     (1),
                   mgcp      (2),
-                  h248    (3)
-              } 
+                  h248      (3),
+                  tgcp      (4)
+              }
     MAX-ACCESS     read-only
     STATUS         current
     DESCRIPTION
         "This object is used to represent the protocol type.
          other - None of the following types.
          mgcp  - Media Gateway Control Protocol
-         h248 - Media Gateway Control (ITU H.248) "
+         h248 - Media Gateway Control (ITU H.248)
+         tgcp - Trunking Gateway Control Protocol"
      ::= { cmgwSignalProtocolEntry 2 }
 
 
@@ -411,9 +519,9 @@ cmgwSignalProtocolVersion OBJECT-TYPE
     MAX-ACCESS      read-only
     STATUS          current
     DESCRIPTION
-        "This object is used to represent the protocol version. 
+        "This object is used to represent the protocol version.
          For example cmgwSignalProtocol is 'mgcp(2)' and
-         this object is string '1.0'. cmgwSignalProtocol is 
+         this object is string '1.0'. cmgwSignalProtocol is
          'h248(3)' and this object is set to '2.0'."
     REFERENCE
         "MCGP 1.0 is documented in RFC2705."
@@ -425,18 +533,75 @@ cmgwSignalProtocolPort  OBJECT-TYPE
     MAX-ACCESS     read-write
     STATUS         current
     DESCRIPTION
-        "This object is used to represent the UDP port associated 
+        "This object is used to represent the UDP port associated
          with the protocol.
          If the value of cmgwSignalProtocol is 'mgcp(2)' and the
          value of cmgwSignalProtcolVersion is '1.0', the default
-         value of this object is '2727'. 
-         If the value of cmgwSignalProtocol is 'mgcp(3)' and the
+         value of this object is '2727'.
+         If the value of cmgwSignalProtocol is 'h248(3)' and the
          value of cmgwSignalProtcolVersion is '1.0', the default
          value of this object is '2944'."
     ::= { cmgwSignalProtocolEntry 4 }
 
+cmgwSignalMgcProtocolPort  OBJECT-TYPE
+    SYNTAX         InetPortNumber
+    MAX-ACCESS     read-write
+    STATUS         current
+    DESCRIPTION
+        "This object specifies the protocol port of the Media Gateway
+         Controller (MGC).
+         If the value of cmgwSignalProtocol is 'mgcp(2)' or 'tgcp(4)'
+         and the value of cmgwSignalProtcolVersion is '1.0', the
+         default value of this object is '2427'.
+         If the value of cmgwSignalProtocol is 'h248(3)' and the
+         value of cmgwSignalProtcolVersion is '1.0', the default
+         value of this object is '2944'."
+    ::= { cmgwSignalProtocolEntry 5 }
+
+cmgwSignalProtocolPreference  OBJECT-TYPE
+    SYNTAX         Integer32 (0..255)
+    MAX-ACCESS     read-write
+    STATUS         current
+    DESCRIPTION
+        "This object specifies the preference of the signal protocol
+         supported in the media gateway.
+
+         If this object is set to 0, the corresponding signal
+         protocol will not be used by the gateway.
+
+         The value of this object is unique within the corresponding
+         gateway. The entry with lower value has higher preference."
+
+    ::= { cmgwSignalProtocolEntry 6 }
+
+cmgwSignalProtocolConfigVer  OBJECT-TYPE
+    SYNTAX          SnmpAdminString (SIZE (1..16))
+    MAX-ACCESS      read-write
+    STATUS          current
+    DESCRIPTION
+        "This object specifies the protocol version
+         used by the gateway in the messages to MGC
+         in order to exchange the service capabilities.
+
+         For example cmgwSignalProtocol is 'h248(3)' and
+         this object can be string '1' or '1.0', '2' or '2.0'.
+
+         'MAX' is a special string indicating the gateway will
+         use the highest protocol version supported in the
+         gateway, but it can be changed to lower version after
+         it negotiates with MGC. The final negotiated protocol
+         version will be indicated in cmgwSignalProtocolVersion.
+
+         The version strings other than 'MAX' can be specified for
+         the gateway to communicate with the MGC which doesn't
+         support service capabilities negotiation. For example if
+         a MGC supports only version 1.0 MGCP, this object should
+         be set to '1' to instruct the gateway using MGCP
+         version 1.0 format messages to communicate with MGC. "
+    ::= { cmgwSignalProtocolEntry 7 }
+
 -- *********************************************************************
--- cMediaGwIpConfigTable 
+-- cMediaGwIpConfigTable
 -- *********************************************************************
 
 cMediaGwIpConfigTable     OBJECT-TYPE
@@ -447,16 +612,16 @@ cMediaGwIpConfigTable     OBJECT-TYPE
         "This table contains a list of media gateway IP address and
          the IP address associated interface information.
 
-         If IP address associated interface is PVC, only 
-         aal5 control PVC or aal5 bearer PVC are valid.       
-         When the PVC is aal5 control, the IP address is used to 
+         If IP address associated interface is PVC, only
+         aal5 control PVC or aal5 bearer PVC are valid.
+         When the PVC is aal5 control, the IP address is used to
          communicate to MGC; when the PVC is aal5 bearer, the IP
          address is used to communicate to other gateway.
          The PVC information is kept in cwAtmChanExtConfigTable:
           cwacChanPvcType:      aal5/aal2/aal1
           cwacChanApplication:  control/bearer/signaling
 
-         If IP address associated interface is not PVC, refer to the 
+         If IP address associated interface is not PVC, refer to the
          IP addresses associated interface table for the usage
          of IP address."
     ::= { cMediaGwConfig 3 }
@@ -467,7 +632,7 @@ cMediaGwIpConfigEntry     OBJECT-TYPE
     MAX-ACCESS     not-accessible
     STATUS         current
     DESCRIPTION
-        "A Media Gateway IP configuration entry. 
+        "A Media Gateway IP configuration entry.
          Each entry represents a media gateway IP address for MGCs
          to communicate with the media gateway."
     INDEX       { cmgwIndex, cmgwIpConfigIndex }
@@ -523,7 +688,7 @@ cmgwIpConfigVpi    OBJECT-TYPE
     DESCRIPTION
         "This object represents VPI of the PVC which is associated
          to the IP address.
-         If the IP address is not associated to PVC, the value 
+         If the IP address is not associated to PVC, the value
          of this object is set to -1."
     ::= { cMediaGwIpConfigEntry 3 }
 
@@ -540,16 +705,16 @@ cmgwIpConfigVci    OBJECT-TYPE
 
 cmgwIpConfigAddrType   OBJECT-TYPE
     SYNTAX             InetAddressType
-    MAX-ACCESS         read-create 
+    MAX-ACCESS         read-create
     STATUS             current
     DESCRIPTION
         "This object is the IP address type.
-        " 
+        "
     DEFVAL { ipv4 }
     ::= { cMediaGwIpConfigEntry 5 }
 
 cmgwIpConfigAddress   OBJECT-TYPE
-    SYNTAX            InetAddress 
+    SYNTAX            InetAddress
     MAX-ACCESS        read-create
     STATUS            current
     DESCRIPTION
@@ -564,15 +729,15 @@ cmgwIpConfigSubnetMask   OBJECT-TYPE
     MAX-ACCESS           read-create
     STATUS               current
     DESCRIPTION
-        "This object is used to specify the number of leading one   
-         bits which from the mask to be logical-ANDed with the media  
-         gateway address before being compared to the value in the 
+        "This object is used to specify the number of leading one
+         bits which from the mask to be logical-ANDed with the media
+         gateway address before being compared to the value in the
          cmgwIpCofigAddress.
 
          Any assignment (implicit or otherwise) of an instance of
          this object to a value x must be rejected if the bitwise
-         logical-AND of the mask formed from x with the value 
-         of the corresponding instance of the cmgwIpCofigAddress 
+         logical-AND of the mask formed from x with the value
+         of the corresponding instance of the cmgwIpCofigAddress
          object is not equal to cmgwIpCofigAddress."
     ::= { cMediaGwIpConfigEntry 7 }
 
@@ -595,7 +760,7 @@ cmgwIpConfigForRemoteMapping  OBJECT-TYPE
     DESCRIPTION
         "This object specifies whether the address defined in
          cmgwIpConfigAddress is the address mapping at the
-         remote end of this PVC. 
+         remote end of this PVC.
 
          If this object is set to 'true', the address defined
          in cmgwIpConfigAddress is for the remote end of the PVC.
@@ -605,13 +770,13 @@ cmgwIpConfigForRemoteMapping  OBJECT-TYPE
     ::= { cMediaGwIpConfigEntry 9 }
 
 cmgwIpConfigRowStatus OBJECT-TYPE
-    SYNTAX            RowStatus 
+    SYNTAX            RowStatus
     MAX-ACCESS        read-create
     STATUS            current
     DESCRIPTION
         "This object is used to add and delete an entry.
 
-         When an entry of the table is created, the following 
+         When an entry of the table is created, the following
          objects are mandatory:
              cmgwIpConfigIfIndex
              cmgwIpConfigVpi
@@ -620,17 +785,17 @@ cmgwIpConfigRowStatus OBJECT-TYPE
              cmgwIpConfigSubnetMask
 
          These objects can not be modified after the value of this
-         object is set to 'active'. 
-         Modification can only be done by deleting and re-adding the 
+         object is set to 'active'.
+         Modification can only be done by deleting and re-adding the
          entry again.
 
          After the system verify the validity of the data, it
-         will set the cmgwIpConfigRowStatus to 'active'." 
+         will set the cmgwIpConfigRowStatus to 'active'."
     ::= { cMediaGwIpConfigEntry 10 }
 
 
 -- *********************************************************************
--- cMediaGwDomainNameConfigTable 
+-- cMediaGwDomainNameConfigTable
 -- *********************************************************************
 
 cMediaGwDomainNameConfigTable OBJECT-TYPE
@@ -638,16 +803,16 @@ cMediaGwDomainNameConfigTable OBJECT-TYPE
     MAX-ACCESS  not-accessible
     STATUS  current
     DESCRIPTION
-	"This table provides the domain names which are configured by 
-         users. 
-         The domain names can be used to represent IP addresses 
+        "This table provides the domain names which are configured by
+         users.
+         The domain names can be used to represent IP addresses
          for:
              gateway
              External DNS name server
              MGC (call agent) "
     ::= { cMediaGwConfig 4 }
 
- 
+
 cMediaGwDomainNameConfigEntry    OBJECT-TYPE
     SYNTAX  CMediaGwDomainNameConfigEntry
     MAX-ACCESS  not-accessible
@@ -656,8 +821,7 @@ cMediaGwDomainNameConfigEntry    OBJECT-TYPE
         "Each entry represents a domain name used in the system.
 
          Creation and deletion are supported. Modification
-         is prohibited.
-	"
+         is prohibited."
     INDEX       { cmgwIndex, cmgwConfigDomainNameIndex }
     ::= { cMediaGwDomainNameConfigTable 1 }
 
@@ -692,16 +856,16 @@ cmgwConfigDomainNameEntity OBJECT-TYPE
         "This object indicates which entity to use this domain name.
 
          gateway(1)   - The domain name of media gateway.
-                        With the same cmgwIndex, there is one and 
-                        only one entry allowed with the value 
+                        With the same cmgwIndex, there is one and
+                        only one entry allowed with the value
                         'gateway(1)' of this object.
 
-         dnsServer(2) - The domain name of DNS name server that is used 
-                        by Media gateway to find Internet Network 
+         dnsServer(2) - The domain name of DNS name server that is used
+                        by Media gateway to find Internet Network
                         Address from a DNS name.
 
          mgc(3)       - The domain name of a MGC (Media Gateway
-                        Controller) associated with the media 
+                        Controller) associated with the media
                         gateway. "
     ::= {cMediaGwDomainNameConfigEntry  2}
 
@@ -713,10 +877,10 @@ cmgwConfigDomainName     OBJECT-TYPE
         "This object specifies the domain name.
 
          The domain name should be unique if there are more than
-         one entries having the same value in the object 
+         one entries having the same value in the object
          cmgwConfigDomainNameEntity.
-         For example, the gateway domain name should be unique 
-         if the cmgwConfigDomainNameEntity has the value of 
+         For example, the gateway domain name should be unique
+         if the cmgwConfigDomainNameEntity has the value of
          'gateway(1)'."
     ::= {cMediaGwDomainNameConfigEntry  3}
 
@@ -733,11 +897,11 @@ cmgwConfigDomainNameRowStatus     OBJECT-TYPE
               cmgwConfigDomainNameEntity
 
          When deleting domain name of DNS name server
-         (cmgwConfigDomainNameEntity is dnsServer (2)), the 
+         (cmgwConfigDomainNameEntity is dnsServer (2)), the
          cMediaGwDnsIpConfigTable should be empty.
 
          Adding/deleting entry with cmgwConfigDomainNameEntity
-         of 'mgc' will cause adding/deleting entry in 
+         of 'mgc' will cause adding/deleting entry in
          cMgcConfigTable (CISCO-MGC-MIB) automatically.
 
          The cmgwConfigDomainName and cmgwConfigDomainNameEntity
@@ -746,7 +910,7 @@ cmgwConfigDomainNameRowStatus     OBJECT-TYPE
     ::= {cMediaGwDomainNameConfigEntry  4}
 
 -- *********************************************************************
--- cMediaGwDnsIpConfigTable 
+-- cMediaGwDnsIpConfigTable
 -- *********************************************************************
 
 cMediaGwDnsIpConfigTable OBJECT-TYPE
@@ -754,25 +918,25 @@ cMediaGwDnsIpConfigTable OBJECT-TYPE
     MAX-ACCESS  not-accessible
     STATUS  current
     DESCRIPTION
-	"There is only one DNS name server on a gateway
-         and the domain name of the DNS name server is put on 
+        "There is only one DNS name server on a gateway
+         and the domain name of the DNS name server is put on
          cMediaGwDomainNameConfigTable with 'dnsServer (2)'.
 
          There could be multi IP addresses are associated with the
-         DNS name server, this table is used to store these IP 
+         DNS name server, this table is used to store these IP
          addresses.
 
          If any domain name using external resolution, the last entry
          of this table is not allowed to be deleted."
     ::= { cMediaGwConfig 5 }
 
- 
+
 cMediaGwDnsIpConfigEntry    OBJECT-TYPE
     SYNTAX  CMediaGwDnsIpConfigEntry
     MAX-ACCESS  not-accessible
     STATUS  current
     DESCRIPTION
-        "Each entry represents an IP address of the DNS name 
+        "Each entry represents an IP address of the DNS name
          server."
     INDEX       { cmgwIndex, cmgwDnsIpIndex }
     ::= { cMediaGwDnsIpConfigTable 1 }
@@ -780,7 +944,7 @@ cMediaGwDnsIpConfigEntry    OBJECT-TYPE
 CMediaGwDnsIpConfigEntry ::=
     SEQUENCE{
               cmgwDnsIpIndex          Integer32,
-              cmgwDnsDomainName       SnmpAdminString, 
+              cmgwDnsDomainName       SnmpAdminString,
               cmgwDnsIpType           InetAddressType,
               cmgwDnsIp               InetAddress,
               cmgwDnsIpRowStatus      RowStatus
@@ -802,11 +966,11 @@ cmgwDnsDomainName OBJECT-TYPE
     DESCRIPTION
         "The domain name of DNS name server.
 
-         The value of this object reflects the value of 
-         cmgwConfigDomainName from the entry with a value of 
-         'dnsServer(2)' for object cmgwConfigDomainNameEntity of 
+         The value of this object reflects the value of
+         cmgwConfigDomainName from the entry with a value of
+         'dnsServer(2)' for object cmgwConfigDomainNameEntity of
          cMediaGwDomainNameConfigTable.
- 
+
          If there is no entry in cMediaGwDomainNameConfigTable with
          'dnsServer(2)' of cmgwConfigDomainNameEntity, then
          the value of this object will be empty string."
@@ -846,14 +1010,14 @@ cmgwDnsIpRowStatus     OBJECT-TYPE
          When the user wants to delete the entry, the value of
          this object should be set to 'destroy'.
 
-         The entry can not be modified if the value of this 
+         The entry can not be modified if the value of this
          object is 'active'."
     ::= {cMediaGwDnsIpConfigEntry  5}
 
 -- *********************************************************************
 --
--- A LIF (Logical InterFace) is a group of TDM ports 
--- (DSx1 lines) associated with a set of PVCs. 
+-- A LIF (Logical InterFace) is a group of TDM ports
+-- (DSx1 lines) associated with a set of PVCs.
 --
 -- *********************************************************************
 
@@ -862,16 +1026,16 @@ cmgwLifTable       OBJECT-TYPE
     MAX-ACCESS     not-accessible
     STATUS         current
     DESCRIPTION
-        "This table is for managing LIF (Logical Interface) 
-         in a media gateway. 
+        "This table is for managing LIF (Logical Interface)
+         in a media gateway.
 
-         LIF is a logical interface which groups the TDM 
-         DSx1s associated with a set of packet resource partitions 
+         LIF is a logical interface which groups the TDM
+         DSx1s associated with a set of packet resource partitions
          (PVCs) in a media gateway.
 
          LIF is used for:
-         1. VoIP switching 
-         2. VoATM switching " 
+         1. VoIP switching
+         2. VoATM switching "
 
     ::= { cMediaGwConfig 6 }
 
@@ -886,8 +1050,8 @@ cmgwLifEntry       OBJECT-TYPE
     ::= { cmgwLifTable 1 }
 
 CmgwLifEntry::= SEQUENCE  {
-    cmgwLifNumber	 GatewayLifNumber,
-    cmgwLifPvcCount      Gauge32,  
+    cmgwLifNumber        GatewayLifNumber,
+    cmgwLifPvcCount      Gauge32,
     cmgwLifVoiceIfCount  Gauge32
 }
 
@@ -896,7 +1060,7 @@ cmgwLifNumber      OBJECT-TYPE
     MAX-ACCESS     not-accessible
     STATUS         current
     DESCRIPTION
-        "An index that uniquely identifies a LIF in the 
+        "An index that uniquely identifies a LIF in the
          media gateway."
     ::= { cmgwLifEntry 1 }
 
@@ -905,15 +1069,15 @@ cmgwLifPvcCount     OBJECT-TYPE
     MAX-ACCESS      read-only
     STATUS          current
     DESCRIPTION
-        "This object represents the total number of PVC within 
+        "This object represents the total number of PVC within
          this LIF.
 
-         When users associate/disassociate a PVC with a LIF 
+         When users associate/disassociate a PVC with a LIF
          by giving a non-zero/zero value of cwacChanLifNum
-         in cwAtmChanExtConfigTable, the value of this object 
+         in cwAtmChanExtConfigTable, the value of this object
          will be incremented/decremented accordingly.
 
-         The value zero means there is no PVC associated with 
+         The value zero means there is no PVC associated with
          the LIF."
     ::= { cmgwLifEntry 2 }
 
@@ -926,41 +1090,41 @@ cmgwLifVoiceIfCount OBJECT-TYPE
          within this LIF.
 
          When users associate/disassociate a Voice Interface with
-         a LIF by giving a non-zero/zero value of 
-         ccasVoiceCfgLifNumber for the DS0 group in 
-         ccasVoiceExtCfgTable, the value of this object will be 
-         incremented/decremented accordingly. 
+         a LIF by giving a non-zero/zero value of
+         ccasVoiceCfgLifNumber for the DS0 group in
+         ccasVoiceExtCfgTable, the value of this object will be
+         incremented/decremented accordingly.
 
          The value zero means there is no Voice Interface associated
          with the LIF."
     ::= { cmgwLifEntry 3 }
 
--- ********************************************************************  
--- 
--- cMediaGwCallControlConfigTable 
--- 
--- ********************************************************************  
-cMediaGwCallControlConfigTable OBJECT-TYPE 
-    SYNTAX        SEQUENCE OF CMediaGwCallControlConfigEntry 
-    MAX-ACCESS    not-accessible 
-    STATUS        current 
-    DESCRIPTION 
+-- ********************************************************************
+--
+-- cMediaGwCallControlConfigTable
+--
+-- ********************************************************************
+cMediaGwCallControlConfigTable OBJECT-TYPE
+    SYNTAX        SEQUENCE OF CMediaGwCallControlConfigEntry
+    MAX-ACCESS    not-accessible
+    STATUS        current
+    DESCRIPTION
         "This table defines general call control attributes for
          the media gateway."
-    ::= { cMediaGwConfig 7 } 
-      
-cMediaGwCallControlConfigEntry OBJECT-TYPE 
-    SYNTAX        CMediaGwCallControlConfigEntry 
-    MAX-ACCESS    not-accessible 
-    STATUS        current 
-    DESCRIPTION 
-        "One entry for each media gateway which supports call control 
+    ::= { cMediaGwConfig 7 }
+
+cMediaGwCallControlConfigEntry OBJECT-TYPE
+    SYNTAX        CMediaGwCallControlConfigEntry
+    MAX-ACCESS    not-accessible
+    STATUS        current
+    DESCRIPTION
+        "One entry for each media gateway which supports call control
          protocol."
-    INDEX       { cmgwIndex } 
-    ::= { cMediaGwCallControlConfigTable 1 } 
-      
-CMediaGwCallControlConfigEntry ::= SEQUENCE 
-    { 
+    INDEX       { cmgwIndex }
+    ::= { cMediaGwCallControlConfigTable 1 }
+
+CMediaGwCallControlConfigEntry ::= SEQUENCE
+    {
     cMediaGwCcCfgControlTos         Unsigned32,
     cMediaGwCcCfgBearerTos          Unsigned32,
     cMediaGwCcCfgNtePayload         Unsigned32,
@@ -976,10 +1140,12 @@ CMediaGwCallControlConfigEntry ::= SEQUENCE
     cMediaGwCcCfgRtpNamePrefix      SnmpAdminString,
     cMediaGwCcCfgAal1SvcNamePrefix  SnmpAdminString,
     cMediaGwCcCfgAal2SvcNamePrefix  SnmpAdminString,
-    cMediaGwCcCfgClusterEnabled     INTEGER
+    cMediaGwCcCfgClusterEnabled     INTEGER,
+    cMediaGwCcCfgDefBearerTraffic   INTEGER,
+    cMediaGwCcCfgDefRtpNamePrefix   SnmpAdminString
     }
 
-cMediaGwCcCfgControlTos OBJECT-TYPE 
+cMediaGwCcCfgControlTos OBJECT-TYPE
     SYNTAX        Unsigned32 (0..255)
     MAX-ACCESS    read-write
     STATUS        current
@@ -990,7 +1156,7 @@ cMediaGwCcCfgControlTos OBJECT-TYPE
     DEFVAL { 96 }
     ::= { cMediaGwCallControlConfigEntry 1 }
 
-cMediaGwCcCfgBearerTos  OBJECT-TYPE 
+cMediaGwCcCfgBearerTos  OBJECT-TYPE
     SYNTAX        Unsigned32 (0..255)
     MAX-ACCESS    read-write
     STATUS        current
@@ -1001,7 +1167,7 @@ cMediaGwCcCfgBearerTos  OBJECT-TYPE
     DEFVAL { 160 }
     ::= { cMediaGwCallControlConfigEntry 2 }
 
-cMediaGwCcCfgNtePayload OBJECT-TYPE 
+cMediaGwCcCfgNtePayload OBJECT-TYPE
     SYNTAX        Unsigned32 (96..127)
     MAX-ACCESS    read-write
     STATUS        current
@@ -1013,7 +1179,7 @@ cMediaGwCcCfgNtePayload OBJECT-TYPE
     DEFVAL { 101 }
     ::= { cMediaGwCallControlConfigEntry 3 }
 
-cMediaGwCcCfgNsePayload OBJECT-TYPE 
+cMediaGwCcCfgNsePayload OBJECT-TYPE
     SYNTAX        Unsigned32 (98..117)
     MAX-ACCESS    read-write
     STATUS        current
@@ -1023,7 +1189,7 @@ cMediaGwCcCfgNsePayload OBJECT-TYPE
     DEFVAL { 100 }
     ::= { cMediaGwCallControlConfigEntry 4 }
 
-cMediaGwCcCfgNseRespTimer OBJECT-TYPE 
+cMediaGwCcCfgNseRespTimer OBJECT-TYPE
     SYNTAX        Unsigned32 (250..10000)
     UNITS         "milliseconds"
     MAX-ACCESS    read-write
@@ -1034,8 +1200,8 @@ cMediaGwCcCfgNseRespTimer OBJECT-TYPE
     DEFVAL { 1000 }
     ::= { cMediaGwCallControlConfigEntry 5 }
 
-cMediaGwCcCfgVbdJitterDelayMode OBJECT-TYPE 
-    SYNTAX        CCallControlJitterDelayMode 
+cMediaGwCcCfgVbdJitterDelayMode OBJECT-TYPE
+    SYNTAX        CCallControlJitterDelayMode
     MAX-ACCESS    read-write
     STATUS        current
     DESCRIPTION
@@ -1055,41 +1221,41 @@ cMediaGwCcCfgVbdJitterDelayMode OBJECT-TYPE
     DEFVAL { fixed }
     ::= { cMediaGwCallControlConfigEntry 6 }
 
-cMediaGwCcCfgVbdJitterMaxDelay OBJECT-TYPE 
+cMediaGwCcCfgVbdJitterMaxDelay OBJECT-TYPE
     SYNTAX        Unsigned32 (20..135)
     UNITS         "milliseconds"
     MAX-ACCESS    read-write
     STATUS        current
     DESCRIPTION
-        "This object specifies the maximum jitter buffer size 
+        "This object specifies the maximum jitter buffer size
          in VBD (Voice Band Data)"
     DEFVAL { 135 }
     ::= { cMediaGwCallControlConfigEntry 7 }
 
-cMediaGwCcCfgVbdJitterNomDelay OBJECT-TYPE 
+cMediaGwCcCfgVbdJitterNomDelay OBJECT-TYPE
     SYNTAX        Unsigned32 (5..135)
     UNITS         "milliseconds"
     MAX-ACCESS    read-write
     STATUS        current
     DESCRIPTION
-        "This object specifies the nominal jitter buffer size 
+        "This object specifies the nominal jitter buffer size
          in VBD (Voice Band Data)"
     DEFVAL { 70 }
     ::= { cMediaGwCallControlConfigEntry 8 }
 
-cMediaGwCcCfgVbdJitterMinDelay OBJECT-TYPE 
+cMediaGwCcCfgVbdJitterMinDelay OBJECT-TYPE
     SYNTAX        Unsigned32 (0..135)
     UNITS         "milliseconds"
     MAX-ACCESS    read-write
     STATUS        current
     DESCRIPTION
-        "This object specifies the nominal jitter buffer size 
+        "This object specifies the nominal jitter buffer size
          in VBD (Voice Band Data)"
     DEFVAL { 0 }
     ::= { cMediaGwCallControlConfigEntry 9 }
 
-cMediaGwCcCfgDefaultTonePlanId OBJECT-TYPE 
-    SYNTAX        CVoiceTonePlanIndex 
+cMediaGwCcCfgDefaultTonePlanId OBJECT-TYPE
+    SYNTAX        CVoiceTonePlanIndex
     MAX-ACCESS    read-write
     STATUS        current
     DESCRIPTION
@@ -1098,8 +1264,8 @@ cMediaGwCcCfgDefaultTonePlanId OBJECT-TYPE
     DEFVAL { 1 }
     ::= { cMediaGwCallControlConfigEntry 10 }
 
-cMediaGwCcCfgDescrInfoEnabled OBJECT-TYPE 
-    SYNTAX        TruthValue 
+cMediaGwCcCfgDescrInfoEnabled OBJECT-TYPE
+    SYNTAX        TruthValue
     MAX-ACCESS    read-write
     STATUS        current
     DESCRIPTION
@@ -1109,12 +1275,12 @@ cMediaGwCcCfgDescrInfoEnabled OBJECT-TYPE
          There are two parts in name schema of termination, prefix
          and suffix. For example the name schema for a DS (Digital
          Subscriber) termination, can be 'DS/OC3_2/DS1_6/DS0_24'.
-         It represents DS type termination in 2nd OC3 line, 
-         6th DS1 and 24th DS0 channel. In this example, 'DS' is 
+         It represents DS type termination in 2nd OC3 line,
+         6th DS1 and 24th DS0 channel. In this example, 'DS' is
          the prefix, 'OC3_2/DS1_6/DS0_24' is the suffix.
 
          The name schema in above example has a descriptive suffix.
-         The non-descriptive suffix for the same termination is 
+         The non-descriptive suffix for the same termination is
          '2/6/24' and name schema becomes 'DS/2/6/24'.
 
          This object can not be modified if there is any termination
@@ -1122,86 +1288,90 @@ cMediaGwCcCfgDescrInfoEnabled OBJECT-TYPE
     DEFVAL { false }
     ::= { cMediaGwCallControlConfigEntry 11 }
 
-cMediaGwCcCfgDsNamePrefix OBJECT-TYPE 
-    SYNTAX        SnmpAdminString (SIZE (1..64)) 
+cMediaGwCcCfgDsNamePrefix OBJECT-TYPE
+    SYNTAX        SnmpAdminString (SIZE (1..64))
     MAX-ACCESS    read-write
     STATUS        current
     DESCRIPTION
         "This object specifies the prefix of the name schema for
          DS (Digital Subscriber) terminations.
-         The value of this object must be unique among the 
+         The value of this object must be unique among the
          following objects:
                 cMediaGwCcCfgDsNamePrefix
                 cMediaGwCcCfgRtpNamePrefix
                 cMediaGwCcCfgAal2SvcNamePrefix
                 cMediaGwCcCfgAal2SvcNamePrefix
+                cMediaGwCcCfgDefRtpNamePrefix
          This object can not be modified when there is any
          DS termination existing in the media gateway.
          It is default to 'DS'."
     DEFVAL { '4453'H }
     ::= { cMediaGwCallControlConfigEntry 12 }
 
-cMediaGwCcCfgRtpNamePrefix OBJECT-TYPE 
-    SYNTAX        SnmpAdminString (SIZE (1..64)) 
+cMediaGwCcCfgRtpNamePrefix OBJECT-TYPE
+    SYNTAX        SnmpAdminString (SIZE (1..64))
     MAX-ACCESS    read-write
     STATUS        current
     DESCRIPTION
         "This object specifies the prefix of the name schema for
          RTP (Real-Time Transport Protocol) terminations.
-         The value of this object must be unique among the 
+         The value of this object must be unique among the
          following objects:
                 cMediaGwCcCfgDsNamePrefix
                 cMediaGwCcCfgRtpNamePrefix
                 cMediaGwCcCfgAal2SvcNamePrefix
                 cMediaGwCcCfgAal2SvcNamePrefix
+                cMediaGwCcCfgDefRtpNamePrefix
          This object can not be modified when there is any
          RTP termination type existing in the media gateway.
          It is default to 'RTP'."
     DEFVAL { '525450'H }
     ::= { cMediaGwCallControlConfigEntry 13 }
 
-cMediaGwCcCfgAal1SvcNamePrefix OBJECT-TYPE 
-    SYNTAX        SnmpAdminString (SIZE (1..64)) 
+cMediaGwCcCfgAal1SvcNamePrefix OBJECT-TYPE
+    SYNTAX        SnmpAdminString (SIZE (1..64))
     MAX-ACCESS    read-write
     STATUS        current
     DESCRIPTION
         "This object specifies the prefix of the name schema for
          voice over AAL1 SVC (Switched Virtual Circuit)
          terminations.
-         The value of this object must be unique among the 
+         The value of this object must be unique among the
          following objects:
                 cMediaGwCcCfgDsNamePrefix
                 cMediaGwCcCfgRtpNamePrefix
                 cMediaGwCcCfgAal2SvcNamePrefix
                 cMediaGwCcCfgAal2SvcNamePrefix
+                cMediaGwCcCfgDefRtpNamePrefix
          This object can not be modified when there is any
          AAL1 SVC termination type existing in the media gateway.
          It is default to 'AAL1/SVC'."
     DEFVAL { '41414C312F535643'H }
     ::= { cMediaGwCallControlConfigEntry 14 }
 
-cMediaGwCcCfgAal2SvcNamePrefix OBJECT-TYPE 
-    SYNTAX        SnmpAdminString (SIZE (1..64)) 
+cMediaGwCcCfgAal2SvcNamePrefix OBJECT-TYPE
+    SYNTAX        SnmpAdminString (SIZE (1..64))
     MAX-ACCESS    read-write
     STATUS        current
     DESCRIPTION
         "This object specifies the prefix of the name schema for
          voice over AAL2 SVC (Switched Virtual Circuit)
          terminations.
-         The value of this object must be unique among the 
+         The value of this object must be unique among the
          following objects:
                 cMediaGwCcCfgDsNamePrefix
                 cMediaGwCcCfgRtpNamePrefix
                 cMediaGwCcCfgAal2SvcNamePrefix
                 cMediaGwCcCfgAal2SvcNamePrefix
+                cMediaGwCcCfgDefRtpNamePrefix
          This object can not be modified when there is any
          AAL2 SVC termination type existing in the media gateway.
          It is default to 'AAL2/SVC'."
     DEFVAL { '41414C322F535643'H }
     ::= { cMediaGwCallControlConfigEntry 15 }
 
-cMediaGwCcCfgClusterEnabled OBJECT-TYPE 
-    SYNTAX        INTEGER { 
+cMediaGwCcCfgClusterEnabled OBJECT-TYPE
+    SYNTAX        INTEGER {
                      disabled              (1),
                      enabled               (2),
                      conditionalEnabled    (3)
@@ -1211,7 +1381,7 @@ cMediaGwCcCfgClusterEnabled OBJECT-TYPE
     DESCRIPTION
         "This object specifies the condition of the cluster generation
          in the call control.
-         
+
          A cluster is a group of endpoints that share a particular
          bearer possibility for connections among each other.
 
@@ -1219,13 +1389,185 @@ cMediaGwCcCfgClusterEnabled OBJECT-TYPE
                        is disabled.
          enabled(2) - Unconditionally generate the cluster
                       attribute.
-         conditionalEnabled(3) - The generation of the cluster 
+         conditionalEnabled(3) - The generation of the cluster
                        attribute is upon MGC request.
         "
     DEFVAL { disabled }
     ::= { cMediaGwCallControlConfigEntry 16 }
+
+
+cMediaGwCcCfgDefBearerTraffic    OBJECT-TYPE
+    SYNTAX                    INTEGER {
+                                  ipPvcAal5 (1),
+                                  atmPvcAal2 (2),
+                                  atmSvcAal2 (3),
+                                  atmSvcAal1 (4)
+                              }
+    MAX-ACCESS                read-write
+    STATUS                    current
+    DESCRIPTION
+        "This object specifies the combination of the network
+         type (IP/ATM), virtual circuit type (PVC/SVC) and
+         ATM adaptation layer type (AAL1/AAL2/AAL5) for the
+         connection used in transporting bearer traffic.
+
+             ipPvcAal5 (1) - The bearer traffic is transported in
+                             IP network, through Permanent Virtual
+                             Circuit(PVC) over AAL5 adaptation layer.
+             atmPvcAal2 (2) - The bearer traffic is transported in
+                              ATM network, through Permanent Virtual
+                              Circuit(PVC) over AAL2 adaptation layer.
+             atmSvcAal2 (3) - The bearer traffic is transported in
+                              ATM network, through Switching Virtual
+                              Circuit(SVC) over AAL2 adaptation layer.
+             atmSvcAal1 (4) - The bearer traffic is transported in
+                              ATM network, through Switching Virtual
+                              Circuit(SVC) over AAL1 adaptation layer.
+
+         In MGCP, if the call agent specifies the bear traffic type
+         in the local connection options (CRCX request),
+         configuration of this object will have no effect,
+         otherwise the value of this object will be used when
+         media gateway sending CRCX response."
+    DEFVAL { ipPvcAal5 }
+    ::= { cMediaGwCallControlConfigEntry 17 }
+
+cMediaGwCcCfgDefRtpNamePrefix OBJECT-TYPE
+    SYNTAX        SnmpAdminString (SIZE (1..64))
+    MAX-ACCESS    read-write
+    STATUS        current
+    DESCRIPTION
+        "This object specifies the prefix of the name schema for
+         default RTP terminations.
+         The value of this object must be unique among the
+         following objects:
+                cMediaGwCcCfgDsNamePrefix
+                cMediaGwCcCfgRtpNamePrefix
+                cMediaGwCcCfgAal1SvcNamePrefix
+                cMediaGwCcCfgAal2SvcNamePrefix
+
+         It is defaulted to 'TGWRTP'."
+    DEFVAL { '544757525450'H }
+    ::= { cMediaGwCallControlConfigEntry 18 }
+
+
+
+
+--
+-- GW resource statistics table
+--
+
+cMediaGwRscStatsTable  OBJECT-TYPE
+    SYNTAX         SEQUENCE OF CMediaGwRscStatsEntry
+    MAX-ACCESS     not-accessible
+    STATUS         current
+    DESCRIPTION
+        "This table stores the gateway resource statistics
+         information.
+        "
+    ::= { cMediaGwStats 1 }
+
+cMediaGwRscStatsEntry  OBJECT-TYPE
+    SYNTAX         CMediaGwRscStatsEntry
+    MAX-ACCESS     not-accessible
+    STATUS         current
+    DESCRIPTION
+        "Each entry stores the statistics
+         information for a specific resource.
+        "
+    INDEX       { cmgwIndex,  cmgwRscStatsIndex}
+    ::= { cMediaGwRscStatsTable 1 }
+
+CMediaGwRscStatsEntry::= SEQUENCE {
+         cmgwRscStatsIndex             INTEGER,
+         cmgwRscMaximumUtilization     Gauge32,
+         cmgwRscMinimumUtilization     Gauge32,
+         cmgwRscAverageUtilization     Gauge32,
+         cmgwRscSinceLastReset         Unsigned32
+         }
+
+cmgwRscStatsIndex  OBJECT-TYPE
+    SYNTAX        INTEGER {
+                  cpu             (1),
+                  staticmemory    (2),
+                  dynamicmemory   (3),
+                  sysmemory       (4),
+                  commbuffer      (5),
+                  msgq            (6),
+                  atmq            (7),
+                  svccongestion   (8),
+                  rsvpq           (9),
+                  dspq            (10),
+                  h248congestion  (11),
+                  callpersec      (12),
+                  smallipcbuffer  (13),
+                  mediumipcbuffer (14),
+                  largeipcbuffer  (15),
+                  hugeipcbuffer   (16),
+                  mblkipcbuffer   (17)
+              }
+    MAX-ACCESS     not-accessible
+    STATUS         current
+    DESCRIPTION
+        "An index that uniquely identifies a specific gateway
+         resource.
+        "
+    ::= { cMediaGwRscStatsEntry 1 }
+
+
+cmgwRscMaximumUtilization  OBJECT-TYPE
+    SYNTAX         Gauge32
+    MAX-ACCESS     read-only
+    STATUS         current
+    DESCRIPTION
+        "This object indicates the maximum utilization of the
+         resource over the interval specified by the
+         'cmgwRscSinceLastReset'.
+        "
+    ::= { cMediaGwRscStatsEntry 2 }
+
+cmgwRscMinimumUtilization  OBJECT-TYPE
+    SYNTAX         Gauge32
+    MAX-ACCESS     read-only
+    STATUS         current
+    DESCRIPTION
+        "This object indicates the minimum utilization of the
+         resource over the interval specified by the
+         'cmgwRscSinceLastReset'.
+        "
+    ::= { cMediaGwRscStatsEntry 3 }
+
+cmgwRscAverageUtilization  OBJECT-TYPE
+    SYNTAX         Gauge32
+    MAX-ACCESS     read-only
+    STATUS         current
+    DESCRIPTION
+        "This object indicates the average utilization of the
+         resource over the interval specified by the
+         'cmgwRscSinceLastReset'.
+        "
+    ::= { cMediaGwRscStatsEntry 4 }
+
+
+cmgwRscSinceLastReset  OBJECT-TYPE
+    SYNTAX         Unsigned32
+    UNITS          "seconds"
+    MAX-ACCESS     read-only
+    STATUS         current
+    DESCRIPTION
+        "The elapsed time (in seconds) from the last periodic reset.
+
+         The following objects are reset at the last reset:
+
+             'cmgwRscMaximumUtilization'
+             'cmgwRscMinimumUtilization'
+             'cmgwRscAverageUtilization'
+        "
+    ::= { cMediaGwRscStatsEntry 5 }
+
+
 --**********************************************************************
---Conformance 
+--Conformance
 --**********************************************************************
 
 cMediaGwMIBConformance
@@ -1243,12 +1585,13 @@ cMediaGwMIBGroups
 --
 
 cMediaGwMIBCompliance  MODULE-COMPLIANCE
-    STATUS  current
+    STATUS  deprecated
     DESCRIPTION
         "The compliance statement for the SNMP entities which implement
-         Media Gateway MIB."
+         Media Gateway MIB.
+         This has been replaced by cMediaGwMIBComplianceRev1"
     MODULE  -- this module
-    MANDATORY-GROUPS { 
+    MANDATORY-GROUPS {
         cMediaGwGroup
     }
 
@@ -1283,31 +1626,395 @@ cMediaGwMIBCompliance  MODULE-COMPLIANCE
          any signaling protocol."
 
     OBJECT  cmgwIpConfigAddrType
---    SYNTAX  InetAddressType { ipv4(1) }
+--  SYNTAX  InetAddressType { ipv4(1) }
     DESCRIPTION
-       "The minimal requirement for supporting this object is 'ipv4' 
+       "The minimal requirement for supporting this object is 'ipv4'
         address type"
 
     OBJECT  cmgwIpConfigAddress
-   SYNTAX  InetAddress (SIZE(4))
+    SYNTAX  InetAddress (SIZE(4))
     DESCRIPTION
-       "The minimal requirement for supporting this object is 'ipv4' 
+       "The minimal requirement for supporting this object is 'ipv4'
         address"
 
     OBJECT  cmgwDnsIpType
---    SYNTAX  InetAddressType { ipv4(1) }
+--  SYNTAX  InetAddressType { ipv4(1) }
     DESCRIPTION
-       "The minimal requirement for supporting this object is 'ipv4' 
+       "The minimal requirement for supporting this object is 'ipv4'
         address type"
 
     OBJECT  cmgwDnsIp
     SYNTAX  InetAddress (SIZE(4))
     DESCRIPTION
-       "The minimal requirement for supporting this object is 'ipv4' 
+       "The minimal requirement for supporting this object is 'ipv4'
         address"
 
 
     ::= { cMediaGwMIBCompliances 1 }
+
+cMediaGwMIBComplianceRev1  MODULE-COMPLIANCE
+    STATUS  deprecated
+    DESCRIPTION
+        "The compliance statement for the SNMP entities which implement
+         Media Gateway MIB.
+         This has been replaced by cMediaGwMIBComplianceRev2."
+    MODULE  -- this module
+    MANDATORY-GROUPS {
+        cMediaGwGroupRev1
+    }
+
+    GROUP cmgwSignalProtocolGroupRev1
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+         one or more signaling protocol stacks."
+
+    GROUP cmgwDomainNameGroup
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+         one or more domain name."
+
+    GROUP cMediaGwIpGroup
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+         one or more IP address."
+
+    GROUP cmgwDnsIpGroup
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+         DNS name server."
+
+    GROUP cmgwLifGroup
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+         LIF (logical interface)."
+
+    GROUP cmgwCallControlGroupRev1
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+         any signaling protocol."
+
+
+    OBJECT  cmgwIpConfigAddrType
+--  SYNTAX  InetAddressType { ipv4(1) }
+    DESCRIPTION
+       "The minimal requirement for supporting this object is 'ipv4'
+        address type"
+
+    OBJECT  cmgwIpConfigAddress
+    SYNTAX  InetAddress (SIZE(4))
+    DESCRIPTION
+       "The minimal requirement for supporting this object is 'ipv4'
+        address"
+
+    OBJECT  cmgwDnsIpType
+--  SYNTAX  InetAddressType { ipv4(1) }
+    DESCRIPTION
+       "The minimal requirement for supporting this object is 'ipv4'
+        address type"
+
+    OBJECT  cmgwDnsIp
+    SYNTAX  InetAddress (SIZE(4))
+    DESCRIPTION
+       "The minimal requirement for supporting this object is 'ipv4'
+        address"
+
+    ::= { cMediaGwMIBCompliances 2 }
+
+cMediaGwMIBComplianceRev2  MODULE-COMPLIANCE
+    STATUS  deprecated -- by cMediaGwMIBComplianceRev3
+    DESCRIPTION
+        "The compliance statement for the SNMP entities which implement
+         Media Gateway MIB."
+    MODULE  -- this module
+    MANDATORY-GROUPS {
+        cMediaGwGroupRev1
+    }
+
+    GROUP cmgwSignalProtocolGroupRev2
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+         one or more signaling protocol stacks."
+
+    GROUP cmgwDomainNameGroup
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+         one or more domain name."
+
+    GROUP cMediaGwIpGroup
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+         one or more IP address."
+
+    GROUP cmgwDnsIpGroup
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+         DNS name server."
+
+    GROUP cmgwLifGroup
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+         LIF (logical interface)."
+
+    GROUP cmgwCallControlGroupRev1
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+         any signaling protocol."
+
+    OBJECT  cmgwIpConfigAddrType
+--  SYNTAX  InetAddressType { ipv4(1) }
+    DESCRIPTION
+       "The minimal requirement for supporting this object is 'ipv4'
+        address type"
+
+    OBJECT  cmgwIpConfigAddress
+    SYNTAX  InetAddress (SIZE(4))
+    DESCRIPTION
+       "The minimal requirement for supporting this object is 'ipv4'
+        address"
+
+    OBJECT  cmgwDnsIpType
+--  SYNTAX  InetAddressType { ipv4(1) }
+    DESCRIPTION
+       "The minimal requirement for supporting this object is 'ipv4'
+        address type"
+
+    OBJECT  cmgwDnsIp
+    SYNTAX  InetAddress (SIZE(4))
+    DESCRIPTION
+       "The minimal requirement for supporting this object is 'ipv4'
+        address"
+
+    ::= { cMediaGwMIBCompliances 3 }
+
+cMediaGwMIBComplianceRev3  MODULE-COMPLIANCE
+    STATUS  current
+    DESCRIPTION
+        "The compliance statement for the SNMP entities which implement
+         Media Gateway MIB."
+    MODULE  -- this module
+    MANDATORY-GROUPS {
+        cMediaGwGroupRev1,
+        cMediaGwGroupExtra
+    }
+
+    GROUP cmgwSignalProtocolGroupRev2
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+         one or more signaling protocol stacks."
+
+    GROUP cmgwSignalProtocolGroupRev3
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+         one or more signaling protocol stacks."
+
+    GROUP cmgwDomainNameGroup
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+         one or more domain name."
+
+    GROUP cMediaGwIpGroup
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+         one or more IP address."
+
+    GROUP cmgwDnsIpGroup
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+         DNS name server."
+
+    GROUP cmgwLifGroup
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+         LIF (logical interface)."
+
+    GROUP cmgwCallControlGroupRev1
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+         any signaling protocol."
+
+    GROUP  cMediaGwRscStatsGroup
+    DESCRIPTION
+       "This group is mandatory for a media gateway which supports
+        gateway resource statistics."
+
+    OBJECT  cmgwIpConfigAddrType
+--  SYNTAX  InetAddressType { ipv4(1) }
+    DESCRIPTION
+       "The minimal requirement for supporting this object is 'ipv4'
+        address type"
+
+    OBJECT  cmgwIpConfigAddress
+    SYNTAX  InetAddress (SIZE(4))
+    DESCRIPTION
+       "The minimal requirement for supporting this object is 'ipv4'
+        address"
+
+    OBJECT  cmgwDnsIpType
+--  SYNTAX  InetAddressType { ipv4(1) }
+    DESCRIPTION
+       "The minimal requirement for supporting this object is 'ipv4'
+        address type"
+
+    OBJECT  cmgwDnsIp
+    SYNTAX  InetAddress (SIZE(4))
+    DESCRIPTION
+       "The minimal requirement for supporting this object is 'ipv4'
+        address"
+
+    ::= { cMediaGwMIBCompliances 4 }
+
+cMediaGwMIBComplianceRev4 MODULE-COMPLIANCE
+    STATUS  deprecated -- by cMediaGwMIBComplianceRev5
+    DESCRIPTION
+        "The compliance statement for the SNMP entities which implement
+        Media Gateway MIB."
+    MODULE          -- this module
+    MANDATORY-GROUPS {
+                        cMediaGwGroupRev1,
+                        cMediaGwGroupExtra
+                    }
+
+    GROUP           cmgwSignalProtocolGroupRev2
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+        one or more signaling protocol stacks."
+
+    GROUP           cmgwSignalProtocolGroupRev3
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+        one or more signaling protocol stacks."
+
+    GROUP           cmgwDomainNameGroup
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+        one or more domain name."
+
+    GROUP           cMediaGwIpGroup
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+        one or more IP address."
+      GROUP           cmgwDnsIpGroup
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+        DNS name server."
+
+    GROUP           cmgwLifGroup
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+        LIF (logical interface)."
+
+    GROUP           cmgwCallControlGroupRev2
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+        any signaling protocol."
+
+    GROUP           cMediaGwRscStatsGroup
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+        gateway resource statistics."
+
+     OBJECT          cmgwIpConfigAddrType
+    DESCRIPTION
+        "The minimal requirement for supporting this object is 'ipv4'
+        address type"
+
+    OBJECT          cmgwIpConfigAddress
+    SYNTAX          InetAddress (SIZE (4))
+    DESCRIPTION
+        "The minimal requirement for supporting this object is 'ipv4'
+        address"
+
+    OBJECT          cmgwDnsIpType
+    DESCRIPTION
+        "The minimal requirement for supporting this object is 'ipv4'
+        address type"
+
+    OBJECT          cmgwDnsIp
+    SYNTAX          InetAddress (SIZE (4))
+    DESCRIPTION
+        "The minimal requirement for supporting this object is 'ipv4'
+        address"
+    ::= { cMediaGwMIBCompliances 5 }
+
+
+cMediaGwMIBComplianceRev5 MODULE-COMPLIANCE
+    STATUS          current
+    DESCRIPTION
+        "The compliance statement for the SNMP entities which implement
+        Media Gateway MIB."
+    MODULE          -- this module
+    MANDATORY-GROUPS {
+                        cMediaGwGroupRev1,
+                        cMediaGwGroupExtra
+                     }
+
+     GROUP           cMediaGwGroupRev2
+    DESCRIPTION
+        "This group is mendatory for media gateway which supports
+        Enable/Disable V23 mode at gateway level."
+
+    GROUP           cmgwSignalProtocolGroupRev2
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+        one or more signaling protocol stacks."
+
+    GROUP           cmgwSignalProtocolGroupRev3
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+        one or more signaling protocol stacks."
+
+    GROUP           cmgwDomainNameGroup
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+        one or more domain name."
+
+    GROUP           cMediaGwIpGroup
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+        one or more IP address."
+
+    GROUP           cmgwDnsIpGroup
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+        DNS name server."
+
+    GROUP           cmgwLifGroup
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+        LIF (logical interface)."
+
+    GROUP           cmgwCallControlGroupRev2
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+        any signaling protocol."
+
+    GROUP           cMediaGwRscStatsGroup
+    DESCRIPTION
+        "This group is mandatory for a media gateway which supports
+        gateway resource statistics."
+
+    OBJECT          cmgwIpConfigAddrType
+    DESCRIPTION
+        "The minimal requirement for supporting this object is 'ipv4'
+        address type"
+
+    OBJECT          cmgwIpConfigAddress
+    SYNTAX          InetAddress (SIZE (4))
+    DESCRIPTION
+        "The minimal requirement for supporting this object is 'ipv4'
+        address"
+
+    OBJECT          cmgwDnsIpType
+    DESCRIPTION
+        "The minimal requirement for supporting this object is 'ipv4'
+        address type"
+
+    OBJECT          cmgwDnsIp
+    SYNTAX          InetAddress (SIZE (4))
+    DESCRIPTION
+        "The minimal requirement for supporting this object is 'ipv4'
+        address"
+    ::= { cMediaGwMIBCompliances 6 }
 
 --
 --units of conformance
@@ -1319,11 +2026,11 @@ cMediaGwGroup  OBJECT-GROUP
     OBJECTS {
         cmgwDomainName,
         cmgwPhysicalIndex,
-        cmgwServiceState, 
+        cmgwServiceState,
         cmgwAdminState,
         cmgwGraceTime
     }
-    STATUS    current
+    STATUS    deprecated
     DESCRIPTION
         "This group contains objects that apply to the media gateway
          configuration table."
@@ -1335,9 +2042,9 @@ cmgwSignalProtocolGroup  OBJECT-GROUP
         cmgwSignalProtocolVersion,
         cmgwSignalProtocolPort
     }
-    STATUS    current
+    STATUS    deprecated
     DESCRIPTION
-        "A collection of objects providing signaling  
+        "A collection of objects providing signaling
          protocol information a media gateway."
     ::= { cMediaGwMIBGroups 2 }
 
@@ -1350,7 +2057,7 @@ cmgwDomainNameGroup  OBJECT-GROUP
     }
     STATUS    current
     DESCRIPTION
-        "A collection of objects providing DNS name 
+        "A collection of objects providing DNS name
          configuration for a media gateway."
     ::= { cMediaGwMIBGroups 3 }
 
@@ -1368,7 +2075,7 @@ cMediaGwIpGroup  OBJECT-GROUP
     }
     STATUS    current
     DESCRIPTION
-        "A collection of objects providing IP address 
+        "A collection of objects providing IP address
          configuration for a media gateway."
     ::= { cMediaGwMIBGroups 4 }
 
@@ -1381,13 +2088,13 @@ cmgwDnsIpGroup  OBJECT-GROUP
     }
     STATUS    current
     DESCRIPTION
-        "A collection of objects providing DSN name server 
+        "A collection of objects providing DSN name server
          IP address configuration for a media gateway."
     ::= { cMediaGwMIBGroups 5 }
 
 cmgwLifGroup  OBJECT-GROUP
     OBJECTS {
-        cmgwLifPvcCount,  
+        cmgwLifPvcCount,
         cmgwLifVoiceIfCount
     }
     STATUS    current
@@ -1415,11 +2122,160 @@ cmgwCallControlGroup  OBJECT-GROUP
         cMediaGwCcCfgAal2SvcNamePrefix,
         cMediaGwCcCfgClusterEnabled
     }
-    STATUS    current
+    STATUS    deprecated
     DESCRIPTION
-        "A collection of objects providing general call control  
+        "A collection of objects providing general call control
          information in a media gateway."
     ::= { cMediaGwMIBGroups 7 }
 
-END
+cMediaGwGroupRev1  OBJECT-GROUP
+    OBJECTS {
+        cmgwDomainName,
+        cmgwPhysicalIndex,
+        cmgwServiceState,
+        cmgwAdminState,
+        cmgwGraceTime,
+        cmgwVtMappingMode
+    }
+    STATUS    current
+    DESCRIPTION
+        "This group replaces cMediaGwGroup.
+         It contains objects that apply to the media gateway
+         configuration table."
+    ::= { cMediaGwMIBGroups 8 }
 
+cmgwCallControlGroupRev1  OBJECT-GROUP
+    OBJECTS {
+        cMediaGwCcCfgControlTos,
+        cMediaGwCcCfgBearerTos,
+        cMediaGwCcCfgNtePayload,
+        cMediaGwCcCfgNsePayload,
+        cMediaGwCcCfgNseRespTimer,
+        cMediaGwCcCfgVbdJitterDelayMode,
+        cMediaGwCcCfgVbdJitterMaxDelay,
+        cMediaGwCcCfgVbdJitterNomDelay,
+        cMediaGwCcCfgVbdJitterMinDelay,
+        cMediaGwCcCfgDefaultTonePlanId,
+        cMediaGwCcCfgDescrInfoEnabled,
+        cMediaGwCcCfgDsNamePrefix,
+        cMediaGwCcCfgRtpNamePrefix,
+        cMediaGwCcCfgAal1SvcNamePrefix,
+        cMediaGwCcCfgAal2SvcNamePrefix,
+        cMediaGwCcCfgClusterEnabled,
+        cMediaGwCcCfgDefBearerTraffic
+    }
+    STATUS    current
+    DESCRIPTION
+        "This group replaces cmgwCallControlGroup.
+         It contains the objects providing general call control
+         information in a media gateway."
+    ::= { cMediaGwMIBGroups 9 }
+
+cmgwSignalProtocolGroupRev1  OBJECT-GROUP
+    OBJECTS {
+        cmgwSignalProtocol,
+        cmgwSignalProtocolVersion,
+        cmgwSignalProtocolPort,
+        cmgwSignalMgcProtocolPort
+    }
+    STATUS    deprecated
+    DESCRIPTION
+        "This group replaces cmgwSignalProtocolGroup.
+         It contains the objects providing signaling
+         protocol information a media gateway."
+    ::= { cMediaGwMIBGroups 10 }
+
+cmgwSignalProtocolGroupRev2  OBJECT-GROUP
+    OBJECTS {
+        cmgwSignalProtocol,
+        cmgwSignalProtocolVersion,
+        cmgwSignalProtocolPort,
+        cmgwSignalMgcProtocolPort,
+        cmgwSignalProtocolPreference
+    }
+    STATUS    current
+    DESCRIPTION
+        "This group replaces cmgwSignalProtocolGroupRev1.
+         It contains the objects providing signaling
+         protocol information a media gateway."
+    ::= { cMediaGwMIBGroups 11 }
+
+cmgwSignalProtocolGroupRev3  OBJECT-GROUP
+    OBJECTS {
+        cmgwSignalProtocolConfigVer
+    }
+    STATUS    current
+    DESCRIPTION
+        "Additional objects for cmgwSignalProtocolGroupRev2."
+    ::= { cMediaGwMIBGroups 12 }
+
+cMediaGwRscStatsGroup  OBJECT-GROUP
+    OBJECTS {
+        cmgwRscMaximumUtilization,
+        cmgwRscMinimumUtilization,
+        cmgwRscAverageUtilization,
+        cmgwRscSinceLastReset
+    }
+    STATUS    current
+    DESCRIPTION
+        "This group includes gateway resource statistics
+         information.
+        "
+    ::= { cMediaGwMIBGroups 13 }
+
+
+cMediaGwGroupExtra  OBJECT-GROUP
+    OBJECTS {
+        cmgwSrcFilterEnabled,
+        cmgwLawInterceptEnabled
+    }
+    STATUS    current
+    DESCRIPTION
+        "Additional objects for cMediaGwGroupRev1."
+    ::= { cMediaGwMIBGroups 14 }
+
+ cmgwCallControlGroupRev2  OBJECT-GROUP
+    OBJECTS {
+        cMediaGwCcCfgControlTos,
+        cMediaGwCcCfgBearerTos,
+        cMediaGwCcCfgNtePayload,
+        cMediaGwCcCfgNsePayload,
+        cMediaGwCcCfgNseRespTimer,
+        cMediaGwCcCfgVbdJitterDelayMode,
+        cMediaGwCcCfgVbdJitterMaxDelay,
+        cMediaGwCcCfgVbdJitterNomDelay,
+        cMediaGwCcCfgVbdJitterMinDelay,
+        cMediaGwCcCfgDefaultTonePlanId,
+        cMediaGwCcCfgDescrInfoEnabled,
+        cMediaGwCcCfgDsNamePrefix,
+        cMediaGwCcCfgRtpNamePrefix,
+        cMediaGwCcCfgAal1SvcNamePrefix,
+        cMediaGwCcCfgAal2SvcNamePrefix,
+        cMediaGwCcCfgClusterEnabled,
+        cMediaGwCcCfgDefBearerTraffic,
+        cMediaGwCcCfgDefRtpNamePrefix
+    }
+
+    STATUS    current
+    DESCRIPTION
+        "This group replaces cmgwCallControlGroup.
+         It contains the objects providing general call control
+         information in a media gateway."
+    ::= { cMediaGwMIBGroups 15 }
+
+ cMediaGwGroupRev2 OBJECT-GROUP
+    OBJECTS {
+        cmgwDomainName,
+        cmgwPhysicalIndex,
+        cmgwServiceState,
+        cmgwAdminState,
+        cmgwGraceTime,
+        cmgwVtMappingMode,
+        cmgwV23Enabled
+      }
+    STATUS          current
+    DESCRIPTION
+        "Additional object cmgwV23Enabled in CMediaGwEntry Table."
+    ::= { cMediaGwMIBGroups 16 }
+
+END
