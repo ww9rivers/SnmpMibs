@@ -1,10 +1,10 @@
 -- *****************************************************************
 -- CISCO-GSLB-SYSTEM-CAPABILITY.my:
 -- CISCO-GSLB-SYSTEM-MIB AGENT-CAPABILITIES
---   
+--
 -- Feb 2007, Pawan N
---   
--- Copyright (c) 2006-2007 by Cisco Systems Inc.
+--
+-- Copyright (c) 2007, 2008 by Cisco Systems Inc.
 -- All rights reserved.
 -- ****************************************************************
 
@@ -20,7 +20,7 @@ IMPORTS
 
 
 ciscoGslbSystemCapability MODULE-IDENTITY
-    LAST-UPDATED    "200702230000Z"
+    LAST-UPDATED    "200809150000Z"
     ORGANIZATION    "Cisco Systems, Inc."
     CONTACT-INFO
             "Cisco Systems
@@ -36,11 +36,15 @@ ciscoGslbSystemCapability MODULE-IDENTITY
     DESCRIPTION
         "The capabilities description
         of CISCO-GSLB-SYSTEM-MIB."
+    REVISION        "200809150000Z"
+    DESCRIPTION
+        "Added ciscoGslbSystemCapabilityV03R00 agent
+        capabilities for Global Site Selector(GSS)
+        release 3.0."
     REVISION        "200702230000Z"
     DESCRIPTION
         "Initial version of this MIB module."
     ::= { ciscoAgentCapability 534 }
-
 
 
 ciscoGslbSystemCapabilityV02R00 AGENT-CAPABILITIES
@@ -55,5 +59,40 @@ ciscoGslbSystemCapabilityV02R00 AGENT-CAPABILITIES
                         ciscoGslbSystemNotifGroup
                     }
     ::= { ciscoGslbSystemCapability 1 }
+
+ciscoGslbSystemCapabilityV03R00 AGENT-CAPABILITIES
+    PRODUCT-RELEASE "Global Site Selector(GSS) 3.0"
+    STATUS          current
+    DESCRIPTION
+        "GSS 3.0 Cisco GSLB SYSTEM MIB capabilities"
+
+    SUPPORTS        CISCO-GSLB-SYSTEM-MIB
+    INCLUDES        { ciscoGslbSystemGeneralGroup }
+    VARIATION       cgsNodeCommIfName
+    ACCESS          not-implemented
+    DESCRIPTION
+        "Not supported."
+
+    VARIATION       cgsNodeCommIfIndex
+    ACCESS          not-implemented
+    DESCRIPTION
+        "Not supported."
+
+    VARIATION       cgsNodeStatus
+    ACCESS          not-implemented
+    DESCRIPTION
+        "Not supported."
+
+    VARIATION       cgsNodeLocation
+    ACCESS          not-implemented
+    DESCRIPTION
+        "Not supported."
+
+    VARIATION       cgsNodeRegion
+    ACCESS          not-implemented
+    DESCRIPTION
+        "Not supported."
+
+    ::= { ciscoGslbSystemCapability 2 }
 
 END
