@@ -1,4 +1,3 @@
-
 --
 -- This MIB is for 3Com intermediate systems that support the
 -- Mnemonic Filtering feature.
@@ -21,7 +20,7 @@
 -- changes FOR 8.3 (r5 of mib)******************************
 -- 02-oct-95: kxy added a3filterPolicyX25ProfId to a3filterPolicyTable
 -----------------------------------------------------------------------
-          A3Com-Filter-r5-MIB DEFINITIONS ::= BEGIN
+A3Com-Filter-r5-MIB DEFINITIONS ::= BEGIN
 
           IMPORTS
                   enterprises, Counter
